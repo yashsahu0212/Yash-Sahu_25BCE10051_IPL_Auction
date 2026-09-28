@@ -1,0 +1,19 @@
+{
+  "name": "hammer-auction",
+  "version": "1.0.0",
+  "description": "HAMMER — Realtime Cricket Player Auction Engine",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test_final_audit.js && node test_ipl_rules_demo.js && node test_supabase_architecture.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^18.0.4",
+    "express": "^4.21.0",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.8.4"
+  }
+}

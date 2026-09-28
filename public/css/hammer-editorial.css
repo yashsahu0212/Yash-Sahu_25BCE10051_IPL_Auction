@@ -1,0 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+:root {
+  --bg-paper: #FAF7F2;
+  --bg-card: #FFFFFF;
+  --bg-surface: #F2EDE3;
+  --bg-surface-elevated: #ECE5D8;
+  --bg-dark: #12100E;
+  --bg-dark-surface: #1B1815;
+
+  --text-ink: #141210;
+  --text-ink-secondary: #5C5349;
+  --text-ink-faint: #948A7D;
+  --text-light: #FAF7F2;
+  --text-light-secondary: #C2B8AB;
+
+  --border-hairline: #E4DBD0;
+  --border-rule: #D2C6B6;
+  --border-dark: #2E2923;
+
+  --crimson: #A31D24;
+  --crimson-dark: #82141A;
+  --crimson-subtle: #FDF3F3;
+  --crimson-border: #E8B4B6;
+
+  --brass: #B68E42;
+  --brass-dark: #8C6A2A;
+  --brass-light: #F7F2E7;
+  --brass-border: #DFCBA4;
+
+  --emerald: #1B7A4D;
+  --emerald-light: #EBF7F0;
+
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-display: 'Bebas Neue', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Base resets & typography */
+html, body {
+  background-color: var(--bg-paper);
+  color: var(--text-ink);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--bg-dark);
+  color: var(--bg-paper);
+}
+
+/* Subtle archival paper texture overlay */
+.paper-grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Editorial Registration Marks */
+.registration-mark {
+  position: relative;
+}
+.registration-mark::before {
+  content: "+";
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--border-rule);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Typography Utilities */
+.font-serif { font-family: var(--font-serif); }
+.font-sans { font-family: var(--font-sans); }
+.font-mono { font-family: var(--font-mono); }
+.font-display { font-family: var(--font-display); }
+
+
+
+/* ═══════════════════════════════════════════════════════════════
+   3D AUTOMATIC HOVER FLIP CARD SYSTEM (REQUIREMENT 6)
+   ═══════════════════════════════════════════════════════════════ */
+.flip-card {
+  perspective: 1400px;
+  -webkit-perspective: 1400px;
+  cursor: pointer;
+  position: relative;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Desktop hover triggers 3D flip automatically */
+@media (hover: hover) and (pointer: fine) {
+  .flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+/* Touch devices trigger flip on tap / .is-flipped class */
+.flip-card.is-flipped .flip-card-inner {
+  transform: rotateY(180deg) !important;
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.flip-card-front {
+  transform: rotateY(0deg);
+  z-index: 2;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+  z-index: 1;
+}
+
+/* Tactile Auction Buttons */
+.btn-hammer-physical {
+  position: relative;
+  background-color: var(--crimson);
+  color: var(--bg-paper);
+  border: 1px solid var(--crimson-dark);
+  box-shadow: 0 4px 0 var(--crimson-dark), 0 8px 16px rgba(163, 29, 36, 0.25);
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.btn-hammer-physical:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--crimson-dark), 0 12px 20px rgba(163, 29, 36, 0.3);
+}
+
+.btn-hammer-physical:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--crimson-dark), 0 2px 4px rgba(163, 29, 36, 0.2);
+}
+
+.btn-hammer-physical:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 0 var(--crimson-dark);
+}
+
+/* Secondary Physical Button */
+.btn-paper-physical {
+  position: relative;
+  background-color: var(--bg-card);
+  color: var(--text-ink);
+  border: 1px solid var(--border-rule);
+  box-shadow: 0 3px 0 var(--border-rule), 0 4px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.12s ease;
+}
+
+.btn-paper-physical:hover:not(:disabled) {
+  background-color: var(--bg-surface);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--border-rule);
+}
+
+.btn-paper-physical:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--border-rule);
+}
+
+/* Cinematic SOLD Stamp & Impact */
+@keyframes hammerSlam {
+  0% {
+    transform: scale(2.4) rotate(-6deg);
+    opacity: 0;
+    filter: blur(8px);
+  }
+  65% {
+    transform: scale(0.95) rotate(-2deg);
+    opacity: 1;
+    filter: blur(0);
+  }
+  80% {
+    transform: scale(1.05) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(-2deg);
+    opacity: 1;
+  }
+}
+
+.animate-sold-slam {
+  animation: hammerSlam 0.55s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+/* Number roll animation */
+@keyframes numberPop {
+  0% {
+    transform: translateY(20%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-number-roll {
+  animation: numberPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

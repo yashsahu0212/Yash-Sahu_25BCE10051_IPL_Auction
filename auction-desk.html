@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // Auctioneer Master Control Desk</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "paper-base": "#FAF7F2",
+            "paper-card": "#FFFFFF",
+            "paper-surface": "#F2EDE4",
+            "paper-elevated": "#ECE5D8",
+            "ink-primary": "#141210",
+            "ink-secondary": "#5C5349",
+            "ink-faint": "#948A7D",
+            "border-hairline": "#E4DBD0",
+            "border-rule": "#D2C6B6",
+            "auction-red": "#A31D24",
+            "auction-red-dark": "#82141A",
+            "auction-red-light": "#FDF3F3",
+            "brass": "#B68E42",
+            "brass-light": "#F7F2E7"
+          },
+          fontFamily: {
+            "serif": ["'Instrument Serif'", "Georgia", "serif"],
+            "sans": ["'Plus Jakarta Sans'", "-apple-system", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"],
+            "display": ["'Bebas Neue'", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <script>
+    (function() {
+      try {
+        var token = localStorage.getItem('hammer_token');
+        var user = localStorage.getItem('hammer_user');
+        if (!token) {
+          window.location.replace('/login.html?redirect=/auction-desk.html');
+          return;
+        }
+        if (user) {
+          var u = JSON.parse(user);
+          if (u.role !== 'auctioneer') {
+            window.location.replace('/unauthorized.html');
+            return;
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body id="auction-desk-body" style="opacity: 0; transition: opacity 0.2s ease;" class="bg-paper-base text-ink-primary antialiased min-h-screen flex flex-col font-sans selection:bg-ink-primary selection:text-paper-base">
+  <div class="paper-grain-overlay"></div>
+
+  <!-- NAVIGATION HEADER -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-paper-base/95 backdrop-blur-md border-b border-border-hairline">
+    <div class="h-16 w-full px-4 lg:px-8 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
+        <div class="w-8 h-8 border border-ink-primary bg-ink-primary text-paper-base flex items-center justify-center font-serif text-lg font-bold transition-transform group-hover:scale-95">H</div>
+        <div class="flex flex-col">
+          <span class="font-serif text-lg tracking-wider text-ink-primary leading-none font-bold uppercase">HAMMER</span>
+          <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-[0.2em] mt-0.5">AUCTIONEER DESK</span>
+        </div>
+      </a>
+
+      <nav class="hidden xl:flex items-center gap-1 font-mono text-[11px] tracking-wider uppercase">
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="index.html">LIVE BROADCAST</a>
+        <a class="px-3 py-1.5 bg-ink-primary text-paper-base font-bold border border-ink-primary" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="lot-replay.html">LOT REPLAY</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <div class="hidden md:flex items-center border border-border-rule bg-paper-surface px-3 py-1.5 space-x-2">
+          <span class="w-2 h-2 rounded-full bg-auction-red animate-pulse"></span>
+          <span class="font-mono text-[10px] text-ink-secondary tracking-widest uppercase">AUCTIONEER AUTHORITY</span>
+          <div class="border-l border-border-rule pl-2 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[13px] text-auction-red">gavel</span>
+            <span class="font-mono text-[10px] font-bold text-auction-red tracking-widest uppercase" id="clock-tick">GAVEL ACTIVE</span>
+          </div>
+        </div>
+        <button onclick="Hammer.logout()" title="Logout" class="w-8 h-8 border border-border-rule bg-paper-card flex items-center justify-center text-ink-primary hover:border-ink-primary transition-colors">
+          <span class="material-symbols-outlined text-[16px]">logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN DESK CONTENT -->
+  <main class="w-full pt-20 flex-1">
+    <div class="max-w-[1720px] mx-auto p-4 lg:p-6">
+
+      <!-- PAGE TITLE & DESK CONTROLS -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-border-rule">
+        <div>
+          <h1 class="font-serif text-3xl lg:text-4xl uppercase tracking-tight text-ink-primary leading-none font-bold">
+            AUCTIONEER COMMAND DESK
+          </h1>
+          <p class="font-mono text-xs text-ink-secondary uppercase tracking-widest mt-1">
+            STAGE CADENCE // LOT ADVANCEMENT // GAVEL ADJUDICATION
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-border-rule bg-paper-surface" id="desk-status">OFFLINE</span>
+          <button onclick="Hammer.logout()" class="px-3 py-1.5 bg-paper-surface border border-border-rule font-mono text-[10px] uppercase tracking-wider hover:bg-paper-card transition-colors">LOGOUT</button>
+        </div>
+      </div>
+
+      <!-- THREE-COLUMN DESK LAYOUT -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- ═══ LEFT: PLAYER QUEUE & SELECTION (4 cols) ═══ -->
+        <div class="lg:col-span-4 bg-paper-card border-2 border-border-rule p-5 shadow-sm">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-border-hairline">
+            <span class="font-mono text-xs text-ink-primary tracking-widest uppercase font-bold">REGISTERED PLAYER QUEUE</span>
+            <span class="font-mono text-[10px] text-ink-secondary font-bold" id="queue-count">0 AVAILABLE</span>
+          </div>
+
+          <!-- Search input -->
+          <div class="mb-3">
+            <input type="text" id="player-search" placeholder="Search cricketer name..."
+              class="w-full bg-paper-surface border border-border-rule px-3 py-2 font-mono text-xs text-ink-primary tracking-wider focus:outline-none focus:border-ink-primary rounded-none"/>
+          </div>
+
+          <!-- Role Filter Tabs -->
+          <div class="flex flex-wrap gap-1 mb-3" id="desk-filter-tabs">
+            <button class="desk-filter px-2 py-1 bg-ink-primary text-paper-base font-mono text-[10px] uppercase tracking-wider font-bold border border-ink-primary" data-filter="all">ALL</button>
+            <button class="desk-filter px-2 py-1 text-ink-secondary font-mono text-[10px] uppercase tracking-wider border border-transparent hover:bg-paper-surface" data-filter="batter">BAT</button>
+            <button class="desk-filter px-2 py-1 text-ink-secondary font-mono text-[10px] uppercase tracking-wider border border-transparent hover:bg-paper-surface" data-filter="bowler">BOWL</button>
+            <button class="desk-filter px-2 py-1 text-ink-secondary font-mono text-[10px] uppercase tracking-wider border border-transparent hover:bg-paper-surface" data-filter="allrounder">AR</button>
+            <button class="desk-filter px-2 py-1 text-ink-secondary font-mono text-[10px] uppercase tracking-wider border border-transparent hover:bg-paper-surface" data-filter="wicketkeeper">WK</button>
+          </div>
+
+          <!-- Scrollable Player List -->
+          <div class="max-h-[540px] overflow-y-auto space-y-1.5 pr-1" id="player-queue" style="scrollbar-width:thin;"></div>
+        </div>
+
+        <!-- ═══ CENTER: ACTIVE LOT ON HAMMER & CONTROLS (5 cols) ═══ -->
+        <div class="lg:col-span-5 flex flex-col gap-5">
+
+          <!-- Current Lot Card -->
+          <div class="bg-paper-card border-2 border-border-rule p-5 shadow-sm" id="current-lot-panel">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-hairline">
+              <span class="font-mono text-xs text-ink-primary tracking-widest uppercase font-bold">CURRENT ACTIVE LOT</span>
+              <span class="px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-border-rule bg-paper-surface" id="lot-status-badge">NO LOT ACTIVE</span>
+            </div>
+
+            <!-- Empty queue placeholder -->
+            <div id="lot-empty" class="text-center py-16 bg-paper-surface/50 border border-border-hairline p-6">
+              <span class="material-symbols-outlined text-[48px] text-border-rule">gavel</span>
+              <p class="font-serif text-xl text-ink-primary uppercase tracking-wider font-bold mt-2">SELECT A PLAYER FROM QUEUE</p>
+              <p class="font-mono text-[10px] text-ink-secondary uppercase tracking-widest mt-1">CLICK ANY LOT IN THE LEFT PANEL TO BEGIN BIDDING</p>
+            </div>
+
+            <!-- Active Lot View -->
+            <div id="lot-active" class="hidden">
+              <div class="flex items-start gap-4 mb-4 p-3 bg-paper-surface border border-border-rule">
+                <div class="w-24 h-28 bg-paper-card border border-border-hairline flex items-center justify-center overflow-hidden flex-shrink-0 relative select-none">
+                  <img id="desk-player-img" class="w-full h-full object-contain object-bottom" src="" alt=""/>
+                  <div id="desk-player-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-2 text-center bg-paper-surface">
+                    <span id="desk-player-icon" class="material-symbols-outlined text-[36px] text-border-rule">sports_cricket</span>
+                    <span class="font-serif text-xs font-bold uppercase text-ink-primary mt-1" id="desk-player-initials">VK</span>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-mono text-[10px] text-ink-secondary uppercase tracking-widest font-bold" id="desk-lot-num">LOT #001</p>
+                  <h2 class="font-serif text-2xl uppercase tracking-tight text-ink-primary font-bold leading-tight truncate" id="desk-player-name">—</h2>
+                  <p class="font-mono text-[11px] text-ink-secondary mt-0.5" id="desk-player-meta">—</p>
+                </div>
+              </div>
+
+              <!-- Current Bid Display -->
+              <div class="bg-paper-surface border-2 border-border-rule p-4 mb-3">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-widest font-bold">CURRENT HIGH BID</span>
+                  <span class="font-mono text-[10px] text-auction-red uppercase tracking-widest font-bold" id="desk-bid-status">—</span>
+                </div>
+                <div class="font-serif text-4xl sm:text-5xl text-auction-red font-bold leading-none my-1" id="desk-current-bid">₹0.00</div>
+                <div class="flex justify-between items-center mt-3 pt-2 border-t border-border-hairline">
+                  <span class="font-mono text-[10px] text-ink-secondary uppercase">LEADING: <span class="font-bold text-ink-primary" id="desk-leading-team">—</span></span>
+                  <span class="font-mono text-[10px] text-ink-secondary uppercase">BIDS: <span class="font-bold text-ink-primary" id="desk-bid-count">0</span></span>
+                </div>
+              </div>
+
+              <!-- Auctioneer Countdown Clock -->
+              <div class="bg-paper-surface border border-border-rule p-3 text-center mb-3">
+                <span class="font-mono text-[9px] text-ink-secondary tracking-widest uppercase">AUCTIONEER COUNTDOWN</span>
+                <div class="font-mono text-3xl font-bold tracking-tight text-ink-primary tabular-nums" id="desk-timer">00:10</div>
+                <span class="font-mono text-[10px] text-ink-secondary uppercase" id="desk-gavel-label">—</span>
+              </div>
+
+              <!-- Auctioneer Gavel & Clock Interventions -->
+              <div class="mb-4 border border-border-rule bg-paper-surface p-3">
+                <span class="font-mono text-[10px] text-ink-secondary uppercase tracking-widest mb-2 block font-bold">DESK INTERVENTIONS</span>
+                <div class="grid grid-cols-2 gap-1.5 mb-2">
+                  <button id="desk-btn-add-time" type="button" class="btn-paper-physical px-2 py-1.5 font-mono text-[10px] font-bold text-ink-primary uppercase tracking-wider flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">more_time</span>
+                    <span>+10 SECONDS</span>
+                  </button>
+                  <button id="desk-btn-reset-timer" type="button" class="btn-paper-physical px-2 py-1.5 font-mono text-[10px] font-bold text-ink-primary uppercase tracking-wider flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[13px]">replay</span>
+                    <span>RESET 10s</span>
+                  </button>
+                </div>
+                <div class="grid grid-cols-3 gap-1">
+                  <button id="desk-btn-call-1" type="button" class="btn-paper-physical px-1 py-1 font-mono text-[9px] text-ink-secondary uppercase tracking-wider text-center">1ST CALL</button>
+                  <button id="desk-btn-call-2" type="button" class="btn-paper-physical px-1 py-1 font-mono text-[9px] text-ink-secondary uppercase tracking-wider text-center">2ND CALL</button>
+                  <button id="desk-btn-call-3" type="button" class="btn-paper-physical px-1 py-1 font-mono text-[9px] text-auction-red font-bold uppercase tracking-wider text-center">FINAL CALL</button>
+                </div>
+              </div>
+
+              <!-- Hammer Adjudication Buttons -->
+              <div class="grid grid-cols-2 gap-2">
+                <button id="desk-btn-sold" class="btn-hammer-physical font-mono text-xs uppercase tracking-wider font-bold px-4 py-3 flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-[16px]">gavel</span>
+                  <span>HAMMER SOLD</span>
+                </button>
+                <button id="desk-btn-unsold" class="btn-paper-physical text-ink-secondary font-mono text-xs uppercase tracking-wider font-bold px-4 py-3 flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-[16px]">block</span>
+                  <span>MARK UNSOLD</span>
+                </button>
+                <button id="desk-btn-pause" class="btn-paper-physical text-ink-primary font-mono text-[11px] uppercase tracking-wider px-3 py-2 flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-[14px]">pause</span>
+                  <span>PAUSE</span>
+                </button>
+                <button id="desk-btn-reset" class="btn-paper-physical text-ink-primary font-mono text-[11px] uppercase tracking-wider px-3 py-2 flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined text-[14px]">restart_alt</span>
+                  <span>RESET LOT</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Live Bid History Log -->
+          <div class="bg-paper-card border border-border-rule p-4 shadow-sm">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-border-hairline">
+              <span class="font-mono text-xs text-ink-primary tracking-widest uppercase font-bold">BIDDING AUDIT LOG</span>
+              <span class="font-mono text-[10px] text-ink-secondary" id="bid-history-count">0 ENTRIES</span>
+            </div>
+            <div class="max-h-[180px] overflow-y-auto space-y-1" id="bid-history-list" style="scrollbar-width:thin;">
+              <p class="font-mono text-xs text-border-rule uppercase text-center py-4">NO BIDS ON CURRENT LOT</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ═══ RIGHT: ALL 10 FRANCHISES PURSE AUDIT (3 cols) ═══ -->
+        <div class="lg:col-span-3 bg-paper-card border-2 border-border-rule p-5 shadow-sm">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-border-hairline">
+            <span class="font-mono text-xs text-ink-primary tracking-widest uppercase font-bold">FRANCHISE PURSE AUDIT</span>
+          </div>
+          <div class="space-y-1.5" id="purse-list"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/player-images.js"></script>
+  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer-ux.js"></script>
+
+  <script>
+  (async function() {
+    await Hammer.init();
+
+    const session = Hammer.getSession();
+    if (!session) {
+      window.location.replace('/login.html?redirect=/auction-desk.html');
+      return;
+    }
+    if (session.role !== 'auctioneer') {
+      window.location.replace('/unauthorized.html');
+      return;
+    }
+
+    const deskBody = document.getElementById('auction-desk-body');
+    if (deskBody) deskBody.style.opacity = '1';
+
+    let allPlayers = [];
+    let currentFilter = 'all';
+    let currentSearch = '';
+
+    // DOM References
+    const deskStatus = document.getElementById('desk-status');
+    const lotEmpty = document.getElementById('lot-empty');
+    const lotActive = document.getElementById('lot-active');
+    const lotBadge = document.getElementById('lot-status-badge');
+
+    async function loadPlayers() {
+      try {
+        const res = await Hammer.getPlayers({ limit: 100 });
+        allPlayers = res.players || [];
+        renderQueue();
+      } catch (e) {
+        console.error('Failed to load players:', e);
+      }
+    }
+
+    function renderQueue() {
+      const container = document.getElementById('player-queue');
+      let filtered = allPlayers;
+
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(p => p.role === currentFilter);
+      }
+      if (currentSearch) {
+        const s = currentSearch.toLowerCase();
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(s) || p.nationality.toLowerCase().includes(s));
+      }
+
+      document.getElementById('queue-count').textContent = filtered.filter(p => p.status === 'upcoming' || p.status === 'available').length + ' AVAILABLE';
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p class="font-mono text-xs text-border-rule uppercase text-center py-6">NO CRICKETERS FOUND</p>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => {
+        const isCurrent = Hammer.getState()?.currentPlayer?.id === p.id;
+        const isSold = p.status === 'sold';
+        const isUnsold = p.status === 'unsold';
+
+        let badgeClass = 'text-ink-secondary bg-paper-surface border border-border-rule';
+        let badgeText = 'UPCOMING';
+        if (isCurrent) { badgeClass = 'text-auction-red bg-paper-surface border border-auction-red font-bold animate-pulse'; badgeText = 'ON HAMMER'; }
+        else if (isSold) { badgeClass = 'text-paper-base bg-auction-red font-bold'; badgeText = 'SOLD'; }
+        else if (isUnsold) { badgeClass = 'text-ink-secondary bg-paper-surface border border-border-rule'; badgeText = 'UNSOLD'; }
+
+        return `
+          <div class="p-2.5 ${isCurrent ? 'bg-paper-surface border-2 border-auction-red' : 'bg-paper-card border border-border-hairline hover:bg-paper-surface'} transition-all cursor-pointer flex items-center justify-between"
+               onclick="selectPlayerForAuction(${p.id})">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="font-mono text-[10px] text-ink-secondary font-bold">#${String(p.lotNumber).padStart(3, '0')}</span>
+              <div class="min-w-0">
+                <span class="font-serif text-sm font-bold text-ink-primary uppercase block leading-tight truncate">${p.name}</span>
+                <span class="font-mono text-[9px] text-ink-secondary uppercase block">${Hammer.getRoleLabel(p.role)} • ${p.nationality}</span>
+              </div>
+            </div>
+            <div class="text-right flex flex-col items-end gap-0.5">
+              <span class="font-mono text-[9px] uppercase px-1.5 py-0.5 ${badgeClass}">${badgeText}</span>
+              <span class="font-mono text-[10px] font-bold text-ink-primary">${Hammer.formatCurrency(p.basePrice)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.selectPlayerForAuction = async function(playerId) {
+      try {
+        const result = await Hammer.startAuction(playerId);
+        HammerUX.playGavelStrike();
+        Hammer.showToast('LOT BROUGHT TO HAMMER', 'success');
+      } catch (err) {
+        Hammer.showToast(err.message || 'Failed to start lot', 'error');
+      }
+    };
+
+    function renderAuctionState(state) {
+      if (!state) return;
+
+      if (state.status === 'idle' || !state.currentPlayer) {
+        deskStatus.textContent = 'IDLE';
+        deskStatus.className = 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-border-rule bg-paper-surface text-ink-secondary';
+        lotEmpty.classList.remove('hidden');
+        lotActive.classList.add('hidden');
+        lotBadge.textContent = 'NO LOT ACTIVE';
+        loadPlayers();
+        return;
+      }
+
+      deskStatus.textContent = state.status === 'live' ? 'LIVE ON HAMMER' : 'PAUSED';
+      deskStatus.className = state.status === 'live'
+        ? 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border-2 border-auction-red text-auction-red bg-paper-surface animate-pulse'
+        : 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-border-rule text-ink-secondary bg-paper-surface';
+
+      lotEmpty.classList.add('hidden');
+      lotActive.classList.remove('hidden');
+      lotBadge.textContent = 'ON HAMMER';
+      lotBadge.className = 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold text-auction-red bg-paper-surface border border-auction-red';
+
+      const p = state.currentPlayer;
+      document.getElementById('desk-lot-num').textContent = 'LOT #' + String(p.lotNumber).padStart(3, '0') + ' // ' + (p.set || 'GENERAL');
+      document.getElementById('desk-player-name').textContent = p.name;
+      document.getElementById('desk-player-meta').textContent = `${Hammer.getRoleLabel(p.role)} • ${p.nationality}${p.overseas ? ' (OVERSEAS)' : ''} • BASE ${Hammer.formatCurrency(p.basePrice)}`;
+
+      // Player Image
+      const img = document.getElementById('desk-player-img');
+      const fallback = document.getElementById('desk-player-fallback');
+      const initialsEl = document.getElementById('desk-player-initials');
+      const iconEl = document.getElementById('desk-player-icon');
+
+      const initials = (p.name || '').split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'HM';
+      if (initialsEl) initialsEl.textContent = initials;
+      if (iconEl) iconEl.textContent = Hammer.getRoleIcon(p.role);
+
+      function showDeskFallback() {
+        img.classList.add('hidden');
+        if (fallback) fallback.classList.remove('hidden');
+      }
+
+      if (p.image) {
+        img.src = p.image;
+        img.alt = p.name;
+        img.classList.remove('hidden');
+        if (fallback) fallback.classList.add('hidden');
+        img.onerror = showDeskFallback;
+      } else {
+        showDeskFallback();
+      }
+
+      document.getElementById('desk-current-bid').textContent = Hammer.formatCurrency(state.currentBid);
+      document.getElementById('desk-leading-team').textContent = state.leadingTeam ? state.leadingTeam.shortName : 'NONE (AWAITING BID)';
+      document.getElementById('desk-bid-count').textContent = state.bidHistory.length;
+      document.getElementById('desk-bid-status').textContent = state.leadingTeamId ? 'BID RECEIVED' : 'AWAITING FIRST BID';
+      document.getElementById('desk-timer').textContent = Hammer.formatTimer(state.timer);
+      document.getElementById('desk-gavel-label').textContent = Hammer.getGavelLabel(state.gavelStage);
+
+      // Gavel buttons active highlight
+      ['desk-btn-call-1', 'desk-btn-call-2', 'desk-btn-call-3'].forEach((id, idx) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        const isCallActive = state.gavelStage === (idx + 1);
+        btn.className = isCallActive
+          ? 'btn-hammer-physical px-1 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-center'
+          : 'btn-paper-physical px-1 py-1 font-mono text-[9px] text-ink-secondary uppercase tracking-wider text-center';
+      });
+
+      // Sold button
+      const soldBtn = document.getElementById('desk-btn-sold');
+      if (state.leadingTeamId && state.leadingTeam) {
+        soldBtn.disabled = false;
+        soldBtn.className = 'btn-hammer-physical font-mono text-xs uppercase tracking-wider font-bold px-4 py-3 flex items-center justify-center gap-2';
+        soldBtn.querySelector('span:last-child').textContent = `SOLD TO ${state.leadingTeam.shortName} (${Hammer.formatCurrency(state.currentBid)})`;
+      } else {
+        soldBtn.disabled = true;
+        soldBtn.className = 'btn-paper-physical text-ink-secondary font-mono text-xs uppercase tracking-wider font-bold px-4 py-3 opacity-60 cursor-not-allowed flex items-center justify-center gap-2';
+        soldBtn.querySelector('span:last-child').textContent = 'HAMMER SOLD (NO BIDS)';
+      }
+
+      renderBidHistory(state.bidHistory);
+
+      // Purse highlights
+      if (state.teams) {
+        state.teams.forEach(t => {
+          const row = document.querySelector(`.purse-row[data-team="${t.id}"]`);
+          if (row) {
+            const isLeader = state.leadingTeamId === t.id;
+            row.className = `flex items-center justify-between px-3 py-2 purse-row ${isLeader ? 'bg-paper-surface border border-auction-red font-bold' : 'bg-paper-card border border-border-hairline'}`;
+            row.querySelector('span:last-child').textContent = Hammer.formatCurrency(t.remaining);
+          }
+        });
+      }
+
+      const pauseBtn = document.getElementById('desk-btn-pause');
+      if (state.status === 'paused') {
+        pauseBtn.querySelector('span:first-child').textContent = 'play_arrow';
+        pauseBtn.querySelector('span:last-child').textContent = 'RESUME';
+      } else {
+        pauseBtn.querySelector('span:first-child').textContent = 'pause';
+        pauseBtn.querySelector('span:last-child').textContent = 'PAUSE';
+      }
+    }
+
+    function renderBidHistory(history) {
+      const container = document.getElementById('bid-history-list');
+      document.getElementById('bid-history-count').textContent = history.length + ' ENTRIES';
+      if (history.length === 0) {
+        container.innerHTML = '<p class="font-mono text-xs text-border-rule uppercase text-center py-4">NO BIDS ON CURRENT LOT</p>';
+        return;
+      }
+      container.innerHTML = history.slice().reverse().map((bid, i) => `
+        <div class="flex items-center justify-between bg-paper-surface border ${i === 0 ? 'border-auction-red' : 'border-border-hairline'} px-3 py-1.5 transition-all">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-[9px] text-ink-secondary">#${history.length - i}</span>
+            <span class="font-mono text-xs font-bold ${i === 0 ? 'text-auction-red' : 'text-ink-primary'}">${bid.teamShortName}</span>
+            <span class="font-mono text-[9px] text-ink-secondary">${new Date(bid.timestamp).toLocaleTimeString()}</span>
+          </div>
+          <span class="font-mono text-xs font-bold text-ink-primary">${Hammer.formatCurrency(bid.amount)}</span>
+        </div>
+      `).join('');
+    }
+
+    async function loadPurseOverview() {
+      try {
+        const teams = await Hammer.API.getTeams();
+        const container = document.getElementById('purse-list');
+        container.innerHTML = teams.map(t => `
+          <div class="flex items-center justify-between px-3 py-2 bg-paper-card border border-border-hairline purse-row" data-team="${t.id}">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold text-ink-primary">${t.shortName}</span>
+              <span class="font-mono text-[9px] text-ink-secondary">${t.filledSlots || 0}/${t.maxSlots || 25}</span>
+            </div>
+            <span class="font-mono text-xs font-bold text-ink-primary">${Hammer.formatCurrency(t.remaining)}</span>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Failed to load purse:', e);
+      }
+    }
+
+    // Gavel call buttons
+    ['desk-btn-call-1', 'desk-btn-call-2', 'desk-btn-call-3'].forEach((id, idx) => {
+      document.getElementById(id).addEventListener('click', async () => {
+        try {
+          await Hammer.setGavelStage(idx + 1);
+          HammerUX.playGavelStrike();
+        } catch (e) {
+          Hammer.showToast(e.message || 'Gavel call failed', 'error');
+        }
+      });
+    });
+
+    // Time extension buttons
+    document.getElementById('desk-btn-add-time').addEventListener('click', async () => {
+      try { await Hammer.addTimer(10); Hammer.showToast('+10s added to clock', 'info'); } catch (e) {}
+    });
+    document.getElementById('desk-btn-reset-timer').addEventListener('click', async () => {
+      try { await Hammer.resetTimer(10); Hammer.showToast('Timer reset to 10s', 'info'); } catch (e) {}
+    });
+
+    // Action buttons
+    document.getElementById('desk-btn-sold').addEventListener('click', async () => {
+      try {
+        await Hammer.sellPlayer();
+        HammerUX.playGavelStrike();
+        Hammer.showToast('HAMMER FELL: LOT SOLD!', 'success');
+      } catch (e) {
+        Hammer.showToast(e.message || 'Sold failed', 'error');
+      }
+    });
+
+    document.getElementById('desk-btn-unsold').addEventListener('click', async () => {
+      try {
+        await Hammer.unsoldPlayer();
+        Hammer.showToast('LOT MARKED UNSOLD', 'info');
+      } catch (e) {
+        Hammer.showToast(e.message || 'Unsold failed', 'error');
+      }
+    });
+
+    document.getElementById('desk-btn-pause').addEventListener('click', async () => {
+      const state = Hammer.getState();
+      try {
+        if (state && state.status === 'paused') {
+          await Hammer.resumeAuction();
+          Hammer.showToast('AUCTION RESUMED', 'info');
+        } else {
+          await Hammer.pauseAuction();
+          Hammer.showToast('AUCTION PAUSED', 'info');
+        }
+      } catch (e) {
+        Hammer.showToast(e.message || 'Action failed', 'error');
+      }
+    });
+
+    document.getElementById('desk-btn-reset').addEventListener('click', async () => {
+      try {
+        await Hammer.resetAuction();
+        Hammer.showToast('CURRENT LOT RESET', 'info');
+      } catch (e) {
+        Hammer.showToast(e.message || 'Reset failed', 'error');
+      }
+    });
+
+    // Filter tabs
+    document.querySelectorAll('.desk-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.desk-filter').forEach(b => {
+          b.className = 'desk-filter px-2 py-1 text-ink-secondary font-mono text-[10px] uppercase tracking-wider border border-transparent hover:bg-paper-surface';
+        });
+        btn.className = 'desk-filter px-2 py-1 bg-ink-primary text-paper-base font-mono text-[10px] uppercase tracking-wider font-bold border border-ink-primary';
+        currentFilter = btn.dataset.filter;
+        renderQueue();
+      });
+    });
+
+    // Search
+    document.getElementById('player-search').addEventListener('input', (e) => {
+      currentSearch = e.target.value.trim();
+      renderQueue();
+    });
+
+    // Realtime listeners
+    Hammer.on('auction:state', (s) => { renderAuctionState(s); renderQueue(); });
+    Hammer.on('auction:started', (s) => { renderAuctionState(s); renderQueue(); });
+    Hammer.on('auction:bid', (d) => { renderAuctionState(d.state); });
+    Hammer.on('auction:timer', (d) => {
+      document.getElementById('desk-timer').textContent = Hammer.formatTimer(d.timer);
+      document.getElementById('desk-gavel-label').textContent = Hammer.getGavelLabel(d.gavelStage);
+    });
+    Hammer.on('auction:sold', (d) => { renderAuctionState(d.state); renderQueue(); loadPurseOverview(); });
+    Hammer.on('auction:unsold', (d) => { renderAuctionState(d.state); renderQueue(); });
+
+    await loadPlayers();
+    await loadPurseOverview();
+    const initial = await Hammer.getAuctionState();
+    renderAuctionState(initial);
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // Live Cricket Auction Broadcast Stage</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "paper-base": "#FAF7F2",
+            "paper-card": "#FFFFFF",
+            "paper-surface": "#F2EDE4",
+            "paper-elevated": "#ECE5D8",
+            "ink-primary": "#141210",
+            "ink-secondary": "#5C5349",
+            "ink-faint": "#948A7D",
+            "border-hairline": "#E4DBD0",
+            "border-rule": "#D2C6B6",
+            "auction-red": "#A31D24",
+            "auction-red-dark": "#82141A",
+            "auction-red-light": "#FDF3F3",
+            "brass": "#B68E42",
+            "brass-light": "#F7F2E7"
+          },
+          fontFamily: {
+            "serif": ["'Instrument Serif'", "Georgia", "serif"],
+            "sans": ["'Plus Jakarta Sans'", "-apple-system", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"],
+            "display": ["'Bebas Neue'", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-paper-base text-ink-primary antialiased min-h-screen flex flex-col font-sans selection:bg-ink-primary selection:text-paper-base overflow-x-hidden">
+  <div class="paper-grain-overlay"></div>
+
+  <!-- BROADCAST MASTHEAD NAVIGATION -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-paper-base/95 backdrop-blur-md border-b border-border-hairline">
+    <div class="h-16 w-full px-4 lg:px-8 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
+        <div class="w-8 h-8 border border-ink-primary bg-ink-primary text-paper-base flex items-center justify-center font-serif text-lg font-bold transition-transform group-hover:scale-95">H</div>
+        <div class="flex flex-col">
+          <span class="font-serif text-lg tracking-wider text-ink-primary leading-none font-bold uppercase">HAMMER</span>
+          <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-[0.2em] mt-0.5">BROADCAST STAGE</span>
+        </div>
+      </a>
+
+      <nav class="hidden xl:flex items-center gap-1 font-mono text-[11px] tracking-wider uppercase">
+        <a class="px-3 py-1.5 bg-ink-primary text-paper-base font-bold border border-ink-primary" href="index.html">LIVE BROADCAST</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="lot-replay.html">LOT REPLAY</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <div class="hidden md:flex items-center border border-border-rule bg-paper-surface px-3 py-1.5 space-x-2">
+          <span class="w-2 h-2 rounded-full bg-auction-red animate-pulse"></span>
+          <span class="font-mono text-[10px] text-ink-secondary tracking-widest uppercase">2026 MEGA AUCTION // LIVE TELEMETRY</span>
+          <span class="text-border-rule">|</span>
+          <span class="font-mono text-[10px] font-bold text-auction-red uppercase tracking-wider" id="clock-tick">18:42:05 IST</span>
+        </div>
+        <a href="login.html" class="w-8 h-8 border border-border-rule bg-paper-card flex items-center justify-center text-ink-primary hover:border-ink-primary transition-colors">
+          <span class="material-symbols-outlined text-[16px]">account_circle</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- LIVE STAGE VIEWPORT -->
+  <main class="w-full pt-16 flex-1 flex flex-col justify-between">
+    
+    <!-- SUB-BAR TELEMETRY BANNER -->
+    <div class="w-full bg-paper-card border-b border-border-hairline px-4 lg:px-8 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-widest">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 bg-auction-red animate-pulse"></span>
+        <span class="font-bold text-auction-red">STAGE TELEMETRY:</span>
+        <span class="text-ink-primary font-bold" id="stage-session-label">ROUND 03 // 2026 MEGA AUCTION</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-ink-secondary">CURRENT STATUS:</span>
+        <span class="px-2 py-0.5 bg-paper-surface border border-border-rule font-bold text-ink-primary" id="hammer-status-badge">ON HAMMER</span>
+      </div>
+    </div>
+
+    <!-- MAIN CENTRAL BROADCAST ARENA -->
+    <div class="w-full max-w-[1720px] mx-auto p-3 lg:p-6 flex-1 flex flex-col justify-center">
+      <div class="grid grid-cols-1 lg:grid-cols-12 border-2 border-border-rule bg-paper-card shadow-sm relative overflow-hidden">
+        
+        <!-- GIANT BACKGROUND LOT WATERMARK NUMBER -->
+        <div class="absolute -right-8 -bottom-16 select-none pointer-events-none opacity-[0.045] font-display text-[26rem] leading-none text-ink-primary" id="bg-lot-watermark">
+          047
+        </div>
+
+        <!-- ═══ LEFT: ATHLETE VISUAL STAGE & DOSSIER (~42% => col-span-5) ═══ -->
+        <div class="lg:col-span-5 p-6 lg:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r-2 border-border-rule relative bg-paper-base/50">
+          
+          <!-- Dossier Top Header -->
+          <div class="flex items-center justify-between pb-3 border-b border-border-hairline">
+            <div class="flex items-center gap-2 font-mono text-xs font-bold text-ink-primary">
+              <span class="w-2 h-2 bg-auction-red inline-block"></span>
+              <span id="dossier-lot-label">LOT #047</span>
+            </div>
+            <span class="font-mono text-[10px] text-ink-secondary uppercase tracking-widest" id="athlete-cap-label">
+              IPL CAP NO. 284
+            </span>
+          </div>
+
+          <!-- Oversized Photography Canvas -->
+          <div class="relative my-4 border border-border-rule p-2 bg-paper-card shadow-inner">
+            <div class="relative overflow-hidden aspect-[4/5] sm:aspect-square w-full bg-paper-surface border border-border-hairline flex items-center justify-center">
+              
+              <!-- Real Player Cutout Image -->
+              <img alt="Player portrait" class="w-full h-full object-contain object-bottom select-none hidden" id="athlete-image" src=""/>
+              
+              <!-- Editorial Fallback Dossier Visual -->
+              <div id="athlete-fallback" class="absolute inset-0 bg-paper-surface flex flex-col items-center justify-center p-6 text-center select-none">
+                <span class="material-symbols-outlined text-[80px] text-border-rule" id="athlete-fallback-icon">sports_cricket</span>
+                <span class="font-serif text-4xl font-bold uppercase text-ink-primary mt-2" id="athlete-fallback-initials">HAMMER</span>
+                <span class="font-mono text-[10px] text-ink-secondary uppercase tracking-[0.2em] mt-1">OFFICIAL SQUAD DOSSIER</span>
+              </div>
+
+              <!-- ═══ CINEMATIC VERDICT STAMP (SOLD / UNSOLD) ═══ -->
+              <div class="hidden absolute inset-0 bg-paper-base/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center border-4 border-auction-red z-30 m-4 shadow-2xl" id="verdict-overlay">
+                <span class="font-serif text-6xl lg:text-7xl uppercase tracking-tight text-auction-red border-b-2 border-auction-red pb-2 leading-none font-bold" id="verdict-stamp-title">
+                  SOLD
+                </span>
+                <p class="font-mono text-sm uppercase tracking-widest text-ink-primary font-bold mt-4" id="verdict-stamp-details">
+                  SOLD // ₹7.40 CR // RCB
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Athlete Identification Tag -->
+          <div class="bg-paper-surface p-4 border border-border-hairline">
+            <span class="font-mono text-[9px] text-auction-red uppercase tracking-[0.25em] font-bold block mb-1">
+              OFFICIAL REGISTERED ATHLETE
+            </span>
+            <h1 class="font-serif text-3xl sm:text-4xl text-ink-primary uppercase tracking-tight font-bold leading-none">
+              AWAITING LOT
+            </h1>
+            <p class="font-mono text-xs text-ink-secondary uppercase tracking-wider mt-1.5">
+              CRICKET AUCTION DOSSIER
+            </p>
+          </div>
+        </div>
+
+        <!-- ═══ RIGHT: LIVE BIDDING BROADCAST ENGINE (col-span-7) ═══ -->
+        <div class="lg:col-span-7 p-6 lg:p-8 flex flex-col justify-between bg-paper-card">
+          
+          <!-- Top Telemetry Row -->
+          <div class="flex flex-wrap items-center justify-between pb-4 border-b border-border-hairline gap-2">
+            <div>
+              <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-widest block">AUCTION POOL</span>
+              <span class="font-mono text-xs font-bold text-ink-primary uppercase tracking-wider tracking-widest">
+                MARQUEE SET // M1
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 bg-paper-surface border border-border-rule font-mono text-[10px] text-ink-secondary uppercase">
+                MIN ADVANCE: <span class="text-ink-primary font-bold" id="bid-advance">+₹20.0 L</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- ═══ GIANT LIVE BID VALUE DISPLAY (Awwwards Focus) ═══ -->
+          <div class="my-6 p-6 sm:p-8 bg-paper-surface border-2 border-border-rule relative">
+            <span class="font-mono text-[10px] text-ink-secondary uppercase tracking-[0.25em] block mb-2 font-bold">
+              CURRENT VALUATION BID
+            </span>
+
+            <div class="flex items-baseline gap-4 flex-wrap">
+              <div class="font-serif text-6xl sm:text-7xl lg:text-8xl text-auction-red font-bold tracking-tight leading-none tabular-nums" id="current-bid-display">
+                ₹7.40 CR
+              </div>
+            </div>
+
+            <!-- Leading Franchise Callout Banner -->
+            <div class="mt-6 pt-4 border-t border-border-rule flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <span class="block font-mono text-[9px] text-ink-secondary tracking-widest uppercase">CURRENT HIGH BIDDER</span>
+                <span class="font-serif text-xl sm:text-2xl text-ink-primary uppercase font-bold tracking-wide" id="leading-franchise-name">
+                  ROYAL CHALLENGERS BENGALURU
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-4 py-1.5 bg-paper-card text-auction-red border-2 border-auction-red font-serif text-2xl font-bold tracking-wider uppercase shadow-sm" id="leading-team-tag">
+                  RCB
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ COUNTDOWN & GAVEL STAGE SYSTEM ═══ -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch">
+            
+            <!-- Chrono Clock -->
+            <div class="md:col-span-4 bg-paper-surface border border-border-rule p-4 flex flex-col justify-center items-center text-center" id="clock-container">
+              <span class="font-mono text-[9px] text-ink-secondary tracking-widest uppercase mb-1">HAMMER CLOCK</span>
+              <div class="font-mono text-4xl font-bold tracking-tight text-ink-primary tabular-nums leading-none" id="seconds-counter">
+                00:10
+              </div>
+              <span class="font-mono text-[8px] text-ink-secondary uppercase tracking-widest mt-1">SECONDS REMAINING</span>
+            </div>
+
+            <!-- 3-Call Gavel Stage -->
+            <div class="md:col-span-8 bg-paper-surface border border-border-rule p-4 flex flex-col justify-between">
+              <div class="flex justify-between items-center font-mono text-[10px] tracking-widest uppercase">
+                <span class="text-ink-secondary">AUCTIONEER CADENCE</span>
+                <span class="text-auction-red font-bold" id="gavel-stage-label">AWAITING FIRST BID</span>
+              </div>
+
+              <!-- 3 Call Indicators -->
+              <div class="grid grid-cols-3 gap-2 my-2">
+                <div class="border border-border-rule bg-paper-card p-2 text-center transition-colors" id="call-step-1">
+                  <span class="font-mono text-[10px] tracking-wider uppercase text-ink-secondary">1ST CALL</span>
+                </div>
+                <div class="border border-border-rule bg-paper-card p-2 text-center transition-colors" id="call-step-2">
+                  <span class="font-mono text-[10px] tracking-wider uppercase text-ink-secondary" id="call-step-2-text">2ND CALL</span>
+                </div>
+                <div class="border border-border-rule bg-paper-card p-2 text-center transition-colors" id="call-step-3">
+                  <span class="font-mono text-[10px] tracking-wider uppercase text-ink-secondary">FINAL CALL</span>
+                </div>
+              </div>
+
+              <div class="pt-1.5 border-t border-border-hairline flex justify-between items-center font-mono text-[9px] text-ink-secondary uppercase">
+                <span>TIERED RULE: +10L / +20L / +50L</span>
+                <span>DESK: SERVER-AUTHORITATIVE</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ SIMULATION OPERATOR OVERRIDE STRIP ═══ -->
+    <div class="w-full max-w-[1720px] mx-auto px-3 lg:px-6 my-2">
+      <div class="bg-paper-card border border-border-rule p-2.5 flex flex-col md:flex-row items-center justify-between gap-2 font-mono text-[11px]">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-ink-secondary text-[16px]">tune</span>
+          <span class="text-ink-secondary uppercase tracking-wider">STAGE EMULATION CONTROLS:</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
+          <button id="btn-trigger-bid" type="button" class="btn-paper-physical px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+            [ SIMULATE +₹20L BID ]
+          </button>
+          <button id="btn-render-sold" type="button" class="btn-paper-physical text-auction-red px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+            [ SIMULATE SOLD ]
+          </button>
+          <button id="btn-render-unsold" type="button" class="btn-paper-physical text-ink-secondary px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+            [ SIMULATE UNSOLD ]
+          </button>
+          <button id="btn-reset-lot" type="button" class="btn-paper-physical px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+            [ RESET LOT ]
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 10 FRANCHISES PURSE TELEMETRY RIBBON ═══ -->
+    <div class="w-full bg-paper-card border-t border-border-rule mt-auto">
+      <div class="max-w-[1720px] mx-auto px-4 py-1.5 flex items-center justify-between font-mono text-[10px] border-b border-border-hairline uppercase">
+        <span class="text-ink-secondary tracking-widest">OFFICIAL FRANCHISE PURSE STATUS (LIVE REGISTRY)</span>
+        <span class="text-ink-primary font-bold">10 FRANCHISES // ₹125 CR BASE</span>
+      </div>
+      <div class="w-full overflow-x-auto">
+        <div class="grid grid-cols-10 min-w-[1100px] divide-x divide-border-hairline text-center py-2 px-2">
+          <div class="px-1.5 py-1" id="purse-card-MI"><div class="font-mono text-[11px] font-bold text-ink-secondary">MI</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-CSK"><div class="font-mono text-[11px] font-bold text-ink-secondary">CSK</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-RCB"><div class="font-mono text-[11px] font-bold text-ink-secondary">RCB</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-DC"><div class="font-mono text-[11px] font-bold text-ink-secondary">DC</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-GT"><div class="font-mono text-[11px] font-bold text-ink-secondary">GT</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-KKR"><div class="font-mono text-[11px] font-bold text-ink-secondary">KKR</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-LSG"><div class="font-mono text-[11px] font-bold text-ink-secondary">LSG</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-PBKS"><div class="font-mono text-[11px] font-bold text-ink-secondary">PBKS</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-RR"><div class="font-mono text-[11px] font-bold text-ink-secondary">RR</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+          <div class="px-1.5 py-1" id="purse-card-SRH"><div class="font-mono text-[11px] font-bold text-ink-secondary">SRH</div><div class="font-mono text-[11px] font-semibold text-ink-primary mt-0.5">₹125.0 CR</div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/player-images.js"></script>
+  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer-ux.js"></script>
+
+  <script>
+  (async function () {
+    await Hammer.init();
+
+    // DOM Elements
+    const bidDisplay = document.getElementById('current-bid-display');
+    const leadingTeamTag = document.getElementById('leading-team-tag');
+    const leadingFranchiseName = document.getElementById('leading-franchise-name');
+    const verdictOverlay = document.getElementById('verdict-overlay');
+    const verdictTitle = document.getElementById('verdict-stamp-title');
+    const verdictDetails = document.getElementById('verdict-stamp-details');
+    const athleteImage = document.getElementById('athlete-image');
+    const hammerBadge = document.getElementById('hammer-status-badge');
+    const secondsCounter = document.getElementById('seconds-counter');
+    const gavelStageLabel = document.getElementById('gavel-stage-label');
+    const callStep1 = document.getElementById('call-step-1');
+    const callStep2 = document.getElementById('call-step-2');
+    const callStep2Text = document.getElementById('call-step-2-text');
+    const callStep3 = document.getElementById('call-step-3');
+    const btnBid = document.getElementById('btn-trigger-bid');
+    const btnSold = document.getElementById('btn-render-sold');
+    const btnUnsold = document.getElementById('btn-render-unsold');
+    const btnReset = document.getElementById('btn-reset-lot');
+    const bgLotWatermark = document.getElementById('bg-lot-watermark');
+    const dossierLotLabel = document.getElementById('dossier-lot-label');
+    const clockContainer = document.getElementById('clock-container');
+
+    // ─── RENDER FULL STATE ─────────────────────────────────
+    function renderState(state) {
+      if (!state) return;
+      const { currentPlayer, leadingTeam, teams } = state;
+
+      // Update purse ribbon with real team data
+      if (teams) {
+        teams.forEach(team => {
+          const card = document.getElementById('purse-card-' + team.id);
+          if (!card) return;
+          const nameEl = card.querySelector('div:first-child');
+          const purseEl = card.querySelector('div:last-child');
+          const isLeader = state.leadingTeamId === team.id;
+
+          if (isLeader) {
+            card.className = 'px-1.5 py-1 bg-paper-surface border-2 border-auction-red transition-all';
+            nameEl.textContent = team.shortName + ' ★';
+            nameEl.className = 'font-mono text-[11px] text-auction-red font-bold tracking-wider';
+            purseEl.className = 'font-mono text-[11px] text-auction-red font-bold mt-0.5';
+          } else {
+            card.className = 'px-1.5 py-1 transition-all';
+            nameEl.textContent = team.shortName;
+            nameEl.className = 'font-mono text-[11px] text-ink-secondary font-bold';
+            purseEl.className = 'font-mono text-[11px] text-ink-primary font-semibold mt-0.5';
+          }
+          purseEl.textContent = Hammer.formatCurrency(team.remaining);
+        });
+      }
+
+      // No active auction — show idle state
+      if (state.status === 'idle' || !currentPlayer) {
+        bidDisplay.textContent = '—';
+        leadingTeamTag.textContent = '—';
+        leadingFranchiseName.textContent = 'AWAITING NEXT LOT';
+        hammerBadge.textContent = 'IDLE';
+        hammerBadge.className = 'px-2 py-0.5 bg-paper-surface text-ink-secondary border border-border-rule font-mono text-[10px] uppercase tracking-widest font-bold';
+        secondsCounter.textContent = '00:00';
+        gavelStageLabel.textContent = 'AWAITING LOT SELECTION';
+        verdictOverlay.classList.add('hidden');
+        resetGavelSteps(-1);
+        document.querySelector('h1').textContent = 'AWAITING PLAYER';
+        return;
+      }
+
+      // Active auction — update player info
+      const p = currentPlayer;
+      document.querySelector('h1').textContent = p.name;
+      document.querySelector('h1 + p').textContent = p.nationality.toUpperCase() + ' • ' + (p.roleLabel || p.role.toUpperCase());
+
+      // Update background watermark number
+      if (bgLotWatermark) bgLotWatermark.textContent = String(p.lotNumber).padStart(3, '0');
+      if (dossierLotLabel) dossierLotLabel.textContent = 'LOT #' + String(p.lotNumber).padStart(3, '0');
+
+      // Player image & fallback
+      const athleteFallback = document.getElementById('athlete-fallback');
+      const fallbackInitials = document.getElementById('athlete-fallback-initials');
+      const fallbackIcon = document.getElementById('athlete-fallback-icon');
+      const capLabel = document.getElementById('athlete-cap-label');
+      if (capLabel) capLabel.textContent = `LOT #${String(p.lotNumber).padStart(3, '0')}`;
+
+      function showAthleteFallback() {
+        athleteImage.classList.add('hidden');
+        if (athleteFallback) {
+          athleteFallback.classList.remove('hidden');
+          if (fallbackInitials) {
+            const parts = (p.displayName || p.name || '').split(' ').filter(Boolean);
+            fallbackInitials.textContent = parts.map(n => n[0]).join('').slice(0, 3).toUpperCase();
+          }
+          if (fallbackIcon) fallbackIcon.textContent = Hammer.getRoleIcon(p.role);
+        }
+      }
+
+      if (p.image) {
+        athleteImage.src = p.image;
+        athleteImage.alt = p.name + ' portrait';
+        athleteImage.classList.remove('hidden');
+        if (athleteFallback) athleteFallback.classList.add('hidden');
+        athleteImage.onerror = showAthleteFallback;
+      } else {
+        showAthleteFallback();
+      }
+
+      // Animated current bid number
+      HammerUX.animateCurrencyNumber(bidDisplay, state.currentBid);
+
+      // Leading team
+      if (leadingTeam) {
+        leadingTeamTag.textContent = leadingTeam.shortName;
+        leadingFranchiseName.textContent = leadingTeam.name;
+      } else {
+        leadingTeamTag.textContent = '—';
+        leadingFranchiseName.textContent = 'NO BIDS YET';
+      }
+
+      // Timer & gavel
+      secondsCounter.textContent = Hammer.formatTimer(state.timer);
+      gavelStageLabel.textContent = Hammer.getGavelLabel(state.gavelStage);
+      resetGavelSteps(state.gavelStage);
+
+      // Status badge
+      if (state.status === 'live') {
+        hammerBadge.textContent = 'ON HAMMER';
+        hammerBadge.className = 'px-2 py-0.5 bg-paper-surface text-auction-red border border-auction-red font-mono text-[10px] uppercase tracking-widest font-bold animate-pulse';
+        verdictOverlay.classList.add('hidden');
+      } else if (state.status === 'paused') {
+        hammerBadge.textContent = 'PAUSED';
+        hammerBadge.className = 'px-2 py-0.5 bg-paper-surface text-ink-secondary border border-border-rule font-mono text-[10px] uppercase tracking-widest font-bold';
+      }
+
+      // Bid increment label
+      const bidAdvance = document.getElementById('bid-advance');
+      const inc = state.bidIncrement || Hammer.getBidIncrement(state.currentBid);
+      if (bidAdvance) bidAdvance.textContent = '+₹' + inc + 'L';
+    }
+
+    function resetGavelSteps(stage) {
+      const inactive = 'border border-border-rule bg-paper-card p-2 text-center transition-colors';
+      const inactiveSpan = 'font-mono text-[10px] tracking-wider uppercase text-ink-secondary';
+      const active = 'border-2 border-auction-red bg-paper-surface p-2 text-center transition-colors';
+      const activeSpan = 'font-mono text-[10px] tracking-wider uppercase font-bold text-auction-red';
+
+      callStep1.className = stage >= 1 ? active : inactive;
+      callStep1.querySelector('span').className = stage >= 1 ? activeSpan : inactiveSpan;
+      callStep1.querySelector('span').textContent = stage >= 1 ? '1ST CALL ✓' : '1ST CALL';
+
+      callStep2.className = stage >= 2 ? active : inactive;
+      callStep2Text.className = stage >= 2 ? activeSpan : inactiveSpan;
+      callStep2Text.textContent = stage === 2 ? '2ND CALL (ACTIVE)' : stage > 2 ? '2ND CALL ✓' : '2ND CALL';
+
+      callStep3.className = stage >= 3 ? active : inactive;
+      callStep3.querySelector('span').className = stage >= 3 ? activeSpan : inactiveSpan;
+      callStep3.querySelector('span').textContent = stage >= 3 ? 'FINAL CALL ⚡' : 'FINAL CALL';
+    }
+
+    // ─── SOCKET REALTIME EVENTS ───────────────────────────
+    Hammer.on('auction:state', renderState);
+    Hammer.on('auction:started', (state) => {
+      HammerUX.playGavelStrike();
+      renderState(state);
+    });
+
+    Hammer.on('auction:bid', (data) => {
+      HammerUX.playBidClick();
+      renderState(data.state);
+      Hammer.showToast(`${data.teamShortName} BID ${Hammer.formatCurrency(data.amount)}`, 'bid');
+    });
+
+    Hammer.on('auction:timer', (data) => {
+      secondsCounter.textContent = Hammer.formatTimer(data.timer);
+      gavelStageLabel.textContent = Hammer.getGavelLabel(data.gavelStage);
+      resetGavelSteps(data.gavelStage);
+
+      if (data.timer <= 3 && data.timer > 0) {
+        HammerUX.playClockTick();
+        if (clockContainer) clockContainer.classList.add('border-auction-red');
+      } else {
+        if (clockContainer) clockContainer.classList.remove('border-auction-red');
+      }
+    });
+
+    Hammer.on('auction:sold', (data) => {
+      HammerUX.playGavelStrike();
+      verdictTitle.textContent = 'SOLD';
+      verdictTitle.className = 'font-serif text-6xl lg:text-7xl uppercase tracking-tight text-auction-red border-b-2 border-auction-red pb-2 leading-none font-bold animate-sold-slam';
+      verdictDetails.textContent = 'SOLD // ' + Hammer.formatCurrency(data.price) + ' // ' + data.team.shortName;
+      verdictOverlay.classList.remove('hidden');
+      hammerBadge.textContent = 'HAMMER FALL: SOLD';
+      hammerBadge.className = 'px-2 py-0.5 bg-auction-red text-paper-base border border-auction-red font-mono text-[10px] uppercase tracking-widest font-bold';
+      secondsCounter.textContent = '00:00';
+      gavelStageLabel.textContent = 'HAMMER DOWN // RECORDED';
+      resetGavelSteps(3);
+      renderState(data.state);
+      Hammer.showToast(`${data.player.name} SOLD TO ${data.team.shortName} FOR ${Hammer.formatCurrency(data.price)}`, 'success');
+    });
+
+    Hammer.on('auction:unsold', (data) => {
+      verdictTitle.textContent = 'UNSOLD';
+      verdictTitle.className = 'font-serif text-6xl lg:text-7xl uppercase tracking-tight text-ink-secondary border-b-2 border-border-rule pb-2 leading-none font-bold animate-sold-slam';
+      verdictDetails.textContent = 'RESERVE NOT MET // LOT PASSES TO ACCELERATED POOL';
+      verdictOverlay.classList.remove('hidden');
+      hammerBadge.textContent = 'UNSOLD // PASSED';
+      hammerBadge.className = 'px-2 py-0.5 bg-paper-surface text-ink-secondary border border-border-rule font-mono text-[10px] uppercase tracking-widest font-bold';
+      secondsCounter.textContent = '00:00';
+      gavelStageLabel.textContent = 'HAMMER DOWN // NO BID ACCEPTED';
+      renderState(data.state);
+      Hammer.showToast(`${data.player.name} — UNSOLD`, 'info');
+    });
+
+    // Operator override simulation buttons
+    if (btnBid) {
+      btnBid.addEventListener('click', async () => {
+        const state = Hammer.getState();
+        const next = Hammer.getNextValidBid(state);
+        try {
+          await Hammer.placeBid(next);
+        } catch (e) {
+          Hammer.showToast(e.message || 'Bid failed', 'error');
+        }
+      });
+    }
+
+    if (btnSold) {
+      btnSold.addEventListener('click', async () => {
+        try {
+          await Hammer.sellPlayer();
+        } catch (e) {
+          Hammer.showToast(e.message || 'Sold action failed', 'error');
+        }
+      });
+    }
+
+    if (btnUnsold) {
+      btnUnsold.addEventListener('click', async () => {
+        try {
+          await Hammer.unsoldPlayer();
+        } catch (e) {
+          Hammer.showToast(e.message || 'Unsold action failed', 'error');
+        }
+      });
+    }
+
+    if (btnReset) {
+      btnReset.addEventListener('click', async () => {
+        try {
+          await Hammer.resetAuction();
+        } catch (e) {
+          Hammer.showToast(e.message || 'Reset failed', 'error');
+        }
+      });
+    }
+
+    // Initial state render
+    const initial = await Hammer.getAuctionState();
+    renderState(initial);
+  })();
+  </script>
+</body>
+</html>

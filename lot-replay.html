@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // Historical Lot Replay & Settlement Ledger</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "paper-base": "#FAF7F2",
+            "paper-card": "#FFFFFF",
+            "paper-surface": "#F2EDE4",
+            "paper-elevated": "#ECE5D8",
+            "ink-primary": "#141210",
+            "ink-secondary": "#5C5349",
+            "ink-faint": "#948A7D",
+            "border-hairline": "#E4DBD0",
+            "border-rule": "#D2C6B6",
+            "auction-red": "#A31D24",
+            "auction-red-dark": "#82141A",
+            "auction-red-light": "#FDF3F3",
+            "brass": "#B68E42",
+            "brass-light": "#F7F2E7"
+          },
+          fontFamily: {
+            "serif": ["'Instrument Serif'", "Georgia", "serif"],
+            "sans": ["'Plus Jakarta Sans'", "-apple-system", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"],
+            "display": ["'Bebas Neue'", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-paper-base text-ink-primary antialiased min-h-screen flex flex-col font-sans selection:bg-ink-primary selection:text-paper-base">
+  <div class="paper-grain-overlay"></div>
+
+  <!-- NAVIGATION HEADER -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-paper-base/95 backdrop-blur-md border-b border-border-hairline">
+    <div class="h-16 w-full px-4 lg:px-8 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
+        <div class="w-8 h-8 border border-ink-primary bg-ink-primary text-paper-base flex items-center justify-center font-serif text-lg font-bold transition-transform group-hover:scale-95">H</div>
+        <div class="flex flex-col">
+          <span class="font-serif text-lg tracking-wider text-ink-primary leading-none font-bold uppercase">HAMMER</span>
+          <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-[0.2em] mt-0.5">HISTORICAL ARCHIVE</span>
+        </div>
+      </a>
+
+      <nav class="hidden xl:flex items-center gap-1 font-mono text-[11px] tracking-wider uppercase">
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="index.html">LIVE BROADCAST</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-3 py-1.5 bg-ink-primary text-paper-base font-bold border border-ink-primary" href="lot-replay.html">LOT REPLAY</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <span class="font-mono text-[10px] text-ink-secondary tracking-wider uppercase" id="clock-tick"></span>
+        <a href="login.html" class="w-8 h-8 border border-border-rule bg-paper-card flex items-center justify-center text-ink-primary hover:border-ink-primary transition-colors">
+          <span class="material-symbols-outlined text-[16px]">account_circle</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN REPLAY CONTAINER -->
+  <main class="w-full pt-20 flex-1">
+    <div class="max-w-[1440px] mx-auto p-4 lg:p-8">
+
+      <!-- HEADER & TOTALS -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-border-rule">
+        <div>
+          <h1 class="font-serif text-4xl lg:text-5xl uppercase tracking-tight text-ink-primary leading-none font-bold">
+            SETTLEMENT REPLAY ARCHIVE
+          </h1>
+          <p class="font-mono text-xs text-ink-secondary uppercase tracking-widest mt-1">
+            TIMESTAMPED BID-BY-BID ADJUDICATION AUDIT
+          </p>
+        </div>
+        <div class="flex items-center gap-3 font-mono text-xs">
+          <span class="text-ink-secondary uppercase">SETTLED LOTS:</span>
+          <span class="text-base font-bold text-ink-primary" id="total-lots">0</span>
+        </div>
+      </div>
+
+      <!-- SUMMARY METRICS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div class="bg-paper-card border border-border-rule p-4 text-center">
+          <span class="font-mono text-[9px] text-ink-secondary block uppercase tracking-widest font-bold">CRICKETERS SOLD</span>
+          <span class="font-serif text-3xl text-auction-red font-bold" id="summary-sold">0</span>
+        </div>
+        <div class="bg-paper-card border border-border-rule p-4 text-center">
+          <span class="font-mono text-[9px] text-ink-secondary block uppercase tracking-widest font-bold">LOTS UNSOLD</span>
+          <span class="font-serif text-3xl text-ink-primary font-bold" id="summary-unsold">0</span>
+        </div>
+        <div class="bg-paper-card border border-border-rule p-4 text-center">
+          <span class="font-mono text-[9px] text-ink-secondary block uppercase tracking-widest font-bold">TOTAL EXPENDITURE</span>
+          <span class="font-serif text-3xl text-auction-red font-bold" id="summary-spend">₹0</span>
+        </div>
+        <div class="bg-paper-card border border-border-rule p-4 text-center">
+          <span class="font-mono text-[9px] text-ink-secondary block uppercase tracking-widest font-bold">PEAK RECORD BID</span>
+          <span class="font-serif text-3xl text-ink-primary font-bold" id="summary-highest">—</span>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div id="history-empty" class="bg-paper-card border-2 border-border-rule p-20 text-center shadow-sm">
+        <span class="material-symbols-outlined text-[64px] text-border-rule">history</span>
+        <h3 class="font-serif text-2xl uppercase tracking-wider text-ink-primary font-bold mt-3">NO LOTS CONCLUDED YET</h3>
+        <p class="font-mono text-xs text-ink-secondary uppercase tracking-widest mt-1">
+          Settled hammer lots will be archived here with full telemetric bid logs.
+        </p>
+      </div>
+
+      <!-- SETTLED LOTS FEED -->
+      <div id="history-list" class="space-y-4 hidden"></div>
+
+    </div>
+  </main>
+
+  <footer class="w-full bg-paper-card border-t border-border-hairline py-4">
+    <div class="max-w-[1440px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between text-ink-secondary gap-2 font-mono text-[10px] uppercase tracking-widest">
+      <span>HAMMER // 2026 OFFICIAL CRICKET AUCTION ENGINE</span>
+      <span class="text-auction-red font-bold">ARCHIVAL AUDIT VERIFIED</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer-ux.js"></script>
+
+  <script>
+  (async function() {
+    await Hammer.init();
+
+    async function loadHistory() {
+      try {
+        const history = await Hammer.API.getAuctionHistory();
+        renderHistory(history);
+      } catch (e) { console.error(e); }
+    }
+
+    function renderHistory(history) {
+      document.getElementById('total-lots').textContent = history.length;
+
+      const sold = history.filter(h => h.result === 'sold');
+      const unsold = history.filter(h => h.result === 'unsold');
+      const totalSpend = sold.reduce((sum, h) => sum + h.soldPrice, 0);
+      const highest = sold.reduce((max, h) => h.soldPrice > max.price ? { price: h.soldPrice, name: h.player.name, team: h.soldTo?.shortName } : max, { price: 0, name: '', team: '' });
+
+      document.getElementById('summary-sold').textContent = sold.length;
+      document.getElementById('summary-unsold').textContent = unsold.length;
+      document.getElementById('summary-spend').textContent = Hammer.formatCurrency(totalSpend);
+      document.getElementById('summary-highest').textContent = highest.price > 0 ? Hammer.formatCurrency(highest.price) : '—';
+
+      if (history.length === 0) {
+        document.getElementById('history-empty').classList.remove('hidden');
+        document.getElementById('history-list').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('history-empty').classList.add('hidden');
+      const list = document.getElementById('history-list');
+      list.classList.remove('hidden');
+
+      list.innerHTML = history.slice().reverse().map((entry, i) => {
+        const isSold = entry.result === 'sold';
+        const time = new Date(entry.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+        const bidTimeline = (entry.bidHistory || []).map((b, j) => `
+          <div class="flex items-center justify-between px-3 py-1.5 ${j === entry.bidHistory.length - 1 && isSold ? 'bg-paper-surface border border-auction-red font-bold' : 'bg-paper-card border border-border-hairline'}">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-[9px] text-ink-secondary font-bold">#${j+1}</span>
+              <span class="font-mono text-xs text-ink-primary font-bold">${b.teamShortName}</span>
+            </div>
+            <span class="font-mono text-xs ${j === entry.bidHistory.length - 1 ? 'text-auction-red font-bold' : 'text-ink-primary'}">${Hammer.formatCurrency(b.amount)}</span>
+          </div>
+        `).join('');
+
+        return `
+          <div class="bg-paper-card border-2 border-border-rule p-5 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-border-hairline gap-2">
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-xs font-bold text-ink-primary bg-paper-surface border border-border-rule px-2 py-0.5">
+                  LOT #${String(entry.player.lotNumber || i + 1).padStart(3, '0')}
+                </span>
+                <div>
+                  <h3 class="font-serif text-2xl font-bold uppercase text-ink-primary leading-tight">${entry.player.name}</h3>
+                  <span class="font-mono text-[10px] text-ink-secondary uppercase">${Hammer.getRoleLabel(entry.player.role)}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${isSold ? 'bg-auction-red text-paper-base border border-auction-red' : 'bg-paper-surface text-ink-secondary border border-border-rule'}">
+                  ${isSold ? 'SOLD' : 'UNSOLD'}
+                </span>
+                <span class="font-serif text-2xl font-bold ${isSold ? 'text-auction-red' : 'text-ink-secondary'}">
+                  ${isSold ? Hammer.formatCurrency(entry.soldPrice) : 'PASSED'}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between font-mono text-[10px] text-ink-secondary mb-3 gap-2">
+              <span>BASE RESERVE: ${Hammer.formatCurrency(entry.basePrice)}</span>
+              <span>ACQUIRED BY: <strong class="text-ink-primary">${isSold && entry.soldTo ? entry.soldTo.name : 'UNSOLD'}</strong></span>
+              <span>SETTLED AT: ${time}</span>
+              <span>BIDS RECEIVED: ${entry.bidCount || 0}</span>
+            </div>
+
+            ${(entry.bidHistory && entry.bidHistory.length > 0) ? `
+              <details class="cursor-pointer">
+                <summary class="font-mono text-[10px] text-auction-red font-bold uppercase tracking-wider py-1 hover:underline">
+                  VIEW FULL BID TIMELINE (${entry.bidHistory.length} BIDS)
+                </summary>
+                <div class="mt-2 space-y-1 pl-2 border-l-2 border-border-rule">
+                  ${bidTimeline}
+                </div>
+              </details>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    await loadHistory();
+  })();
+  </script>
+</body>
+</html>

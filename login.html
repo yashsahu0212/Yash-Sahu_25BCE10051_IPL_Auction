@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // Consortium Authentication Portal</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "paper-base": "#FAF7F2",
+            "paper-card": "#FFFFFF",
+            "paper-surface": "#F2EDE4",
+            "paper-elevated": "#ECE5D8",
+            "ink-primary": "#141210",
+            "ink-secondary": "#5C5349",
+            "ink-faint": "#948A7D",
+            "border-hairline": "#E4DBD0",
+            "border-rule": "#D2C6B6",
+            "auction-red": "#A31D24",
+            "auction-red-dark": "#82141A",
+            "auction-red-light": "#FDF3F3",
+            "brass": "#B68E42",
+            "brass-light": "#F7F2E7"
+          },
+          fontFamily: {
+            "serif": ["'Instrument Serif'", "Georgia", "serif"],
+            "sans": ["'Plus Jakarta Sans'", "-apple-system", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"],
+            "display": ["'Bebas Neue'", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-paper-base text-ink-primary min-h-screen flex flex-col items-center justify-center font-sans antialiased p-4">
+  <div class="paper-grain-overlay"></div>
+
+  <div class="w-full max-w-md mx-auto relative z-10">
+    
+    <!-- BRAND MASTHEAD -->
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 mx-auto border-2 border-ink-primary bg-ink-primary text-paper-base flex items-center justify-center font-serif font-bold text-3xl mb-3 shadow-md">H</div>
+      <h1 class="font-serif text-4xl tracking-tight text-ink-primary font-bold uppercase">HAMMER</h1>
+      <p class="font-mono text-[10px] text-ink-secondary uppercase tracking-[0.25em] mt-1">REALTIME CRICKET AUCTION PORTAL</p>
+    </div>
+
+    <!-- LOGIN FORM CONTAINER -->
+    <div class="bg-paper-card border-2 border-border-rule p-6 sm:p-8 shadow-sm">
+      <div class="flex items-center justify-between pb-3 mb-5 border-b border-border-hairline">
+        <span class="font-mono text-[10px] tracking-widest text-ink-secondary uppercase font-bold">OPERATOR AUTHENTICATION</span>
+        <span class="font-mono text-[9px] text-auction-red uppercase font-bold">RESTRICTED ACCESS</span>
+      </div>
+
+      <form id="login-form" class="flex flex-col gap-4">
+        <div>
+          <label class="block font-mono text-[10px] text-ink-secondary uppercase tracking-widest mb-1.5 font-bold">OPERATOR IDENTIFIER</label>
+          <input type="text" id="username" autocomplete="username" required
+            class="w-full bg-paper-surface border border-border-rule px-3.5 py-2.5 font-mono text-sm text-ink-primary uppercase tracking-wider focus:outline-none focus:border-ink-primary rounded-none"
+            placeholder="e.g. auctioneer, mi, csk, rcb"/>
+        </div>
+        <div>
+          <label class="block font-mono text-[10px] text-ink-secondary uppercase tracking-widest mb-1.5 font-bold">AUTHORIZATION KEY</label>
+          <input type="password" id="password" autocomplete="current-password" required
+            class="w-full bg-paper-surface border border-border-rule px-3.5 py-2.5 font-mono text-sm text-ink-primary tracking-wider focus:outline-none focus:border-ink-primary rounded-none"
+            placeholder="Enter password"/>
+        </div>
+
+        <div id="login-error" class="hidden bg-auction-red-light border border-auction-red px-3 py-2 font-mono text-[11px] text-auction-red uppercase tracking-wider font-bold"></div>
+
+        <button type="submit" id="login-btn" class="btn-hammer-physical w-full p-4 mt-2 text-center select-none font-mono text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+          <span>AUTHENTICATE OPERATOR</span>
+          <span class="material-symbols-outlined text-[16px]">lock_open</span>
+        </button>
+      </form>
+
+      <!-- Quick Fill Role Chips -->
+      <div class="mt-5 pt-4 border-t border-border-hairline">
+        <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-widest block mb-2 font-bold">QUICK ROSTER SWITCH:</span>
+        <div class="flex flex-wrap gap-1">
+          <button type="button" class="quick-login px-2 py-1 bg-paper-surface border border-border-hairline text-ink-primary font-mono text-[10px] font-bold uppercase hover:bg-border-hairline" data-user="auctioneer" data-pass="hammer2026">AUCTIONEER</button>
+          <button type="button" class="quick-login px-2 py-1 bg-paper-surface border border-border-hairline text-ink-primary font-mono text-[10px] font-bold uppercase hover:bg-border-hairline" data-user="mi" data-pass="mi2026">MI</button>
+          <button type="button" class="quick-login px-2 py-1 bg-paper-surface border border-border-hairline text-ink-primary font-mono text-[10px] font-bold uppercase hover:bg-border-hairline" data-user="csk" data-pass="csk2026">CSK</button>
+          <button type="button" class="quick-login px-2 py-1 bg-paper-surface border border-border-hairline text-ink-primary font-mono text-[10px] font-bold uppercase hover:bg-border-hairline" data-user="rcb" data-pass="rcb2026">RCB</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIT FOOTER -->
+    <div class="mt-4 text-center">
+      <a href="index.html" class="font-mono text-xs text-ink-secondary hover:text-ink-primary uppercase tracking-wider underline">
+        ← RETURN TO PUBLIC BROADCAST BOARD
+      </a>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer-ux.js"></script>
+
+  <script>
+    (async function() {
+      const auth = await Hammer.checkAuth();
+      if (auth) {
+        redirectByRole(auth.user.role);
+        return;
+      }
+
+      const form = document.getElementById('login-form');
+      const errorEl = document.getElementById('login-error');
+      const loginBtn = document.getElementById('login-btn');
+
+      // Quick login buttons
+      document.querySelectorAll('.quick-login').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('username').value = btn.dataset.user;
+          document.getElementById('password').value = btn.dataset.pass;
+        });
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.classList.add('hidden');
+        loginBtn.querySelector('span:first-child').textContent = 'VERIFYING CREDENTIALS...';
+        loginBtn.disabled = true;
+
+        try {
+          const username = document.getElementById('username').value.trim().toLowerCase();
+          const password = document.getElementById('password').value;
+          const result = await Hammer.login(username, password);
+          redirectByRole(result.user.role);
+        } catch (err) {
+          errorEl.textContent = err.message || 'Authentication failed';
+          errorEl.classList.remove('hidden');
+          loginBtn.querySelector('span:first-child').textContent = 'AUTHENTICATE OPERATOR';
+          loginBtn.disabled = false;
+        }
+      });
+
+      function redirectByRole(role) {
+        const params = new URLSearchParams(window.location.search);
+        const target = params.get('redirect');
+        if (target) {
+          if (target.includes('auction-desk') && role !== 'auctioneer') {
+            window.location.href = '/unauthorized.html';
+            return;
+          }
+          window.location.href = target;
+          return;
+        }
+        switch (role) {
+          case 'auctioneer': window.location.href = '/auction-desk.html'; break;
+          case 'team_owner': window.location.href = '/team-console.html'; break;
+          default: window.location.href = '/index.html'; break;
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

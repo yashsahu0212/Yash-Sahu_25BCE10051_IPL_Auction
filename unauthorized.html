@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // 403 Access Restricted</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "paper-base": "#FAF7F2",
+            "paper-card": "#FFFFFF",
+            "paper-surface": "#F2EDE4",
+            "paper-elevated": "#ECE5D8",
+            "ink-primary": "#141210",
+            "ink-secondary": "#5C5349",
+            "ink-faint": "#948A7D",
+            "border-hairline": "#E4DBD0",
+            "border-rule": "#D2C6B6",
+            "auction-red": "#A31D24",
+            "auction-red-dark": "#82141A",
+            "auction-red-light": "#FDF3F3",
+            "brass": "#B68E42",
+            "brass-light": "#F7F2E7"
+          },
+          fontFamily: {
+            "serif": ["'Instrument Serif'", "Georgia", "serif"],
+            "sans": ["'Plus Jakarta Sans'", "-apple-system", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"],
+            "display": ["'Bebas Neue'", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-paper-base text-ink-primary min-h-screen flex flex-col items-center justify-center font-sans antialiased p-4">
+  <div class="paper-grain-overlay"></div>
+
+  <div class="w-full max-w-lg mx-auto relative z-10 text-center">
+    
+    <!-- BRAND MARK -->
+    <div class="w-16 h-16 mx-auto border-2 border-auction-red bg-paper-card flex items-center justify-center text-auction-red font-serif font-bold text-3xl mb-6 shadow-sm">
+      !
+    </div>
+
+    <!-- RESTRICTED DOSSIER CARD -->
+    <div class="bg-paper-card border-2 border-border-rule p-8 sm:p-10 shadow-sm text-left">
+      <div class="flex items-center justify-between pb-3 mb-5 border-b border-border-hairline">
+        <span class="font-mono text-[10px] tracking-widest text-auction-red uppercase font-bold">SECURITY DIRECTIVE // CODE 403</span>
+        <span class="font-mono text-[9px] text-ink-secondary uppercase">UNAUTHORIZED ENTITY</span>
+      </div>
+
+      <h1 class="font-serif text-3xl sm:text-4xl text-ink-primary font-bold uppercase tracking-tight leading-tight">
+        ACCESS RESTRICTED
+      </h1>
+
+      <p class="font-mono text-xs text-ink-secondary uppercase tracking-wider mt-3 leading-relaxed">
+        This command sector is strictly reserved for the Presiding Auctioneer and HAMMER Consortium Officials.
+      </p>
+
+      <div class="my-6 p-4 bg-paper-surface border border-border-hairline">
+        <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-widest block mb-1">CURRENT OPERATOR IDENTITY:</span>
+        <div class="font-mono text-xs font-bold text-ink-primary" id="unauth-user-info">
+          AUTHENTICATED FRANCHISE // ROLE INSUFFICIENT
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <a href="index.html" class="btn-paper-physical flex-1 py-3 text-center font-mono text-xs font-bold uppercase tracking-wider">
+          RETURN TO BROADCAST
+        </a>
+        <a href="login.html" class="btn-hammer-physical flex-1 py-3 text-center font-mono text-xs font-bold uppercase tracking-wider">
+          SWITCH OPERATOR
+        </a>
+      </div>
+    </div>
+
+    <!-- FOOTER LEDGER -->
+    <div class="mt-6 font-mono text-[10px] text-ink-secondary uppercase tracking-widest">
+      HAMMER ARCHIVAL SECURITY // ALL BREACH ATTEMPTS RECORDED
+    </div>
+
+  </div>
+
+  <script src="/js/hammer.js"></script>
+  <script>
+    (async function() {
+      await Hammer.init();
+      const user = Hammer.getUser();
+      if (user) {
+        document.getElementById('unauth-user-info').textContent = 
+          `LOGGED IN AS: ${user.username.toUpperCase()} (ROLE: ${user.role.toUpperCase()})`;
+      } else {
+        document.getElementById('unauth-user-info').textContent = 'UNAUTHENTICATED VISITOR';
+      }
+    })();
+  </script>
+</body>
+</html>

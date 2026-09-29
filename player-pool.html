@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Official Player Registry & Collectible Dossier</title>
+  <title>HAMMER // Official Player Registry & Collectible Archive</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <link rel="stylesheet" href="/css/hammer-editorial.css"/>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -16,149 +16,150 @@
       theme: {
         extend: {
           colors: {
-            "paper-base": "#FAF7F2",
-            "paper-card": "#FFFFFF",
-            "paper-surface": "#F2EDE4",
-            "paper-elevated": "#ECE5D8",
-            "ink-primary": "#141210",
-            "ink-secondary": "#5C5349",
-            "ink-faint": "#948A7D",
-            "border-hairline": "#E4DBD0",
-            "border-rule": "#D2C6B6",
-            "auction-red": "#A31D24",
-            "auction-red-dark": "#82141A",
-            "auction-red-light": "#FDF3F3",
-            "brass": "#B68E42",
-            "brass-light": "#F7F2E7"
+            "hm-ink": "#0B0C0D",
+            "hm-charcoal": "#121416",
+            "hm-panel": "#181A1C",
+            "hm-elevated": "#1E2022",
+            "hm-surface": "#242628",
+            "hm-text": "#F2F0EA",
+            "hm-muted": "#A7A9AA",
+            "hm-faint": "#6F7274",
+            "hm-dim": "#4A4C4E",
+            "hm-border": "#232527",
+            "hm-border-s": "#303234",
+            "hm-border-strong": "#444648",
+            "hm-vermilion": "#C74632",
+            "hm-vermilion-dk": "#9E3628",
+            "hm-amber": "#C4932A",
+            "hm-emerald": "#2D8B5A"
           },
           fontFamily: {
-            "serif": ["'Instrument Serif'", "Georgia", "serif"],
-            "sans": ["'Plus Jakarta Sans'", "-apple-system", "sans-serif"],
-            "mono": ["'Space Mono'", "monospace"],
-            "display": ["'Bebas Neue'", "sans-serif"]
+            "ui": ["'Inter'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            "display": ["'Bebas Neue'", "'Inter'", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"]
           }
         }
       }
     };
   </script>
 </head>
-<body class="bg-paper-base text-ink-primary antialiased min-h-screen flex flex-col font-sans selection:bg-ink-primary selection:text-paper-base">
+<body class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
   <div class="paper-grain-overlay"></div>
 
   <!-- NAVIGATION HEADER -->
-  <header class="fixed top-0 left-0 right-0 z-40 bg-paper-base/95 backdrop-blur-md border-b border-border-hairline">
-    <div class="h-16 w-full px-4 lg:px-8 flex items-center justify-between">
+  <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
+    <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-8 h-8 border border-ink-primary bg-ink-primary text-paper-base flex items-center justify-center font-serif text-lg font-bold transition-transform group-hover:scale-95">H</div>
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
         <div class="flex flex-col">
-          <span class="font-serif text-lg tracking-wider text-ink-primary leading-none font-bold uppercase">HAMMER</span>
-          <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-[0.2em] mt-0.5">AUCTION CATALOGUE</span>
+          <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">PLAYER POOL</span>
         </div>
       </a>
 
-      <nav class="hidden xl:flex items-center gap-1 font-mono text-[11px] tracking-wider uppercase">
-        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="index.html">LIVE BROADCAST</a>
-        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="auction-desk.html">AUCTION DESK</a>
-        <a class="px-3 py-1.5 bg-ink-primary text-paper-base font-bold border border-ink-primary" href="player-pool.html">PLAYER POOL</a>
-        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="team-console.html">TEAM CONSOLE</a>
-        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="lot-replay.html">LOT REPLAY</a>
+      <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="index.html">LIVE AUCTION</a>
+        <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
       </nav>
 
       <div class="flex items-center space-x-3">
-        <div class="hidden md:flex items-center border border-border-rule bg-paper-surface px-3 py-1.5 space-x-2">
-          <span class="w-2 h-2 rounded-full bg-auction-red animate-pulse"></span>
-          <span class="font-mono text-[10px] text-ink-secondary tracking-widest uppercase">2026 MEGA AUCTION // OFFICIAL SQUAD POOL</span>
+        <div class="hidden md:flex items-center bg-hm-charcoal border border-hm-border px-3 py-1.5 space-x-2 rounded-[4px]">
+          <span class="w-2 h-2 rounded-full bg-hm-vermilion live-pulse"></span>
+          <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase">2026 MEGA AUCTION</span>
         </div>
-        <a href="login.html" class="w-8 h-8 border border-border-rule bg-paper-card flex items-center justify-center text-ink-primary hover:border-ink-primary transition-colors">
+        <a href="login.html" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
           <span class="material-symbols-outlined text-[16px]">account_circle</span>
         </a>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CATALOGUE CONTAINER -->
-  <main class="w-full pt-20 flex-1">
-    <div class="w-full max-w-[1580px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <!-- MAIN CATALOGUE -->
+  <main class="w-full pt-18 flex-1">
+    <div class="w-full max-w-[1580px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pt-20">
       
-      <!-- EDITORIAL MASTHEAD -->
-      <div class="pb-6 mb-8 border-b border-border-rule flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      <!-- MASTHEAD -->
+      <div class="pb-6 mb-8 border-b border-hm-border-s flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
-          <div class="flex items-center gap-2 mb-2 font-mono text-[10px] text-auction-red tracking-[0.25em] uppercase font-bold">
-            <span class="inline-block w-2 h-2 bg-auction-red"></span>
-            <span>CONSORTIUM ARCHIVAL DOSSIER // VOL. XXVI</span>
+          <div class="flex items-center gap-2 mb-2 font-mono text-[10px] text-hm-vermilion tracking-[0.25em] uppercase font-bold">
+            <span class="inline-block w-2 h-2 bg-hm-vermilion rounded-[2px]"></span>
+            <span>2026 OFFICIAL AUCTION CATALOGUE</span>
           </div>
-          <h1 class="font-serif text-5xl lg:text-6xl text-ink-primary uppercase tracking-tight leading-none">
-            PLAYER CATALOGUE
+          <h1 class="font-display text-6xl lg:text-7xl text-hm-text uppercase tracking-wide leading-none">
+            PLAYER POOL
           </h1>
-          <p class="font-mono text-xs text-ink-secondary mt-2 tracking-widest uppercase">
-            73 REGISTERED CRICKETERS // OFFICIAL 2026 AUCTION LOTS & COLLECTIBLE CARDS
+          <p class="font-mono text-xs text-hm-muted mt-2 tracking-widest uppercase">
+            73 REGISTERED CRICKETERS // COLLECTIBLE CARDS // 3D FLIP ON HOVER
           </p>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-paper-surface border border-border-rule p-2 font-mono text-[11px]">
-          <div class="bg-paper-card p-2 border border-border-hairline">
-            <span class="text-ink-secondary block text-[9px] uppercase tracking-widest">TOTAL LOTS</span>
-            <span class="font-bold text-ink-primary text-base" id="stat-total-players">73</span>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-hm-charcoal border border-hm-border-s p-2 font-mono text-[11px] rounded-[6px]">
+          <div class="bg-hm-panel p-2 border border-hm-border rounded-[4px]">
+            <span class="text-hm-faint block text-[9px] uppercase tracking-widest">TOTAL LOTS</span>
+            <span class="font-bold text-hm-text text-base" id="stat-total-players">73</span>
           </div>
-          <div class="bg-paper-card p-2 border border-border-hairline">
-            <span class="text-ink-secondary block text-[9px] uppercase tracking-widest">OFFICIAL CUTOUTS</span>
-            <span class="font-bold text-brass text-base">40</span>
+          <div class="bg-hm-panel p-2 border border-hm-border rounded-[4px]">
+            <span class="text-hm-faint block text-[9px] uppercase tracking-widest">WITH PHOTOS</span>
+            <span class="font-bold text-hm-amber text-base">40</span>
           </div>
-          <div class="bg-paper-card p-2 border border-border-hairline">
-            <span class="text-ink-secondary block text-[9px] uppercase tracking-widest">OVERSEAS</span>
-            <span class="font-bold text-ink-primary text-base" id="stat-overseas">24</span>
+          <div class="bg-hm-panel p-2 border border-hm-border rounded-[4px]">
+            <span class="text-hm-faint block text-[9px] uppercase tracking-widest">OVERSEAS</span>
+            <span class="font-bold text-hm-text text-base" id="stat-overseas">24</span>
           </div>
-          <div class="bg-paper-card p-2 border border-border-hairline">
-            <span class="text-ink-secondary block text-[9px] uppercase tracking-widest">BASE PURSE CAP</span>
-            <span class="font-bold text-auction-red text-base">₹125 CR</span>
+          <div class="bg-hm-panel p-2 border border-hm-border rounded-[4px]">
+            <span class="text-hm-faint block text-[9px] uppercase tracking-widest">BASE PURSE</span>
+            <span class="font-bold text-hm-vermilion text-base">₹125 CR</span>
           </div>
         </div>
       </div>
 
-      <!-- FILTER & SEARCH BAR -->
-      <div class="bg-paper-card border border-border-rule p-2 mb-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <!-- FILTER & SEARCH -->
+      <div class="bg-hm-panel border border-hm-border-s p-2 mb-8 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 rounded-[6px]">
         <div class="flex items-center flex-wrap gap-1 font-mono text-[11px] uppercase tracking-wider" id="filter-container">
-          <button class="filter-tab px-3 py-1.5 bg-ink-primary text-paper-base font-bold border border-ink-primary transition-all" data-filter="all">ALL (73)</button>
-          <button class="filter-tab px-3 py-1.5 text-ink-secondary hover:text-ink-primary hover:bg-paper-surface border border-transparent transition-all" data-filter="batters">BATTERS</button>
-          <button class="filter-tab px-3 py-1.5 text-ink-secondary hover:text-ink-primary hover:bg-paper-surface border border-transparent transition-all" data-filter="wicketkeepers">WICKETKEEPERS</button>
-          <button class="filter-tab px-3 py-1.5 text-ink-secondary hover:text-ink-primary hover:bg-paper-surface border border-transparent transition-all" data-filter="allrounders">ALL-ROUNDERS</button>
-          <button class="filter-tab px-3 py-1.5 text-ink-secondary hover:text-ink-primary hover:bg-paper-surface border border-transparent transition-all" data-filter="bowlers">BOWLERS</button>
-          <button class="filter-tab px-3 py-1.5 text-ink-secondary hover:text-ink-primary hover:bg-paper-surface border border-transparent transition-all" data-filter="overseas">OVERSEAS</button>
-          <button class="filter-tab px-3 py-1.5 text-ink-secondary hover:text-ink-primary hover:bg-paper-surface border border-transparent transition-all" data-filter="uncapped">UNCAPPED</button>
+          <button class="filter-tab px-3 py-1.5 bg-hm-elevated text-hm-text font-bold border border-hm-border-s transition-all rounded-[4px]" data-filter="all">ALL (73)</button>
+          <button class="filter-tab px-3 py-1.5 text-hm-muted hover:text-hm-text hover:bg-hm-elevated border border-transparent transition-all rounded-[4px]" data-filter="batters">BATTERS</button>
+          <button class="filter-tab px-3 py-1.5 text-hm-muted hover:text-hm-text hover:bg-hm-elevated border border-transparent transition-all rounded-[4px]" data-filter="wicketkeepers">WICKETKEEPERS</button>
+          <button class="filter-tab px-3 py-1.5 text-hm-muted hover:text-hm-text hover:bg-hm-elevated border border-transparent transition-all rounded-[4px]" data-filter="allrounders">ALL-ROUNDERS</button>
+          <button class="filter-tab px-3 py-1.5 text-hm-muted hover:text-hm-text hover:bg-hm-elevated border border-transparent transition-all rounded-[4px]" data-filter="bowlers">BOWLERS</button>
+          <button class="filter-tab px-3 py-1.5 text-hm-muted hover:text-hm-text hover:bg-hm-elevated border border-transparent transition-all rounded-[4px]" data-filter="overseas">OVERSEAS</button>
+          <button class="filter-tab px-3 py-1.5 text-hm-muted hover:text-hm-text hover:bg-hm-elevated border border-transparent transition-all rounded-[4px]" data-filter="uncapped">UNCAPPED</button>
         </div>
 
         <div class="flex items-center gap-2">
           <div class="relative flex-1 md:w-64">
-            <input type="text" id="pool-search" placeholder="Search cricketer name..." class="w-full bg-paper-surface border border-border-rule px-3 py-1.5 font-mono text-[11px] text-ink-primary tracking-wider focus:outline-none focus:border-ink-primary rounded-none"/>
+            <input type="text" id="pool-search" placeholder="Search cricketer name..." class="w-full bg-hm-charcoal border border-hm-border-s px-3 py-1.5 font-mono text-[11px] text-hm-text tracking-wider focus:outline-none focus:border-hm-vermilion rounded-[4px]"/>
           </div>
-          <div class="hidden sm:flex items-center gap-1 font-mono text-[10px] text-ink-secondary px-2">
-            <span class="material-symbols-outlined text-[14px] text-auction-red">touch_app</span>
-            <span class="uppercase">HOVER TO FLIP 3D</span>
+          <div class="hidden sm:flex items-center gap-1 font-mono text-[10px] text-hm-faint px-2">
+            <span class="material-symbols-outlined text-[14px] text-hm-vermilion">touch_app</span>
+            <span class="uppercase">HOVER TO FLIP</span>
           </div>
         </div>
       </div>
 
       <!-- PLAYER CARD GRID -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="player-grid">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="player-grid">
         <div class="col-span-full text-center py-20">
-          <span class="material-symbols-outlined text-[48px] text-border-rule animate-spin">refresh</span>
-          <p class="font-mono text-xs text-ink-secondary uppercase tracking-widest mt-3">INITIALIZING CRICKET DOSSIER ARCHIVE...</p>
+          <span class="material-symbols-outlined text-[48px] text-hm-faint animate-spin">refresh</span>
+          <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-3">LOADING PLAYER ARCHIVE...</p>
         </div>
       </div>
 
       <!-- PAGINATION -->
-      <div class="mt-12 p-3 bg-paper-card border border-border-rule flex flex-col sm:flex-row items-center justify-between gap-3 text-ink-secondary font-mono text-xs">
+      <div class="mt-12 p-3 bg-hm-panel border border-hm-border-s flex flex-col sm:flex-row items-center justify-between gap-3 text-hm-muted font-mono text-xs rounded-[6px]">
         <div class="flex items-center gap-2">
-          <span class="w-2 h-2 bg-auction-red"></span>
-          <span class="uppercase tracking-widest text-ink-primary font-bold">
-            CERTIFIED UNDER 2026 IPL AUCTION REGULATIONS
+          <span class="w-2 h-2 bg-hm-vermilion rounded-[2px]"></span>
+          <span class="uppercase tracking-widest text-hm-text font-bold">
+            2026 IPL AUCTION REGULATIONS
           </span>
         </div>
         <div class="flex items-center gap-4">
           <span class="uppercase tracking-wider" id="page-indicator">PAGE 01 OF 01</span>
           <div class="flex items-center gap-1">
-            <button id="btn-prev" class="px-3 py-1.5 bg-paper-surface border border-border-rule text-ink-primary hover:bg-border-rule transition-colors uppercase font-bold">PREV</button>
-            <button id="btn-next" class="px-3 py-1.5 bg-ink-primary text-paper-base border border-ink-primary transition-colors uppercase font-bold">NEXT</button>
+            <button id="btn-prev" class="px-3 py-1.5 bg-hm-elevated border border-hm-border-s text-hm-text hover:bg-hm-surface transition-colors uppercase font-bold rounded-[4px]">PREV</button>
+            <button id="btn-next" class="px-3 py-1.5 bg-hm-vermilion text-hm-text border border-hm-vermilion transition-colors uppercase font-bold rounded-[4px]">NEXT</button>
           </div>
         </div>
       </div>
@@ -190,19 +191,19 @@
       const isUnsold = p.status === 'unsold';
 
       const statusBadge = isSold
-        ? `<span class="font-mono text-[10px] uppercase bg-auction-red text-paper-base border border-auction-red px-2 py-0.5 font-bold tracking-wider flex items-center gap-1"><span class="material-symbols-outlined text-[11px]">gavel</span>SOLD</span>`
+        ? `<span class="font-mono text-[10px] uppercase bg-hm-vermilion text-hm-text border border-hm-vermilion px-2 py-0.5 font-bold tracking-wider flex items-center gap-1 rounded-[3px]"><span class="material-symbols-outlined text-[11px]">gavel</span>SOLD</span>`
         : isOnHammer
-        ? `<span class="font-mono text-[10px] uppercase bg-paper-surface text-auction-red border border-auction-red px-2 py-0.5 font-bold tracking-wider animate-pulse">ON HAMMER</span>`
+        ? `<span class="font-mono text-[10px] uppercase bg-hm-vermilion/10 text-hm-vermilion border border-hm-vermilion px-2 py-0.5 font-bold tracking-wider live-pulse rounded-[3px]">ON HAMMER</span>`
         : isUnsold
-        ? `<span class="font-mono text-[10px] uppercase bg-paper-surface text-ink-secondary border border-border-rule px-2 py-0.5 font-bold tracking-wider">UNSOLD</span>`
-        : `<span class="font-mono text-[10px] uppercase bg-paper-surface text-ink-primary border border-border-rule px-2 py-0.5 font-bold tracking-wider">AVAILABLE</span>`;
+        ? `<span class="font-mono text-[10px] uppercase bg-hm-elevated text-hm-faint border border-hm-border-s px-2 py-0.5 font-bold tracking-wider rounded-[3px]">UNSOLD</span>`
+        : `<span class="font-mono text-[10px] uppercase bg-hm-elevated text-hm-text border border-hm-border-s px-2 py-0.5 font-bold tracking-wider rounded-[3px]">AVAILABLE</span>`;
 
       const priceLabel = isSold ? `SOLD TO ${p.soldTo}` : `BASE RESERVE`;
       const priceVal = isSold ? Hammer.formatCurrency(p.soldPrice) : Hammer.formatCurrency(p.basePrice);
 
       const imageContent = p.image
-        ? `<img alt="${p.name} Portrait" class="absolute inset-0 w-full h-full object-contain object-bottom transition-transform duration-700 group-hover:scale-105 select-none" loading="lazy" src="${p.image}" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"/><div class="hidden absolute inset-0 bg-paper-surface flex flex-col items-center justify-center p-6 text-center select-none"><span class="material-symbols-outlined text-[64px] text-border-rule">${p.icon || 'sports_cricket'}</span><span class="font-serif text-3xl font-bold uppercase text-ink-primary mt-2">${(p.displayName || p.name).split(' ').map(n=>n[0]).join('').slice(0,2)}</span><span class="font-mono text-[9px] text-ink-secondary uppercase tracking-widest mt-1">OFFICIAL PROFILE</span></div>`
-        : `<div class="absolute inset-0 bg-paper-surface flex flex-col items-center justify-center p-6 text-center select-none"><span class="material-symbols-outlined text-[64px] text-border-rule">${p.icon || 'sports_cricket'}</span><span class="font-serif text-3xl font-bold uppercase text-ink-primary mt-2">${(p.displayName || p.name).split(' ').map(n=>n[0]).join('').slice(0,2)}</span><span class="font-mono text-[9px] text-ink-secondary uppercase tracking-widest mt-1">OFFICIAL PROFILE</span></div>`;
+        ? `<img alt="${p.name} Portrait" class="absolute inset-0 w-full h-full object-contain object-bottom transition-transform duration-700 group-hover:scale-105 select-none" loading="lazy" src="${p.image}" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"/><div class="hidden absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-6 text-center select-none"><span class="material-symbols-outlined text-[64px] text-hm-faint">${p.icon || 'sports_cricket'}</span><span class="font-display text-4xl text-hm-text mt-2">${(p.displayName || p.name).split(' ').map(n=>n[0]).join('').slice(0,2)}</span><span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest mt-1">OFFICIAL PROFILE</span></div>`
+        : `<div class="absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-6 text-center select-none"><span class="material-symbols-outlined text-[64px] text-hm-faint">${p.icon || 'sports_cricket'}</span><span class="font-display text-4xl text-hm-text mt-2">${(p.displayName || p.name).split(' ').map(n=>n[0]).join('').slice(0,2)}</span><span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest mt-1">OFFICIAL PROFILE</span></div>`;
 
       // Statistics for Back of Card
       const statsList = [];
@@ -215,9 +216,9 @@
       while (statsList.length < 6) statsList.push({ label: 'INDEX', val: '—' });
 
       const statsGridHtml = statsList.slice(0, 6).map(s => `
-        <div class="bg-paper-card p-2 border border-border-hairline text-center">
-          <span class="font-mono text-[9px] text-ink-secondary block uppercase tracking-wider">${s.label}</span>
-          <span class="font-mono text-sm font-bold text-ink-primary">${s.val}</span>
+        <div class="bg-hm-elevated p-2 border border-hm-border text-center rounded-[3px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-wider">${s.label}</span>
+          <span class="font-mono text-sm font-bold text-hm-text">${s.val}</span>
         </div>
       `).join('');
 
@@ -225,47 +226,47 @@
       <div class="flip-card group w-full h-[540px] select-none" data-role="${roleFilter}" data-id="${p.id}">
         <div class="flip-card-inner">
           
-          <!-- ═══ CARD FRONT ═══ -->
-          <div class="flip-card-front bg-paper-card border border-border-rule flex flex-col justify-between p-4 shadow-sm">
+          <!-- CARD FRONT -->
+          <div class="flip-card-front bg-hm-panel border border-hm-border-s flex flex-col justify-between p-4 rounded-[6px]">
             
             <!-- Top Rail -->
-            <div class="flex items-center justify-between pb-2.5 border-b border-border-hairline">
-              <div class="flex items-center gap-1.5 font-mono text-xs font-bold text-ink-primary">
-                <span class="w-1.5 h-1.5 bg-auction-red inline-block"></span>
+            <div class="flex items-center justify-between pb-2.5 border-b border-hm-border">
+              <div class="flex items-center gap-1.5 font-mono text-xs font-bold text-hm-text">
+                <span class="w-1.5 h-1.5 bg-hm-vermilion inline-block rounded-[2px]"></span>
                 <span>LOT #${String(p.lotNumber).padStart(3, '0')}</span>
               </div>
               ${statusBadge}
             </div>
 
             <!-- Central Portrait Canvas -->
-            <div class="relative flex-1 w-full bg-paper-surface border border-border-hairline my-3 overflow-hidden flex items-end">
+            <div class="relative flex-1 w-full bg-hm-charcoal border border-hm-border my-3 overflow-hidden flex items-end rounded-[4px]">
               ${imageContent}
               
-              <!-- Ambient gradient overlay -->
-              <div class="absolute inset-0 bg-gradient-to-t from-paper-card via-paper-card/40 to-transparent pointer-events-none"></div>
+              <!-- Dark gradient overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-hm-panel via-hm-panel/40 to-transparent pointer-events-none"></div>
 
               <!-- Foreground Typography -->
               <div class="relative p-3.5 w-full z-10 pointer-events-none">
-                <span class="font-mono text-[9px] text-auction-red uppercase tracking-[0.2em] font-bold block mb-0.5">
+                <span class="font-mono text-[9px] text-hm-vermilion uppercase tracking-[0.2em] font-bold block mb-0.5">
                   ${p.set || 'AUCTION LOT'}
                 </span>
-                <h3 class="font-serif text-2xl uppercase tracking-tight text-ink-primary font-bold leading-tight">
+                <h3 class="font-display text-3xl uppercase tracking-wide text-hm-text leading-tight">
                   ${p.name}
                 </h3>
-                <p class="font-mono text-[10px] text-ink-secondary uppercase tracking-wider mt-1">
+                <p class="font-mono text-[10px] text-hm-muted uppercase tracking-wider mt-1">
                   ${Hammer.getRoleLabel(p.role)} • ${p.nationality}${p.overseas ? ' (OVERSEAS)' : ''}
                 </p>
               </div>
             </div>
 
             <!-- Card Bottom Bar -->
-            <div class="pt-2 border-t border-border-hairline flex items-center justify-between">
+            <div class="pt-2 border-t border-hm-border flex items-center justify-between">
               <div>
-                <span class="block font-mono text-[9px] text-ink-secondary uppercase tracking-widest">${priceLabel}</span>
-                <span class="font-serif text-2xl font-bold text-ink-primary leading-tight">${priceVal}</span>
+                <span class="block font-mono text-[9px] text-hm-faint uppercase tracking-widest">${priceLabel}</span>
+                <span class="font-display text-3xl text-hm-text leading-tight">${priceVal}</span>
               </div>
               <div class="text-right">
-                <span class="font-mono text-[9px] text-auction-red tracking-widest uppercase font-bold flex items-center gap-1">
+                <span class="font-mono text-[9px] text-hm-vermilion tracking-widest uppercase font-bold flex items-center gap-1">
                   <span>FLIP 3D</span>
                   <span class="material-symbols-outlined text-[13px]">360</span>
                 </span>
@@ -273,25 +274,25 @@
             </div>
           </div>
 
-          <!-- ═══ CARD BACK (CAREER DOSSIER & METRICS) ═══ -->
-          <div class="flip-card-back bg-paper-surface border-2 border-ink-primary flex flex-col justify-between p-5 text-ink-primary">
+          <!-- CARD BACK (CAREER STATS) -->
+          <div class="flip-card-back bg-hm-charcoal border border-hm-vermilion flex flex-col justify-between p-5 text-hm-text rounded-[6px]">
             
             <!-- Back Header -->
-            <div class="flex items-center justify-between pb-3 border-b border-border-rule">
+            <div class="flex items-center justify-between pb-3 border-b border-hm-border-s">
               <div>
-                <span class="font-mono text-[9px] text-auction-red uppercase tracking-widest font-bold block">VERIFIED METRICS</span>
-                <h4 class="font-serif text-xl uppercase font-bold text-ink-primary leading-none mt-0.5">${p.name}</h4>
+                <span class="font-mono text-[9px] text-hm-vermilion uppercase tracking-widest font-bold block">CAREER STATS</span>
+                <h4 class="font-display text-2xl uppercase text-hm-text leading-none mt-0.5">${p.name}</h4>
               </div>
-              <span class="font-mono text-[10px] text-ink-secondary border border-border-rule bg-paper-card px-2 py-0.5 font-bold">
+              <span class="font-mono text-[10px] text-hm-muted border border-hm-border-s bg-hm-elevated px-2 py-0.5 font-bold rounded-[3px]">
                 LOT #${String(p.lotNumber).padStart(3, '0')}
               </span>
             </div>
 
-            <!-- Discipline & Stats -->
+            <!-- Stats -->
             <div class="flex-1 flex flex-col justify-center my-3 space-y-3">
-              <div class="bg-paper-card p-2 border border-border-hairline text-center">
-                <span class="font-mono text-[9px] text-ink-secondary block uppercase tracking-widest">DISCIPLINE</span>
-                <span class="font-serif text-base uppercase font-bold text-ink-primary">${p.roleLabel || p.role.toUpperCase()}</span>
+              <div class="bg-hm-elevated p-2 border border-hm-border text-center rounded-[3px]">
+                <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest">DISCIPLINE</span>
+                <span class="font-display text-xl uppercase text-hm-text">${p.roleLabel || p.role.toUpperCase()}</span>
               </div>
 
               <!-- 6 Stats Grid -->
@@ -300,18 +301,18 @@
               </div>
 
               <!-- Tactical Profile -->
-              <div class="bg-paper-card p-2.5 border border-border-hairline">
-                <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-widest font-bold block mb-1">TACTICAL DOSSIER</span>
-                <p class="font-serif text-xs text-ink-primary leading-relaxed line-clamp-3">
+              <div class="bg-hm-elevated p-2.5 border border-hm-border rounded-[3px]">
+                <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest font-bold block mb-1">TACTICAL PROFILE</span>
+                <p class="font-ui text-xs text-hm-muted leading-relaxed line-clamp-3">
                   ${p.tacticalProfile || 'Official IPL match registry index. Historical benchmark performance recorded across international and franchise championship matches.'}
                 </p>
               </div>
             </div>
 
             <!-- Back Footer -->
-            <div class="pt-2 border-t border-border-rule flex items-center justify-between font-mono text-[9px] text-ink-secondary uppercase">
-              <span>IPL SEAL CERTIFIED</span>
-              <span class="text-auction-red font-bold">LEAVE TO RETURN ↺</span>
+            <div class="pt-2 border-t border-hm-border-s flex items-center justify-between font-mono text-[9px] text-hm-faint uppercase">
+              <span>IPL CERTIFIED</span>
+              <span class="text-hm-vermilion font-bold">LEAVE TO RETURN ↺</span>
             </div>
 
           </div>
@@ -322,19 +323,19 @@
 
     function renderSkeletons(count = 8) {
       return Array.from({ length: count }).map(() => `
-        <div class="w-full h-[540px] bg-paper-card border border-border-rule p-4 flex flex-col justify-between animate-pulse">
-          <div class="flex items-center justify-between pb-2.5 border-b border-border-hairline">
-            <div class="h-3 w-16 bg-paper-surface"></div>
-            <div class="h-3 w-12 bg-paper-surface"></div>
+        <div class="w-full h-[540px] bg-hm-panel border border-hm-border-s p-4 flex flex-col justify-between animate-pulse rounded-[6px]">
+          <div class="flex items-center justify-between pb-2.5 border-b border-hm-border">
+            <div class="h-3 w-16 bg-hm-elevated rounded"></div>
+            <div class="h-3 w-12 bg-hm-elevated rounded"></div>
           </div>
-          <div class="flex-1 w-full bg-paper-surface border border-border-hairline my-3 relative overflow-hidden flex flex-col justify-end p-3.5">
-            <div class="h-2.5 w-20 bg-border-hairline mb-2"></div>
-            <div class="h-6 w-36 bg-border-hairline mb-2"></div>
-            <div class="h-3 w-28 bg-border-hairline"></div>
+          <div class="flex-1 w-full bg-hm-charcoal border border-hm-border my-3 relative overflow-hidden flex flex-col justify-end p-3.5 rounded-[4px]">
+            <div class="h-2.5 w-20 bg-hm-elevated mb-2 rounded"></div>
+            <div class="h-6 w-36 bg-hm-elevated mb-2 rounded"></div>
+            <div class="h-3 w-28 bg-hm-elevated rounded"></div>
           </div>
-          <div class="pt-2 border-t border-border-hairline flex items-center justify-between">
-            <div class="h-5 w-20 bg-paper-surface"></div>
-            <div class="h-3 w-14 bg-paper-surface"></div>
+          <div class="pt-2 border-t border-hm-border flex items-center justify-between">
+            <div class="h-5 w-20 bg-hm-elevated rounded"></div>
+            <div class="h-3 w-14 bg-hm-elevated rounded"></div>
           </div>
         </div>
       `).join('');
@@ -362,13 +363,13 @@
         if (list.length === 0) {
           const isFiltered = currentFilter !== 'all' || (currentSearch && currentSearch.length > 0);
           grid.innerHTML = `
-            <div class="col-span-full text-center py-24 bg-paper-card border border-border-rule p-8 shadow-sm">
-              <span class="material-symbols-outlined text-[48px] text-border-rule">search_off</span>
-              <h3 class="font-serif text-2xl text-ink-primary mt-2 uppercase font-bold">
-                ${isFiltered ? 'NO CRICKETERS MATCHING CRITERIA' : 'NO PLAYERS HAVE BEEN ADDED TO THIS AUCTION YET.'}
+            <div class="col-span-full text-center py-24 bg-hm-panel border border-hm-border-s p-8 rounded-[6px]">
+              <span class="material-symbols-outlined text-[48px] text-hm-faint">search_off</span>
+              <h3 class="font-display text-3xl text-hm-text mt-2 uppercase">
+                ${isFiltered ? 'NO MATCHING CRICKETERS' : 'NO PLAYERS IN THIS AUCTION YET'}
               </h3>
-              <p class="font-mono text-xs text-ink-secondary uppercase tracking-wider mt-1">
-                ${isFiltered ? 'Adjust search parameters or select a different category filter' : 'Awaiting official squad registry sync from tournament database.'}
+              <p class="font-mono text-xs text-hm-faint uppercase tracking-wider mt-1">
+                ${isFiltered ? 'Adjust search parameters or select a different category' : 'Awaiting official squad registry sync.'}
               </p>
             </div>
           `;
@@ -379,10 +380,10 @@
       } catch (err) {
         console.error('[Hammer] Error loading players:', err);
         grid.innerHTML = `
-          <div class="col-span-full text-center py-16 bg-paper-card border border-auction-red/40 p-8 shadow-sm">
-            <span class="material-symbols-outlined text-[44px] text-auction-red">error_outline</span>
-            <h3 class="font-serif text-2xl text-ink-primary mt-2 uppercase font-bold">UNABLE TO LOAD THE PLAYER POOL</h3>
-            <p class="font-mono text-xs text-ink-secondary uppercase tracking-wider mt-1">The connection to the player catalogue registry was interrupted.</p>
+          <div class="col-span-full text-center py-16 bg-hm-panel border border-hm-vermilion/40 p-8 rounded-[6px]">
+            <span class="material-symbols-outlined text-[44px] text-hm-vermilion">error_outline</span>
+            <h3 class="font-display text-3xl text-hm-text mt-2 uppercase">UNABLE TO LOAD PLAYERS</h3>
+            <p class="font-mono text-xs text-hm-faint uppercase tracking-wider mt-1">Connection to registry interrupted.</p>
             <button onclick="window.retryLoadPlayers()" class="btn-hammer-physical mt-5 px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-wider">
               RETRY CONNECTION
             </button>
@@ -397,9 +398,9 @@
     document.querySelectorAll('.filter-tab').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-tab').forEach(b => {
-          b.className = 'filter-tab px-3 py-1.5 text-ink-secondary hover:text-ink-primary hover:bg-paper-surface border border-transparent transition-all';
+          b.className = 'filter-tab px-3 py-1.5 text-hm-muted hover:text-hm-text hover:bg-hm-elevated border border-transparent transition-all rounded-[4px]';
         });
-        btn.className = 'filter-tab px-3 py-1.5 bg-ink-primary text-paper-base font-bold border border-ink-primary transition-all';
+        btn.className = 'filter-tab px-3 py-1.5 bg-hm-elevated text-hm-text font-bold border border-hm-border-s transition-all rounded-[4px]';
         currentFilter = btn.dataset.filter;
         currentPage = 1;
         loadPlayers();

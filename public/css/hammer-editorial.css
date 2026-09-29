@@ -1,95 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 :root {
-  --bg-paper: #FAF7F2;
-  --bg-card: #FFFFFF;
-  --bg-surface: #F2EDE3;
-  --bg-surface-elevated: #ECE5D8;
-  --bg-dark: #12100E;
-  --bg-dark-surface: #1B1815;
+  /* ── Base Dark Environment ── */
+  --bg-ink: #0B0C0D;
+  --bg-charcoal: #121416;
+  --bg-panel: #181A1C;
+  --bg-elevated: #1E2022;
+  --bg-surface: #242628;
 
-  --text-ink: #141210;
-  --text-ink-secondary: #5C5349;
-  --text-ink-faint: #948A7D;
-  --text-light: #FAF7F2;
-  --text-light-secondary: #C2B8AB;
+  /* ── Typography ── */
+  --text-primary: #F2F0EA;
+  --text-secondary: #A7A9AA;
+  --text-muted: #6F7274;
+  --text-faint: #4A4C4E;
 
-  --border-hairline: #E4DBD0;
-  --border-rule: #D2C6B6;
-  --border-dark: #2E2923;
+  /* ── Borders ── */
+  --border-subtle: #232527;
+  --border-default: #303234;
+  --border-strong: #444648;
 
-  --crimson: #A31D24;
-  --crimson-dark: #82141A;
-  --crimson-subtle: #FDF3F3;
-  --crimson-border: #E8B4B6;
+  /* ── Auction Accent (Deep Vermilion) ── */
+  --vermilion: #C74632;
+  --vermilion-dark: #9E3628;
+  --vermilion-glow: rgba(199, 70, 50, 0.15);
+  --vermilion-muted: rgba(199, 70, 50, 0.08);
 
-  --brass: #B68E42;
-  --brass-dark: #8C6A2A;
-  --brass-light: #F7F2E7;
-  --brass-border: #DFCBA4;
+  /* ── Status Colors ── */
+  --emerald: #2D8B5A;
+  --emerald-muted: rgba(45, 139, 90, 0.12);
+  --amber: #C4932A;
+  --amber-muted: rgba(196, 147, 42, 0.12);
 
-  --emerald: #1B7A4D;
-  --emerald-light: #EBF7F0;
-
-  --font-serif: 'Instrument Serif', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
-  --font-mono: 'Space Mono', monospace;
-  --font-display: 'Bebas Neue', 'Plus Jakarta Sans', sans-serif;
+  /* ── Font Stack ── */
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Bebas Neue', 'Inter', sans-serif;
+  --font-mono: 'Space Mono', 'SF Mono', 'Consolas', monospace;
 }
 
-/* Base resets & typography */
+/* ── Base Reset & Typography ── */
 html, body {
-  background-color: var(--bg-paper);
-  color: var(--text-ink);
-  font-family: var(--font-sans);
+  background-color: var(--bg-ink);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
   margin: 0;
   padding: 0;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
-  background-color: var(--bg-dark);
-  color: var(--bg-paper);
+  background-color: var(--vermilion);
+  color: var(--text-primary);
 }
 
-/* Subtle archival paper texture overlay */
+/* ── Subtle Film Grain Texture ── */
 .paper-grain-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.028;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
-/* Editorial Registration Marks */
-.registration-mark {
-  position: relative;
-}
-.registration-mark::before {
-  content: "+";
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--border-rule);
-  line-height: 1;
-  pointer-events: none;
-}
-
-/* Typography Utilities */
-.font-serif { font-family: var(--font-serif); }
-.font-sans { font-family: var(--font-sans); }
-.font-mono { font-family: var(--font-mono); }
+/* ── Font Utilities ── */
+.font-ui { font-family: var(--font-ui); }
 .font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
 
-
-
-/* ═══════════════════════════════════════════════════════════════
-   3D AUTOMATIC HOVER FLIP CARD SYSTEM (REQUIREMENT 6)
-   ═══════════════════════════════════════════════════════════════ */
+/* ── 3D Automatic Hover Flip Card System ── */
 .flip-card {
   perspective: 1400px;
   -webkit-perspective: 1400px;
@@ -103,17 +84,15 @@ html, body {
   height: 100%;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Desktop hover triggers 3D flip automatically */
 @media (hover: hover) and (pointer: fine) {
   .flip-card:hover .flip-card-inner {
     transform: rotateY(180deg);
   }
 }
 
-/* Touch devices trigger flip on tap / .is-flipped class */
 .flip-card.is-flipped .flip-card-inner {
   transform: rotateY(180deg) !important;
 }
@@ -139,56 +118,58 @@ html, body {
   z-index: 1;
 }
 
-/* Tactile Auction Buttons */
+/* ── Tactile Auction Buttons ── */
 .btn-hammer-physical {
   position: relative;
-  background-color: var(--crimson);
-  color: var(--bg-paper);
-  border: 1px solid var(--crimson-dark);
-  box-shadow: 0 4px 0 var(--crimson-dark), 0 8px 16px rgba(163, 29, 36, 0.25);
-  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: var(--vermilion);
+  color: var(--text-primary);
+  border: 1px solid var(--vermilion-dark);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--vermilion-dark), 0 6px 16px rgba(199, 70, 50, 0.2);
+  transition: all 0.1s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
 .btn-hammer-physical:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 5px 0 var(--crimson-dark), 0 12px 20px rgba(163, 29, 36, 0.3);
+  box-shadow: 0 4px 0 var(--vermilion-dark), 0 10px 20px rgba(199, 70, 50, 0.25);
 }
 
 .btn-hammer-physical:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: 0 0 0 var(--crimson-dark), 0 2px 4px rgba(163, 29, 36, 0.2);
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--vermilion-dark), 0 1px 4px rgba(199, 70, 50, 0.15);
 }
 
 .btn-hammer-physical:disabled {
-  opacity: 0.55;
+  opacity: 0.45;
   cursor: not-allowed;
   transform: none;
-  box-shadow: 0 2px 0 var(--crimson-dark);
+  box-shadow: 0 2px 0 var(--vermilion-dark);
 }
 
-/* Secondary Physical Button */
+/* ── Secondary Panel Button ── */
 .btn-paper-physical {
   position: relative;
-  background-color: var(--bg-card);
-  color: var(--text-ink);
-  border: 1px solid var(--border-rule);
-  box-shadow: 0 3px 0 var(--border-rule), 0 4px 8px rgba(0, 0, 0, 0.04);
-  transition: all 0.12s ease;
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--border-subtle);
+  transition: all 0.1s ease;
 }
 
 .btn-paper-physical:hover:not(:disabled) {
   background-color: var(--bg-surface);
   transform: translateY(-1px);
-  box-shadow: 0 4px 0 var(--border-rule);
+  box-shadow: 0 3px 0 var(--border-subtle);
 }
 
 .btn-paper-physical:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: 0 0 0 var(--border-rule);
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--border-subtle);
 }
 
-/* Cinematic SOLD Stamp & Impact */
+/* ── Cinematic SOLD Slam Animation ── */
 @keyframes hammerSlam {
   0% {
     transform: scale(2.4) rotate(-6deg);
@@ -213,10 +194,10 @@ html, body {
   animation: hammerSlam 0.55s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
-/* Number roll animation */
+/* ── Bid Number Roll Animation ── */
 @keyframes numberPop {
   0% {
-    transform: translateY(20%);
+    transform: translateY(30%);
     opacity: 0;
   }
   100% {
@@ -226,10 +207,49 @@ html, body {
 }
 
 .animate-number-roll {
-  animation: numberPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: numberPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Reduced motion preference */
+/* ── Bid Flash Animation ── */
+@keyframes bidFlash {
+  0% { background-color: var(--vermilion-glow); }
+  100% { background-color: transparent; }
+}
+
+.animate-bid-flash {
+  animation: bidFlash 0.4s ease-out;
+}
+
+/* ── Live Pulse Dot ── */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.live-pulse {
+  animation: livePulse 1.8s ease-in-out infinite;
+}
+
+/* ── Scrollbar Styling ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-charcoal);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;

@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Consortium Authentication Portal</title>
+  <title>HAMMER // Authentication Portal</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <link rel="stylesheet" href="/css/hammer-editorial.css"/>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -16,89 +16,90 @@
       theme: {
         extend: {
           colors: {
-            "paper-base": "#FAF7F2",
-            "paper-card": "#FFFFFF",
-            "paper-surface": "#F2EDE4",
-            "paper-elevated": "#ECE5D8",
-            "ink-primary": "#141210",
-            "ink-secondary": "#5C5349",
-            "ink-faint": "#948A7D",
-            "border-hairline": "#E4DBD0",
-            "border-rule": "#D2C6B6",
-            "auction-red": "#A31D24",
-            "auction-red-dark": "#82141A",
-            "auction-red-light": "#FDF3F3",
-            "brass": "#B68E42",
-            "brass-light": "#F7F2E7"
+            "hm-ink": "#0B0C0D",
+            "hm-charcoal": "#121416",
+            "hm-panel": "#181A1C",
+            "hm-elevated": "#1E2022",
+            "hm-surface": "#242628",
+            "hm-text": "#F2F0EA",
+            "hm-muted": "#A7A9AA",
+            "hm-faint": "#6F7274",
+            "hm-dim": "#4A4C4E",
+            "hm-border": "#232527",
+            "hm-border-s": "#303234",
+            "hm-border-strong": "#444648",
+            "hm-vermilion": "#C74632",
+            "hm-vermilion-dk": "#9E3628",
+            "hm-amber": "#C4932A",
+            "hm-emerald": "#2D8B5A"
           },
           fontFamily: {
-            "serif": ["'Instrument Serif'", "Georgia", "serif"],
-            "sans": ["'Plus Jakarta Sans'", "-apple-system", "sans-serif"],
-            "mono": ["'Space Mono'", "monospace"],
-            "display": ["'Bebas Neue'", "sans-serif"]
+            "ui": ["'Inter'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            "display": ["'Bebas Neue'", "'Inter'", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"]
           }
         }
       }
     };
   </script>
 </head>
-<body class="bg-paper-base text-ink-primary min-h-screen flex flex-col items-center justify-center font-sans antialiased p-4">
+<body class="bg-hm-ink text-hm-text min-h-screen flex flex-col items-center justify-center font-ui antialiased p-4">
   <div class="paper-grain-overlay"></div>
 
   <div class="w-full max-w-md mx-auto relative z-10">
     
     <!-- BRAND MASTHEAD -->
-    <div class="text-center mb-6">
-      <div class="w-14 h-14 mx-auto border-2 border-ink-primary bg-ink-primary text-paper-base flex items-center justify-center font-serif font-bold text-3xl mb-3 shadow-md">H</div>
-      <h1 class="font-serif text-4xl tracking-tight text-ink-primary font-bold uppercase">HAMMER</h1>
-      <p class="font-mono text-[10px] text-ink-secondary uppercase tracking-[0.25em] mt-1">REALTIME CRICKET AUCTION PORTAL</p>
+    <div class="text-center mb-8">
+      <div class="w-14 h-14 mx-auto bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-3xl tracking-wider rounded-[6px] mb-4">H</div>
+      <h1 class="font-display text-5xl tracking-[0.12em] text-hm-text uppercase">HAMMER</h1>
+      <p class="font-mono text-[10px] text-hm-faint uppercase tracking-[0.25em] mt-1.5">THE CRICKET PLAYER AUCTION</p>
     </div>
 
-    <!-- LOGIN FORM CONTAINER -->
-    <div class="bg-paper-card border-2 border-border-rule p-6 sm:p-8 shadow-sm">
-      <div class="flex items-center justify-between pb-3 mb-5 border-b border-border-hairline">
-        <span class="font-mono text-[10px] tracking-widest text-ink-secondary uppercase font-bold">OPERATOR AUTHENTICATION</span>
-        <span class="font-mono text-[9px] text-auction-red uppercase font-bold">RESTRICTED ACCESS</span>
+    <!-- LOGIN FORM -->
+    <div class="bg-hm-panel border border-hm-border-s p-6 sm:p-8 rounded-[6px]">
+      <div class="flex items-center justify-between pb-3 mb-5 border-b border-hm-border">
+        <span class="font-mono text-[10px] tracking-widest text-hm-muted uppercase font-bold">AUTHENTICATE</span>
+        <span class="font-mono text-[9px] text-hm-vermilion uppercase font-bold">RESTRICTED ACCESS</span>
       </div>
 
       <form id="login-form" class="flex flex-col gap-4">
         <div>
-          <label class="block font-mono text-[10px] text-ink-secondary uppercase tracking-widest mb-1.5 font-bold">OPERATOR IDENTIFIER</label>
+          <label class="block font-mono text-[10px] text-hm-faint uppercase tracking-widest mb-1.5 font-bold">OPERATOR ID</label>
           <input type="text" id="username" autocomplete="username" required
-            class="w-full bg-paper-surface border border-border-rule px-3.5 py-2.5 font-mono text-sm text-ink-primary uppercase tracking-wider focus:outline-none focus:border-ink-primary rounded-none"
+            class="w-full bg-hm-charcoal border border-hm-border-s px-3.5 py-2.5 font-mono text-sm text-hm-text uppercase tracking-wider focus:outline-none focus:border-hm-vermilion rounded-[4px]"
             placeholder="e.g. auctioneer, mi, csk, rcb"/>
         </div>
         <div>
-          <label class="block font-mono text-[10px] text-ink-secondary uppercase tracking-widest mb-1.5 font-bold">AUTHORIZATION KEY</label>
+          <label class="block font-mono text-[10px] text-hm-faint uppercase tracking-widest mb-1.5 font-bold">ACCESS KEY</label>
           <input type="password" id="password" autocomplete="current-password" required
-            class="w-full bg-paper-surface border border-border-rule px-3.5 py-2.5 font-mono text-sm text-ink-primary tracking-wider focus:outline-none focus:border-ink-primary rounded-none"
+            class="w-full bg-hm-charcoal border border-hm-border-s px-3.5 py-2.5 font-mono text-sm text-hm-text tracking-wider focus:outline-none focus:border-hm-vermilion rounded-[4px]"
             placeholder="Enter password"/>
         </div>
 
-        <div id="login-error" class="hidden bg-auction-red-light border border-auction-red px-3 py-2 font-mono text-[11px] text-auction-red uppercase tracking-wider font-bold"></div>
+        <div id="login-error" class="hidden bg-hm-vermilion/10 border border-hm-vermilion px-3 py-2 font-mono text-[11px] text-hm-vermilion uppercase tracking-wider font-bold rounded-[4px]"></div>
 
         <button type="submit" id="login-btn" class="btn-hammer-physical w-full p-4 mt-2 text-center select-none font-mono text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2">
-          <span>AUTHENTICATE OPERATOR</span>
+          <span>AUTHENTICATE</span>
           <span class="material-symbols-outlined text-[16px]">lock_open</span>
         </button>
       </form>
 
       <!-- Quick Fill Role Chips -->
-      <div class="mt-5 pt-4 border-t border-border-hairline">
-        <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-widest block mb-2 font-bold">QUICK ROSTER SWITCH:</span>
+      <div class="mt-5 pt-4 border-t border-hm-border">
+        <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest block mb-2 font-bold">QUICK LOGIN:</span>
         <div class="flex flex-wrap gap-1">
-          <button type="button" class="quick-login px-2 py-1 bg-paper-surface border border-border-hairline text-ink-primary font-mono text-[10px] font-bold uppercase hover:bg-border-hairline" data-user="auctioneer" data-pass="hammer2026">AUCTIONEER</button>
-          <button type="button" class="quick-login px-2 py-1 bg-paper-surface border border-border-hairline text-ink-primary font-mono text-[10px] font-bold uppercase hover:bg-border-hairline" data-user="mi" data-pass="mi2026">MI</button>
-          <button type="button" class="quick-login px-2 py-1 bg-paper-surface border border-border-hairline text-ink-primary font-mono text-[10px] font-bold uppercase hover:bg-border-hairline" data-user="csk" data-pass="csk2026">CSK</button>
-          <button type="button" class="quick-login px-2 py-1 bg-paper-surface border border-border-hairline text-ink-primary font-mono text-[10px] font-bold uppercase hover:bg-border-hairline" data-user="rcb" data-pass="rcb2026">RCB</button>
+          <button type="button" class="quick-login px-2.5 py-1 bg-hm-elevated border border-hm-border text-hm-text font-mono text-[10px] font-bold uppercase hover:bg-hm-surface transition-colors rounded-[4px]" data-user="auctioneer" data-pass="hammer2026">AUCTIONEER</button>
+          <button type="button" class="quick-login px-2.5 py-1 bg-hm-elevated border border-hm-border text-hm-text font-mono text-[10px] font-bold uppercase hover:bg-hm-surface transition-colors rounded-[4px]" data-user="mi" data-pass="mi2026">MI</button>
+          <button type="button" class="quick-login px-2.5 py-1 bg-hm-elevated border border-hm-border text-hm-text font-mono text-[10px] font-bold uppercase hover:bg-hm-surface transition-colors rounded-[4px]" data-user="csk" data-pass="csk2026">CSK</button>
+          <button type="button" class="quick-login px-2.5 py-1 bg-hm-elevated border border-hm-border text-hm-text font-mono text-[10px] font-bold uppercase hover:bg-hm-surface transition-colors rounded-[4px]" data-user="rcb" data-pass="rcb2026">RCB</button>
         </div>
       </div>
     </div>
 
-    <!-- AUDIT FOOTER -->
+    <!-- FOOTER -->
     <div class="mt-4 text-center">
-      <a href="index.html" class="font-mono text-xs text-ink-secondary hover:text-ink-primary uppercase tracking-wider underline">
-        ← RETURN TO PUBLIC BROADCAST BOARD
+      <a href="index.html" class="font-mono text-xs text-hm-faint hover:text-hm-text uppercase tracking-wider transition-colors">
+        ← RETURN TO LIVE BROADCAST
       </a>
     </div>
 
@@ -133,7 +134,7 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorEl.classList.add('hidden');
-        loginBtn.querySelector('span:first-child').textContent = 'VERIFYING CREDENTIALS...';
+        loginBtn.querySelector('span:first-child').textContent = 'VERIFYING...';
         loginBtn.disabled = true;
 
         try {
@@ -144,7 +145,7 @@
         } catch (err) {
           errorEl.textContent = err.message || 'Authentication failed';
           errorEl.classList.remove('hidden');
-          loginBtn.querySelector('span:first-child').textContent = 'AUTHENTICATE OPERATOR';
+          loginBtn.querySelector('span:first-child').textContent = 'AUTHENTICATE';
           loginBtn.disabled = false;
         }
       });

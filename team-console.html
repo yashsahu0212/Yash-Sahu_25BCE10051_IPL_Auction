@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Franchise Bidding Control Terminal</title>
+  <title>HAMMER // Franchise Bidding Terminal</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <link rel="stylesheet" href="/css/hammer-editorial.css"/>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -16,26 +16,27 @@
       theme: {
         extend: {
           colors: {
-            "paper-base": "#FAF7F2",
-            "paper-card": "#FFFFFF",
-            "paper-surface": "#F2EDE4",
-            "paper-elevated": "#ECE5D8",
-            "ink-primary": "#141210",
-            "ink-secondary": "#5C5349",
-            "ink-faint": "#948A7D",
-            "border-hairline": "#E4DBD0",
-            "border-rule": "#D2C6B6",
-            "auction-red": "#A31D24",
-            "auction-red-dark": "#82141A",
-            "auction-red-light": "#FDF3F3",
-            "brass": "#B68E42",
-            "brass-light": "#F7F2E7"
+            "hm-ink": "#0B0C0D",
+            "hm-charcoal": "#121416",
+            "hm-panel": "#181A1C",
+            "hm-elevated": "#1E2022",
+            "hm-surface": "#242628",
+            "hm-text": "#F2F0EA",
+            "hm-muted": "#A7A9AA",
+            "hm-faint": "#6F7274",
+            "hm-dim": "#4A4C4E",
+            "hm-border": "#232527",
+            "hm-border-s": "#303234",
+            "hm-border-strong": "#444648",
+            "hm-vermilion": "#C74632",
+            "hm-vermilion-dk": "#9E3628",
+            "hm-amber": "#C4932A",
+            "hm-emerald": "#2D8B5A"
           },
           fontFamily: {
-            "serif": ["'Instrument Serif'", "Georgia", "serif"],
-            "sans": ["'Plus Jakarta Sans'", "-apple-system", "sans-serif"],
-            "mono": ["'Space Mono'", "monospace"],
-            "display": ["'Bebas Neue'", "sans-serif"]
+            "ui": ["'Inter'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            "display": ["'Bebas Neue'", "'Inter'", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"]
           }
         }
       }
@@ -61,35 +62,35 @@
     })();
   </script>
 </head>
-<body id="team-console-body" style="opacity: 0; transition: opacity 0.2s ease;" class="bg-paper-base text-ink-primary antialiased min-h-screen flex flex-col font-sans selection:bg-ink-primary selection:text-paper-base">
+<body id="team-console-body" style="opacity: 0; transition: opacity 0.2s ease;" class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
   <div class="paper-grain-overlay"></div>
 
   <!-- NAVIGATION HEADER -->
-  <header class="fixed top-0 left-0 right-0 z-40 bg-paper-base/95 backdrop-blur-md border-b border-border-hairline">
-    <div class="h-16 w-full px-4 lg:px-8 flex items-center justify-between">
+  <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
+    <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-8 h-8 border border-ink-primary bg-ink-primary text-paper-base flex items-center justify-center font-serif text-lg font-bold transition-transform group-hover:scale-95">H</div>
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
         <div class="flex flex-col">
-          <span class="font-serif text-lg tracking-wider text-ink-primary leading-none font-bold uppercase">HAMMER</span>
-          <span class="font-mono text-[9px] text-ink-secondary uppercase tracking-[0.2em] mt-0.5">TEAM TERMINAL</span>
+          <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">TEAM TERMINAL</span>
         </div>
       </a>
 
-      <nav class="hidden xl:flex items-center gap-1 font-mono text-[11px] tracking-wider uppercase">
-        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="index.html">LIVE BROADCAST</a>
-        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="auction-desk.html">AUCTION DESK</a>
-        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="player-pool.html">PLAYER POOL</a>
-        <a class="px-3 py-1.5 bg-ink-primary text-paper-base font-bold border border-ink-primary" href="team-console.html">TEAM CONSOLE</a>
-        <a class="px-3 py-1.5 text-ink-secondary hover:text-ink-primary transition-colors" href="lot-replay.html">LOT REPLAY</a>
+      <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="index.html">LIVE AUCTION</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
       </nav>
 
       <div class="flex items-center space-x-3">
-        <div class="hidden sm:flex items-center border border-border-rule bg-paper-surface px-2.5 py-1 space-x-2">
-          <span class="w-2 h-2 rounded-full bg-auction-red animate-pulse" id="conn-indicator"></span>
-          <span class="font-mono text-[10px] text-ink-secondary tracking-widest uppercase" id="conn-status">TELEMETRY LINKED</span>
+        <div class="hidden sm:flex items-center bg-hm-charcoal border border-hm-border px-2.5 py-1 space-x-2 rounded-[4px]">
+          <span class="w-2 h-2 rounded-full bg-hm-vermilion live-pulse" id="conn-indicator"></span>
+          <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase" id="conn-status">CONNECTED</span>
         </div>
-        <span class="font-mono text-[10px] text-ink-secondary tracking-wider uppercase" id="clock-tick"></span>
-        <button onclick="Hammer.logout()" title="Logout" class="w-8 h-8 border border-border-rule bg-paper-card flex items-center justify-center text-ink-primary hover:border-ink-primary transition-colors">
+        <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase" id="clock-tick"></span>
+        <button onclick="Hammer.logout()" title="Logout" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
           <span class="material-symbols-outlined text-[16px]">logout</span>
         </button>
       </div>
@@ -97,39 +98,39 @@
   </header>
 
   <!-- MAIN TERMINAL CONTENT -->
-  <main class="w-full pt-20 flex-1">
-    <div class="max-w-[1720px] mx-auto p-4 lg:p-6">
+  <main class="w-full flex-1 pt-14">
+    <div class="max-w-[1720px] mx-auto px-4 lg:px-6 py-6">
 
-      <!-- FRANCHISE IDENTITY HEADER BAR -->
-      <div class="bg-paper-card border-2 border-border-rule p-5 mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+      <!-- FRANCHISE IDENTITY HEADER -->
+      <div class="bg-hm-panel border border-hm-border-s p-5 mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-[6px]">
         <div class="flex items-center gap-4">
-          <div class="w-16 h-16 bg-paper-surface border-2 border-ink-primary flex items-center justify-center font-serif text-3xl font-bold text-ink-primary" id="team-logo-badge">
+          <div class="w-16 h-16 bg-hm-charcoal border-2 border-hm-border-strong flex items-center justify-center font-display text-3xl text-hm-text rounded-[6px]" id="team-logo-badge">
             —
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-mono text-[10px] bg-paper-surface border border-border-rule px-2 py-0.5 text-auction-red font-bold uppercase tracking-wider" id="team-code-badge">—</span>
-              <span class="font-mono text-[10px] text-ink-secondary uppercase tracking-widest">OFFICIAL FRANCHISE BIDDING TERMINAL</span>
+              <span class="font-mono text-[10px] bg-hm-vermilion/10 border border-hm-vermilion px-2 py-0.5 text-hm-vermilion font-bold uppercase tracking-wider rounded-[3px]" id="team-code-badge">—</span>
+              <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest">FRANCHISE BIDDING TERMINAL</span>
             </div>
-            <h1 class="font-serif text-3xl lg:text-4xl uppercase tracking-tight text-ink-primary font-bold leading-none mt-1" id="team-full-name">
+            <h1 class="font-display text-4xl lg:text-5xl uppercase tracking-wide text-hm-text leading-none mt-1" id="team-full-name">
               CONNECTING FRANCHISE...
             </h1>
           </div>
         </div>
 
-        <!-- Live Purse Metrics Pill -->
+        <!-- Live Purse Metrics -->
         <div class="grid grid-cols-3 gap-2 text-center font-mono">
-          <div class="bg-paper-surface border border-border-hairline px-3 py-2">
-            <span class="text-[9px] text-ink-secondary uppercase block">TOTAL PURSE</span>
-            <span class="text-xs font-bold text-ink-primary" id="tc-purse-total">₹125.0 CR</span>
+          <div class="bg-hm-charcoal border border-hm-border px-3 py-2 rounded-[4px]">
+            <span class="text-[9px] text-hm-faint uppercase block">TOTAL PURSE</span>
+            <span class="text-xs font-bold text-hm-text" id="tc-purse-total">₹125.0 CR</span>
           </div>
-          <div class="bg-paper-surface border border-border-hairline px-3 py-2">
-            <span class="text-[9px] text-ink-secondary uppercase block">COMMITTED</span>
-            <span class="text-xs font-bold text-ink-primary" id="tc-purse-spent">₹0.00 CR</span>
+          <div class="bg-hm-charcoal border border-hm-border px-3 py-2 rounded-[4px]">
+            <span class="text-[9px] text-hm-faint uppercase block">COMMITTED</span>
+            <span class="text-xs font-bold text-hm-text" id="tc-purse-spent">₹0.00 CR</span>
           </div>
-          <div class="bg-paper-surface border-2 border-auction-red px-4 py-2">
-            <span class="text-[9px] text-auction-red uppercase font-bold block">REMAINING PURSE</span>
-            <span class="text-base font-bold text-auction-red" id="tc-purse-remaining">₹125.0 CR</span>
+          <div class="bg-hm-charcoal border-2 border-hm-vermilion px-4 py-2 rounded-[4px]">
+            <span class="text-[9px] text-hm-vermilion uppercase font-bold block">REMAINING</span>
+            <span class="text-base font-bold text-hm-vermilion" id="tc-purse-remaining">₹125.0 CR</span>
           </div>
         </div>
       </div>
@@ -137,157 +138,155 @@
       <!-- MAIN TWO-COLUMN WORKSPACE -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-        <!-- ═══ LEFT COLUMN: LIVE STAGE & TACTILE BIDDING CONTROL (7 cols) ═══ -->
+        <!-- LEFT: LIVE STAGE & BIDDING CONTROL -->
         <div class="lg:col-span-7 space-y-5">
 
           <!-- Stage Card -->
-          <div class="bg-paper-card border-2 border-border-rule p-5 lg:p-6 shadow-sm">
-            <div class="flex items-center justify-between pb-3 mb-4 border-b border-border-hairline">
+          <div class="bg-hm-panel border border-hm-border-s p-5 lg:p-6 rounded-[6px]">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-hm-border">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 bg-auction-red rounded-full animate-pulse"></span>
-                <span class="font-mono text-xs text-ink-primary tracking-widest uppercase font-bold">STAGE // LIVE HAMMER</span>
+                <span class="w-2.5 h-2.5 bg-hm-vermilion rounded-full live-pulse"></span>
+                <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">STAGE // LIVE HAMMER</span>
               </div>
-              <span class="px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-border-rule bg-paper-surface" id="tc-auction-badge">IDLE</span>
+              <span class="px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]" id="tc-auction-badge">IDLE</span>
             </div>
 
-            <!-- Idle State Screen -->
-            <div id="tc-idle" class="text-center py-24 bg-paper-surface/50 border border-border-hairline p-8">
-              <span class="material-symbols-outlined text-[64px] text-border-rule">hourglass_empty</span>
-              <p class="font-serif text-3xl text-ink-primary uppercase tracking-tight font-bold mt-3">AWAITING NEXT LOT</p>
-              <p class="font-mono text-xs text-ink-secondary uppercase tracking-widest mt-2 max-w-md mx-auto leading-relaxed">
+            <!-- Idle State -->
+            <div id="tc-idle" class="text-center py-24 bg-hm-charcoal/50 border border-hm-border p-8 rounded-[4px]">
+              <span class="material-symbols-outlined text-[64px] text-hm-faint">hourglass_empty</span>
+              <p class="font-display text-4xl text-hm-text uppercase tracking-wide mt-3">AWAITING NEXT LOT</p>
+              <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-2 max-w-md mx-auto leading-relaxed">
                 The auctioneer will bring the next cricketer up to the hammer.<br/>
                 Your bidding controls will arm automatically once the lot is live.
               </p>
             </div>
 
-            <!-- Active Lot Stage Screen -->
+            <!-- Active Lot Stage -->
             <div id="tc-live" class="hidden space-y-5">
 
-              <!-- Athlete Dossier Banner -->
-              <div class="flex items-start gap-4 p-4 bg-paper-surface border border-border-rule">
-                <div class="w-32 h-36 sm:w-36 sm:h-44 bg-paper-card border border-border-hairline flex items-center justify-center overflow-hidden flex-shrink-0 relative select-none">
+              <!-- Athlete Banner -->
+              <div class="flex items-start gap-4 p-4 bg-hm-charcoal border border-hm-border rounded-[4px]">
+                <div class="w-32 h-36 sm:w-36 sm:h-44 bg-hm-panel border border-hm-border flex items-center justify-center overflow-hidden flex-shrink-0 relative select-none rounded-[4px]">
                   <img id="tc-player-img" class="w-full h-full object-contain object-bottom" src="" alt="Player Portrait"/>
-                  <div id="tc-player-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-paper-surface">
-                    <span id="tc-player-icon" class="material-symbols-outlined text-[42px] text-border-rule">sports_cricket</span>
-                    <span class="font-serif text-base font-bold uppercase text-ink-primary mt-1" id="tc-player-initials">VK</span>
-                    <span class="font-mono text-[8px] text-ink-secondary uppercase tracking-widest mt-0.5">DOSSIER</span>
+                  <div id="tc-player-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-hm-charcoal">
+                    <span id="tc-player-icon" class="material-symbols-outlined text-[42px] text-hm-faint">sports_cricket</span>
+                    <span class="font-display text-xl text-hm-text mt-1" id="tc-player-initials">VK</span>
+                    <span class="font-mono text-[8px] text-hm-faint uppercase tracking-widest mt-0.5">DOSSIER</span>
                   </div>
                 </div>
 
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between">
-                    <span class="font-mono text-xs text-ink-secondary uppercase tracking-widest font-bold" id="tc-lot-num">LOT #001</span>
-                    <span class="font-mono text-[10px] text-auction-red font-bold uppercase tracking-wider" id="tc-player-set">SET M1</span>
+                    <span class="font-mono text-xs text-hm-muted uppercase tracking-widest font-bold" id="tc-lot-num">LOT #001</span>
+                    <span class="font-mono text-[10px] text-hm-vermilion font-bold uppercase tracking-wider" id="tc-player-set">SET M1</span>
                   </div>
-                  <h2 class="font-serif text-3xl sm:text-4xl uppercase tracking-tight text-ink-primary font-bold leading-tight truncate mt-0.5" id="tc-player-name">
+                  <h2 class="font-display text-4xl sm:text-5xl uppercase tracking-wide text-hm-text leading-tight truncate mt-0.5" id="tc-player-name">
                     —
                   </h2>
-                  <p class="font-mono text-xs text-ink-secondary uppercase mt-1" id="tc-player-role">—</p>
+                  <p class="font-mono text-xs text-hm-muted uppercase mt-1" id="tc-player-role">—</p>
                   <div class="mt-3 flex flex-wrap gap-2 text-[10px] font-mono">
-                    <span class="bg-paper-card border border-border-hairline px-2.5 py-1 text-ink-primary font-bold" id="tc-base-price">BASE: ₹200L</span>
-                    <span class="bg-paper-card border border-border-hairline px-2.5 py-1 text-ink-secondary" id="tc-stats-summary">—</span>
+                    <span class="bg-hm-elevated border border-hm-border px-2.5 py-1 text-hm-text font-bold rounded-[3px]" id="tc-base-price">BASE: ₹200L</span>
+                    <span class="bg-hm-elevated border border-hm-border px-2.5 py-1 text-hm-muted rounded-[3px]" id="tc-stats-summary">—</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Realtime Bidding Telemetry (Current Bid & Countdown) -->
+              <!-- Current Bid & Countdown -->
               <div class="grid grid-cols-2 gap-3">
-                <div class="bg-paper-surface border border-border-rule p-4 text-center">
-                  <span class="font-mono text-[9px] text-ink-secondary tracking-widest uppercase block font-bold">CURRENT HIGH BID</span>
-                  <span class="font-serif text-3xl sm:text-4xl text-auction-red font-bold block mt-1" id="tc-current-bid">₹0.00</span>
-                  <span class="font-mono text-[11px] text-ink-secondary mt-1 block">
-                    LEADER: <span class="font-bold text-ink-primary" id="tc-leading-franchise">NONE</span>
+                <div class="bg-hm-charcoal border border-hm-border-s p-4 text-center rounded-[6px]">
+                  <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase block font-bold">CURRENT HIGH BID</span>
+                  <span class="font-display text-4xl sm:text-5xl text-hm-vermilion block mt-1" id="tc-current-bid">₹0.00</span>
+                  <span class="font-mono text-[11px] text-hm-muted mt-1 block">
+                    LEADER: <span class="font-bold text-hm-text" id="tc-leading-franchise">NONE</span>
                   </span>
                 </div>
-                <div class="bg-paper-surface border border-border-rule p-4 text-center flex flex-col justify-center">
-                  <span class="font-mono text-[9px] text-ink-secondary tracking-widest uppercase block font-bold">HAMMER CLOCK</span>
-                  <span class="font-mono text-3xl sm:text-4xl text-ink-primary font-bold tabular-nums block mt-1" id="tc-timer">00:10</span>
-                  <span class="font-mono text-[10px] text-auction-red uppercase font-bold tracking-wider mt-1" id="tc-gavel-label">
+                <div class="bg-hm-charcoal border border-hm-border-s p-4 text-center flex flex-col justify-center rounded-[6px]">
+                  <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase block font-bold">HAMMER CLOCK</span>
+                  <span class="font-display text-4xl sm:text-5xl text-hm-text tabular-nums block mt-1" id="tc-timer">00:10</span>
+                  <span class="font-mono text-[10px] text-hm-vermilion uppercase font-bold tracking-wider mt-1" id="tc-gavel-label">
                     ACTIVE BIDDING
                   </span>
                 </div>
               </div>
 
-              <!-- ═══ PHYSICAL AUCTION BID BUTTON (Section 14) ═══ -->
+              <!-- BID BUTTON -->
               <div class="pt-2">
                 <div class="flex items-center justify-between mb-2 font-mono text-[10px]">
-                  <span class="text-ink-secondary uppercase tracking-widest">NEXT VALID ADVANCE:</span>
-                  <span class="text-ink-primary font-bold" id="tc-increment-label">+₹20 L</span>
+                  <span class="text-hm-faint uppercase tracking-widest">NEXT VALID ADVANCE:</span>
+                  <span class="text-hm-text font-bold" id="tc-increment-label">+₹20 L</span>
                 </div>
 
                 <button id="tc-bid-btn" type="button" class="btn-hammer-physical w-full p-5 sm:p-6 text-center select-none">
-                  <span class="block font-mono text-[10px] uppercase tracking-[0.25em] text-paper-base/80 mb-1">
-                    EXECUTE BINDING FRANCHISE BID
+                  <span class="block font-mono text-[10px] uppercase tracking-[0.25em] text-hm-text/80 mb-1">
+                    EXECUTE FRANCHISE BID
                   </span>
-                  <span class="block font-serif text-3xl sm:text-4xl font-bold uppercase tracking-wide leading-none" id="tc-bid-btn-text">
+                  <span class="block font-display text-4xl sm:text-5xl uppercase tracking-wide leading-none" id="tc-bid-btn-text">
                     BID ₹200L
                   </span>
                 </button>
 
-                <!-- Purse Impact Calculation -->
-                <div class="mt-3 p-3 bg-paper-surface border border-border-hairline flex items-center justify-between font-mono text-[10px] text-ink-secondary">
+                <!-- Purse Impact -->
+                <div class="mt-3 p-3 bg-hm-charcoal border border-hm-border flex items-center justify-between font-mono text-[10px] text-hm-faint rounded-[4px]">
                   <span id="tc-bid-impact-status">CALCULATING PURSE IMPACT...</span>
-                  <span class="font-bold text-ink-primary" id="tc-purse-after-bid">—</span>
+                  <span class="font-bold text-hm-text" id="tc-purse-after-bid">—</span>
                 </div>
               </div>
 
             </div>
           </div>
 
-          <!-- SQUAD COMPOSITION CONSTRAINTS HUD -->
-          <div class="bg-paper-card border border-border-rule p-5">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-border-hairline">
-              <span class="font-mono text-xs text-ink-primary tracking-widest uppercase font-bold">ROSTER CAPACITY & STATUTORY LIMITS</span>
-              <span class="font-mono text-xs text-ink-secondary" id="tc-squad-count">0 / 25 SLOTS</span>
+          <!-- SQUAD COMPOSITION -->
+          <div class="bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-hm-border">
+              <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">ROSTER CAPACITY & LIMITS</span>
+              <span class="font-mono text-xs text-hm-muted" id="tc-squad-count">0 / 25 SLOTS</span>
             </div>
 
-            <!-- Slots visual bar -->
             <div class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 mb-3" id="tc-slot-indicators"></div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono text-[10px]">
-              <div class="bg-paper-surface border border-border-hairline p-2">
-                <span class="text-ink-secondary block">OVERSEAS</span>
-                <span class="font-bold text-ink-primary" id="tc-overseas-count">0 / 8 MAX</span>
+              <div class="bg-hm-charcoal border border-hm-border p-2 rounded-[4px]">
+                <span class="text-hm-faint block">OVERSEAS</span>
+                <span class="font-bold text-hm-text" id="tc-overseas-count">0 / 8 MAX</span>
               </div>
-              <div class="bg-paper-surface border border-border-hairline p-2">
-                <span class="text-ink-secondary block">WICKETKEEPER</span>
-                <span class="font-bold text-ink-primary" id="tc-wk-count">0 / 1 MIN</span>
+              <div class="bg-hm-charcoal border border-hm-border p-2 rounded-[4px]">
+                <span class="text-hm-faint block">WICKETKEEPER</span>
+                <span class="font-bold text-hm-text" id="tc-wk-count">0 / 1 MIN</span>
               </div>
-              <div class="bg-paper-surface border border-border-hairline p-2">
-                <span class="text-ink-secondary block">SPECIALIST BOWLERS</span>
-                <span class="font-bold text-ink-primary" id="tc-bowler-count">0 / 3 MIN</span>
+              <div class="bg-hm-charcoal border border-hm-border p-2 rounded-[4px]">
+                <span class="text-hm-faint block">SPECIALIST BOWLERS</span>
+                <span class="font-bold text-hm-text" id="tc-bowler-count">0 / 3 MIN</span>
               </div>
-              <div class="bg-paper-surface border border-border-hairline p-2">
-                <span class="text-ink-secondary block">ROSTER BALANCE</span>
-                <span class="font-bold text-auction-red" id="tc-roster-status">INCOMPLETE</span>
+              <div class="bg-hm-charcoal border border-hm-border p-2 rounded-[4px]">
+                <span class="text-hm-faint block">ROSTER BALANCE</span>
+                <span class="font-bold text-hm-vermilion" id="tc-roster-status">INCOMPLETE</span>
               </div>
             </div>
           </div>
 
         </div>
 
-        <!-- ═══ RIGHT COLUMN: ROSTER LIST & COMPETITORS (5 cols) ═══ -->
+        <!-- RIGHT: ROSTER & COMPETITORS -->
         <div class="lg:col-span-5 space-y-5">
           
-          <!-- Squad Acquisition Ledger -->
-          <div class="bg-paper-card border border-border-rule p-5">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-border-hairline">
-              <span class="font-mono text-xs text-ink-primary tracking-widest uppercase font-bold">FRANCHISE SQUAD DOSSIER</span>
-              <span class="font-mono text-xs text-auction-red font-bold" id="tc-squad-spent">SPENT: ₹0.00 CR</span>
+          <!-- Squad Ledger -->
+          <div class="bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-hm-border">
+              <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">FRANCHISE SQUAD</span>
+              <span class="font-mono text-xs text-hm-vermilion font-bold" id="tc-squad-spent">SPENT: ₹0.00 CR</span>
             </div>
-            <div class="space-y-1.5 max-h-[300px] overflow-y-auto" id="tc-squad-list">
-              <p class="font-mono text-xs text-border-rule uppercase text-center py-8">NO ACQUISITIONS RECORDED YET</p>
+            <div class="space-y-1.5 max-h-[300px] overflow-y-auto" id="tc-squad-list" style="scrollbar-width:thin;">
+              <p class="font-mono text-xs text-hm-faint uppercase text-center py-8">NO ACQUISITIONS RECORDED YET</p>
             </div>
           </div>
 
-          <!-- All Syndicate Competitors Status -->
-          <div class="bg-paper-card border border-border-rule p-5">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-border-hairline">
-              <span class="font-mono text-xs text-ink-primary tracking-widest uppercase font-bold">ALL-FRANCHISE PURSE AUDIT</span>
-              <span class="font-mono text-[10px] text-ink-secondary uppercase">10 ENTITIES</span>
+          <!-- All Teams Status -->
+          <div class="bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-hm-border">
+              <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">ALL-FRANCHISE PURSE AUDIT</span>
+              <span class="font-mono text-[10px] text-hm-faint uppercase">10 ENTITIES</span>
             </div>
             <div class="space-y-1" id="tc-all-teams">
-              <!-- Rendered via JS -->
             </div>
           </div>
 
@@ -398,7 +397,7 @@
         let slotsHtml = '';
         for (let i = 0; i < myTeamData.maxSlots; i++) {
           const filled = i < squad.length;
-          slotsHtml += `<div class="h-2 border border-border-hairline ${filled ? 'bg-auction-red' : 'bg-paper-surface'}"></div>`;
+          slotsHtml += `<div class="h-2 border border-hm-border ${filled ? 'bg-hm-vermilion' : 'bg-hm-charcoal'} rounded-[2px]"></div>`;
         }
         tcSlotIndicators.innerHTML = slotsHtml;
 
@@ -412,19 +411,19 @@
 
         const isCompliant = squad.length >= 7 && wks >= 1 && bowlers >= 3;
         tcRosterStatus.textContent = isCompliant ? 'VALID' : 'INCOMPLETE';
-        tcRosterStatus.className = isCompliant ? 'font-bold text-emerald' : 'font-bold text-auction-red';
+        tcRosterStatus.className = isCompliant ? 'font-bold text-hm-emerald' : 'font-bold text-hm-vermilion';
 
         if (squad.length === 0) {
-          tcSquadList.innerHTML = '<p class="font-mono text-xs text-border-rule uppercase text-center py-8">NO ACQUISITIONS RECORDED YET</p>';
+          tcSquadList.innerHTML = '<p class="font-mono text-xs text-hm-faint uppercase text-center py-8">NO ACQUISITIONS RECORDED YET</p>';
         } else {
           tcSquadList.innerHTML = squad.map((p, idx) => `
-            <div class="flex items-center justify-between p-2 bg-paper-surface border border-border-hairline">
+            <div class="flex items-center justify-between p-2 bg-hm-charcoal border border-hm-border rounded-[4px]">
               <div>
-                <span class="font-mono text-[9px] text-ink-secondary mr-1.5">#${idx + 1}</span>
-                <span class="font-mono text-xs text-ink-primary font-bold">${p.name}</span>
-                <span class="font-mono text-[9px] text-ink-secondary ml-1.5 uppercase">${Hammer.getRoleLabel(p.role)}</span>
+                <span class="font-mono text-[9px] text-hm-faint mr-1.5">#${idx + 1}</span>
+                <span class="font-mono text-xs text-hm-text font-bold">${p.name}</span>
+                <span class="font-mono text-[9px] text-hm-faint ml-1.5 uppercase">${Hammer.getRoleLabel(p.role)}</span>
               </div>
-              <span class="font-mono text-xs text-auction-red font-bold">${Hammer.formatCurrency(p.price)}</span>
+              <span class="font-mono text-xs text-hm-vermilion font-bold">${Hammer.formatCurrency(p.price)}</span>
             </div>
           `).join('');
         }
@@ -441,14 +440,14 @@
         const isMe = t.id === myTeamId;
         const isLeader = currentAuctionState && currentAuctionState.leadingTeamId === t.id;
         return `
-          <div class="flex items-center justify-between px-3 py-1.5 ${isLeader ? 'bg-paper-surface border border-auction-red font-bold' : isMe ? 'bg-paper-card border border-ink-primary' : 'bg-paper-surface/60 border border-border-hairline'}">
+          <div class="flex items-center justify-between px-3 py-1.5 ${isLeader ? 'bg-hm-elevated border border-hm-vermilion font-bold' : isMe ? 'bg-hm-elevated border border-hm-border-strong' : 'bg-hm-charcoal/60 border border-hm-border'} rounded-[4px]">
             <div class="flex items-center gap-2">
-              <span class="font-mono text-xs ${isLeader ? 'text-auction-red font-bold' : isMe ? 'text-ink-primary font-bold' : 'text-ink-secondary'}">
+              <span class="font-mono text-xs ${isLeader ? 'text-hm-vermilion font-bold' : isMe ? 'text-hm-text font-bold' : 'text-hm-muted'}">
                 ${t.shortName}${isMe ? ' (YOU)' : ''}${isLeader ? ' ★' : ''}
               </span>
-              <span class="font-mono text-[9px] text-ink-secondary">${t.filledSlots}/${t.maxSlots}</span>
+              <span class="font-mono text-[9px] text-hm-faint">${t.filledSlots}/${t.maxSlots}</span>
             </div>
-            <span class="font-mono text-xs ${isLeader ? 'text-auction-red font-bold' : 'text-ink-primary font-bold'}">
+            <span class="font-mono text-xs ${isLeader ? 'text-hm-vermilion font-bold' : 'text-hm-text font-bold'}">
               ${Hammer.formatCurrency(t.remaining)}
             </span>
           </div>
@@ -456,11 +455,11 @@
       }).join('');
     }
 
-    // ─── RENDER BID BUTTON & PHYSICAL CONTROL STATES ─────────
+    // ─── RENDER BID BUTTON & STATES ─────────
     function renderBiddingButton(state) {
       if (!state || state.status !== 'live' || !state.currentPlayer) {
         tcBidBtn.disabled = true;
-        tcBidBtn.className = 'w-full p-5 text-center bg-paper-surface text-ink-secondary border border-border-rule cursor-not-allowed select-none opacity-70';
+        tcBidBtn.className = 'w-full p-5 text-center bg-hm-charcoal text-hm-faint border border-hm-border cursor-not-allowed select-none opacity-70 rounded-[6px]';
         tcBidBtnText.textContent = state && state.status === 'paused' ? 'AUCTION PAUSED BY AUCTIONEER' : 'AWAITING ACTIVE LOT';
         tcBidImpactStatus.textContent = 'NO BID ACTIVE';
         tcPurseAfterBid.textContent = '—';
@@ -470,8 +469,8 @@
       if (isSubmitting) {
         tcBidBtn.disabled = true;
         tcBidBtn.className = 'btn-hammer-physical w-full p-5 text-center cursor-wait select-none opacity-90';
-        tcBidBtnText.textContent = 'TRANSMITTING TELEMETRY...';
-        tcBidImpactStatus.textContent = 'AUTHORIZING ON SUPABASE ENGINE...';
+        tcBidBtnText.textContent = 'TRANSMITTING...';
+        tcBidImpactStatus.textContent = 'AUTHORIZING ON SERVER...';
         return;
       }
 
@@ -483,7 +482,7 @@
 
       if (isLeading) {
         tcBidBtn.disabled = true;
-        tcBidBtn.className = 'w-full p-5 text-center bg-paper-card border-2 border-brass text-brass-dark select-none shadow-sm';
+        tcBidBtn.className = 'w-full p-5 text-center bg-hm-elevated border-2 border-hm-amber text-hm-amber select-none rounded-[6px]';
         tcBidBtnText.textContent = 'YOU HOLD THE HIGH BID';
         tcBidImpactStatus.textContent = `CURRENT BID OF ${Hammer.formatCurrency(state.currentBid)} HELD BY YOUR FRANCHISE`;
         tcPurseAfterBid.textContent = `COMMITTED: ${Hammer.formatCurrency(state.currentBid)}`;
@@ -492,7 +491,7 @@
 
       if (isSquadFull) {
         tcBidBtn.disabled = true;
-        tcBidBtn.className = 'w-full p-5 text-center bg-paper-surface text-ink-secondary border border-border-rule cursor-not-allowed select-none opacity-70';
+        tcBidBtn.className = 'w-full p-5 text-center bg-hm-charcoal text-hm-faint border border-hm-border cursor-not-allowed select-none opacity-70 rounded-[6px]';
         tcBidBtnText.textContent = 'SQUAD CAPACITY FULL (25/25)';
         tcBidImpactStatus.textContent = 'NO AVAILABLE ROSTER SLOTS';
         tcPurseAfterBid.textContent = 'FULL';
@@ -501,7 +500,7 @@
 
       if (!hasEnoughMoney) {
         tcBidBtn.disabled = true;
-        tcBidBtn.className = 'w-full p-5 text-center bg-paper-surface text-auction-red border border-auction-red cursor-not-allowed select-none opacity-80';
+        tcBidBtn.className = 'w-full p-5 text-center bg-hm-charcoal text-hm-vermilion border border-hm-vermilion cursor-not-allowed select-none opacity-80 rounded-[6px]';
         tcBidBtnText.textContent = `INSUFFICIENT PURSE (${Hammer.formatCurrency(nextBid)})`;
         tcBidImpactStatus.textContent = `DEFICIT: ${Hammer.formatCurrency(nextBid - myRemaining)} SHORT`;
         tcPurseAfterBid.textContent = `MAX: ${Hammer.formatCurrency(myRemaining)}`;
@@ -524,7 +523,7 @@
         tcIdle.classList.remove('hidden');
         tcLive.classList.add('hidden');
         tcAuctionBadge.textContent = 'IDLE';
-        tcAuctionBadge.className = 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-border-rule bg-paper-surface';
+        tcAuctionBadge.className = 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]';
         renderBiddingButton(state);
         return;
       }
@@ -533,8 +532,8 @@
       tcLive.classList.remove('hidden');
       tcAuctionBadge.textContent = state.status === 'live' ? 'LIVE ON HAMMER' : 'PAUSED';
       tcAuctionBadge.className = state.status === 'live'
-        ? 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-auction-red text-auction-red bg-paper-surface animate-pulse'
-        : 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-border-rule text-ink-secondary bg-paper-surface';
+        ? 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-vermilion text-hm-vermilion bg-hm-vermilion/10 live-pulse rounded-[4px]'
+        : 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s text-hm-faint bg-hm-elevated rounded-[4px]';
 
       const p = state.currentPlayer;
       tcLotNum.textContent = 'LOT #' + String(p.lotNumber).padStart(3, '0');
@@ -581,7 +580,7 @@
       renderBiddingButton(state);
     }
 
-    // ─── BID EXECUTION TRIGGER ─────────────────────────────
+    // ─── BID EXECUTION ─────────────────────────────
     tcBidBtn.addEventListener('click', async () => {
       if (!currentAuctionState || isSubmitting) return;
       const nextBid = getNextValidBid(currentAuctionState);
@@ -602,7 +601,7 @@
       }
     });
 
-    // ─── SOCKET TELEMETRY HANDLERS ─────────────────────────
+    // ─── SOCKET HANDLERS ─────────────────────────
     Hammer.on('auction:state', (state) => {
       renderAuctionState(state);
       loadTeamData();

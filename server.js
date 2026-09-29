@@ -14,10 +14,22 @@ const io = new Server(server);
 app.use(express.json());
 app.use(cookieParser());
 
-// Block direct access to server files and data
-app.use('/data', (req, res) => res.status(403).json({ error: 'Forbidden' }));
-app.use('/server.js', (req, res) => res.status(403).json({ error: 'Forbidden' }));
-app.use('/package.json', (req, res) => res.status(403).json({ error: 'Forbidden' }));
+// Block direct access to server files, sensitive data, and environment configs
+const SENSITIVE_PATTERNS = [
+  /^\/\.env/i,
+  /^\/server\.js/i,
+  /^\/package.*\.json/i,
+  /^\/data(\/|$)/i,
+  /^\/backend(\/|$)/i,
+  /^\/test_.*\.js/i,
+  /^\/\.git/i
+];
+app.use((req, res, next) => {
+  if (SENSITIVE_PATTERNS.some(p => p.test(req.path))) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
+});
 
 // ─── DATA STORE ─────────────────────────────────────────────
 let players = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'players.json'), 'utf-8'));
@@ -67,13 +79,50 @@ let timerInterval = null;
 function getTeam(id) { return teams.find(t => t.id === id); }
 function getPlayer(id) { return players.find(p => p.id === id); }
 
+function decodeSupabaseJwt(token) {
+  if (!token || typeof token !== 'string') return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length === 3) {
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+      if (payload && payload.exp && payload.exp * 1000 < Date.now()) return null;
+      const email = payload.email || '';
+      const username = payload.user_metadata?.username || email.split('@')[0] || 'user';
+      let role = payload.user_metadata?.role || payload.role;
+      if (!role) {
+        if (email.includes('auctioneer') || username === 'auctioneer') role = 'auctioneer';
+        else if (teams.some(t => t.id.toLowerCase() === username.toLowerCase())) role = 'team_owner';
+        else role = 'viewer';
+      }
+      let teamId = payload.user_metadata?.team_id || payload.team_id;
+      if (!teamId && role === 'team_owner') {
+        const matched = teams.find(t => t.id.toLowerCase() === username.toLowerCase());
+        teamId = matched ? matched.id : null;
+      }
+      return {
+        userId: payload.sub,
+        role,
+        teamId,
+        username
+      };
+    }
+  } catch (e) {}
+  return null;
+}
+
 function getSession(req) {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    return sessions.get(authHeader.slice(7));
+    const token = authHeader.slice(7);
+    if (sessions.has(token)) return sessions.get(token);
+    const decoded = decodeSupabaseJwt(token);
+    if (decoded) return decoded;
   }
   if (req.cookies && req.cookies.hammer_token) {
-    return sessions.get(req.cookies.hammer_token);
+    const token = req.cookies.hammer_token;
+    if (sessions.has(token)) return sessions.get(token);
+    const decoded = decodeSupabaseJwt(token);
+    if (decoded) return decoded;
   }
   return null;
 }
@@ -722,8 +771,35 @@ io.on('connection', (socket) => {
   });
 });
 
-// ─── PROTECTED ROUTE GUARDS ─────────────────────────────────
-// Auction Desk Guard: Unauthenticated -> redirect to /login.html; Non-auctioneer -> 403 unauthorized.html
+// ─── FRONTEND PAGE ROUTES ───────────────────────────────────
+// Both clean URLs (/player-pool) and extension URLs (/player-pool.html) are explicitly supported.
+
+// 1. Live Auction (Broadcast Stage)
+app.get(['/', '/index', '/index.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 2. Player Pool Catalogue
+app.get(['/player-pool', '/player-pool.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'player-pool.html'));
+});
+
+// 3. Lot Replay & Settlement Archive
+app.get(['/lot-replay', '/lot-replay.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'lot-replay.html'));
+});
+
+// 4. Unified Authentication Portal
+app.get(['/login', '/login.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+// 5. Access Restricted (403)
+app.get(['/unauthorized', '/unauthorized.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'unauthorized.html'));
+});
+
+// 6. Auctioneer Master Control Desk Guard
 const auctionDeskGuard = (req, res) => {
   const session = getSession(req);
   if (!session) {
@@ -734,11 +810,9 @@ const auctionDeskGuard = (req, res) => {
   }
   return res.sendFile(path.join(__dirname, 'auction-desk.html'));
 };
+app.get(['/auction-desk', '/auction-desk.html'], auctionDeskGuard);
 
-app.get('/auction-desk', auctionDeskGuard);
-app.get('/auction-desk.html', auctionDeskGuard);
-
-// Team Console Guard: Unauthenticated -> redirect to /login.html
+// 7. Team Console Guard
 const teamConsoleGuard = (req, res) => {
   const session = getSession(req);
   if (!session) {
@@ -746,31 +820,79 @@ const teamConsoleGuard = (req, res) => {
   }
   return res.sendFile(path.join(__dirname, 'team-console.html'));
 };
+app.get(['/team-console', '/team-console.html'], teamConsoleGuard);
 
-app.get('/team-console', teamConsoleGuard);
-app.get('/team-console.html', teamConsoleGuard);
-
-app.get('/unauthorized', (req, res) => {
-  res.sendFile(path.join(__dirname, 'unauthorized.html'));
-});
-app.get('/unauthorized.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'unauthorized.html'));
-});
-
-// ─── STATIC FILES ───────────────────────────────────────────
-// Serve static files from public/ and project root (HTML, JS, CSS, images)
-app.use('/players', express.static(path.join(__dirname, 'public', 'players')));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(__dirname));
-
-// Fallback: serve index.html for unmatched routes
-app.get('*', (req, res) => {
-  // Only serve HTML for non-API, non-asset requests
-  if (!req.path.startsWith('/api/') && !req.path.includes('.')) {
-    res.sendFile(path.join(__dirname, 'index.html'));
-  } else {
-    res.status(404).json({ error: 'Not found' });
+// 8. Profile / Avatar Routing
+const profileHandler = (req, res) => {
+  const session = getSession(req);
+  if (!session) {
+    return res.redirect('/login.html?redirect=/profile');
   }
+  if (session.role === 'auctioneer') {
+    return res.redirect('/auction-desk.html');
+  }
+  if (session.role === 'team_owner') {
+    return res.redirect('/team-console.html');
+  }
+  return res.redirect('/');
+};
+app.get(['/profile', '/profile.html', '/avatar'], profileHandler);
+
+// ─── STATIC ASSET SERVING ───────────────────────────────────
+app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/players', express.static(path.join(__dirname, 'public', 'players')));
+app.use('/players', express.static(path.join(__dirname, 'players')));
+app.use('/screens', express.static(path.join(__dirname, 'screens')));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname, {
+  extensions: ['html'],
+  index: false
+}));
+
+// ─── 404 HANDLERS (SEPARATED API VS FRONTEND) ───────────────
+// Unknown API requests -> return JSON 404
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API endpoint not found', path: req.path });
+});
+
+// Unknown static asset files with an extension -> return JSON 404
+app.use((req, res, next) => {
+  if (path.extname(req.path)) {
+    return res.status(404).json({ error: 'Asset not found', path: req.path });
+  }
+  next();
+});
+
+// Unknown frontend page routes -> return broadcast-styled 404 HTML
+app.use((req, res) => {
+  res.status(404).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HAMMER // 404 Page Not Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0B0C0D] text-[#F2F0EA] min-h-screen flex items-center justify-center p-6 font-['Inter',sans-serif]">
+  <div class="max-w-md w-full bg-[#181A1C] border border-[#232527] p-8 text-center rounded-[6px]">
+    <div class="w-12 h-12 bg-[#C74632] text-white flex items-center justify-center font-['Bebas_Neue',sans-serif] text-2xl mx-auto mb-4 rounded-[4px]">H</div>
+    <span class="font-['Space_Mono',monospace] text-[10px] text-[#C74632] tracking-[0.25em] uppercase font-bold block mb-1">HAMMER BROADCAST ENGINE</span>
+    <h1 class="font-['Bebas_Neue',sans-serif] text-5xl uppercase tracking-wide text-white leading-none my-2">404 // NOT FOUND</h1>
+    <p class="font-['Space_Mono',monospace] text-xs text-[#A7A9AA] uppercase tracking-wider mb-6">THE REQUESTED STAGE ROUTE DOES NOT EXIST.</p>
+    <div class="flex flex-col sm:flex-row gap-2">
+      <a href="/" class="flex-1 py-2.5 bg-[#C74632] text-white font-['Space_Mono',monospace] text-xs uppercase tracking-wider font-bold rounded-[4px] hover:bg-[#9E3628] transition-colors text-center">LIVE AUCTION</a>
+      <a href="/player-pool" class="flex-1 py-2.5 bg-[#1E2022] border border-[#303234] text-[#F2F0EA] font-['Space_Mono',monospace] text-xs uppercase tracking-wider rounded-[4px] hover:bg-[#242628] transition-colors text-center">PLAYER POOL</a>
+    </div>
+  </div>
+</body>
+</html>`);
 });
 
 // ─── START SERVER ───────────────────────────────────────────

@@ -5,11 +5,11 @@
     "shortName": "CSK",
     "code": "CSK",
     "purse": 12500,
-    "spent": 320,
-    "remaining": 12180,
+    "spent": 260,
+    "remaining": 12240,
     "maxSlots": 25,
     "minSlots": 7,
-    "filledSlots": 3,
+    "filledSlots": 1,
     "color": "#F9CD05",
     "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
     "squad": [
@@ -22,26 +22,6 @@
         "price": 260,
         "soldPrice": 260,
         "overseas": false
-      },
-      {
-        "id": 66,
-        "lotNumber": 66,
-        "name": "EMANJOT SINGH CHAHAL",
-        "role": "bowler",
-        "roleLabel": "Bowler",
-        "price": 30,
-        "soldPrice": 30,
-        "overseas": false
-      },
-      {
-        "id": 70,
-        "lotNumber": 70,
-        "name": "RS AMBRISH",
-        "role": "bowler",
-        "roleLabel": "Bowler",
-        "price": 30,
-        "soldPrice": 30,
-        "overseas": false
       }
     ],
     "players": [
@@ -53,26 +33,6 @@
         "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
         "price": 260,
         "soldPrice": 260,
-        "overseas": false
-      },
-      {
-        "id": 66,
-        "lotNumber": 66,
-        "name": "EMANJOT SINGH CHAHAL",
-        "role": "bowler",
-        "roleLabel": "Bowler",
-        "price": 30,
-        "soldPrice": 30,
-        "overseas": false
-      },
-      {
-        "id": 70,
-        "lotNumber": 70,
-        "name": "RS AMBRISH",
-        "role": "bowler",
-        "roleLabel": "Bowler",
-        "price": 30,
-        "soldPrice": 30,
         "overseas": false
       }
     ]
@@ -147,37 +107,15 @@
     "shortName": "MI",
     "code": "MI",
     "purse": 12500,
-    "spent": 1150,
-    "remaining": 11350,
+    "spent": 0,
+    "remaining": 12500,
     "maxSlots": 25,
     "minSlots": 7,
-    "filledSlots": 1,
+    "filledSlots": 0,
     "color": "#004BA0",
     "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
-    "squad": [
-      {
-        "id": 29,
-        "lotNumber": 29,
-        "name": "RINKU SINGH",
-        "role": "batter",
-        "roleLabel": "LEFT-HAND FINISHER",
-        "price": 1150,
-        "soldPrice": 1150,
-        "overseas": false
-      }
-    ],
-    "players": [
-      {
-        "id": 29,
-        "lotNumber": 29,
-        "name": "RINKU SINGH",
-        "role": "batter",
-        "roleLabel": "LEFT-HAND FINISHER",
-        "price": 1150,
-        "soldPrice": 1150,
-        "overseas": false
-      }
-    ]
+    "squad": [],
+    "players": []
   },
   {
     "id": "PBKS",

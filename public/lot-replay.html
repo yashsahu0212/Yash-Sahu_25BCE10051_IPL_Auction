@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // Historical Lot Replay & Settlement Archive</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "hm-ink": "#0B0C0D",
+            "hm-charcoal": "#121416",
+            "hm-panel": "#181A1C",
+            "hm-elevated": "#1E2022",
+            "hm-surface": "#242628",
+            "hm-text": "#F2F0EA",
+            "hm-muted": "#A7A9AA",
+            "hm-faint": "#6F7274",
+            "hm-dim": "#4A4C4E",
+            "hm-border": "#232527",
+            "hm-border-s": "#303234",
+            "hm-border-strong": "#444648",
+            "hm-vermilion": "#C74632",
+            "hm-vermilion-dk": "#9E3628",
+            "hm-amber": "#C4932A",
+            "hm-emerald": "#2D8B5A"
+          },
+          fontFamily: {
+            "ui": ["'Inter'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            "display": ["'Bebas Neue'", "'Inter'", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
+  <div class="paper-grain-overlay"></div>
+
+  <!-- NAVIGATION -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
+    <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="flex flex-col">
+          <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">LOT REPLAY</span>
+        </div>
+      </a>
+
+      <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="index.html">LIVE AUCTION</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="lot-replay.html">LOT REPLAY</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase" id="clock-tick"></span>
+        <a href="login.html" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
+          <span class="material-symbols-outlined text-[16px]">account_circle</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="w-full flex-1 pt-14">
+    <div class="max-w-[1440px] mx-auto px-4 lg:px-8 py-8">
+
+      <!-- HEADER -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-hm-border-s">
+        <div>
+          <h1 class="font-display text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
+            SETTLEMENT ARCHIVE
+          </h1>
+          <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
+            TIMESTAMPED BID-BY-BID ADJUDICATION AUDIT
+          </p>
+        </div>
+        <div class="flex items-center gap-3 font-mono text-xs">
+          <span class="text-hm-faint uppercase">SETTLED LOTS:</span>
+          <span class="text-base font-bold text-hm-text" id="total-lots">0</span>
+        </div>
+      </div>
+
+      <!-- SUMMARY METRICS -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div class="bg-hm-panel border border-hm-border-s p-4 text-center rounded-[6px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest font-bold">CRICKETERS SOLD</span>
+          <span class="font-display text-4xl text-hm-vermilion" id="summary-sold">0</span>
+        </div>
+        <div class="bg-hm-panel border border-hm-border-s p-4 text-center rounded-[6px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest font-bold">LOTS UNSOLD</span>
+          <span class="font-display text-4xl text-hm-text" id="summary-unsold">0</span>
+        </div>
+        <div class="bg-hm-panel border border-hm-border-s p-4 text-center rounded-[6px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest font-bold">TOTAL EXPENDITURE</span>
+          <span class="font-display text-4xl text-hm-vermilion" id="summary-spend">₹0</span>
+        </div>
+        <div class="bg-hm-panel border border-hm-border-s p-4 text-center rounded-[6px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest font-bold">PEAK RECORD BID</span>
+          <span class="font-display text-4xl text-hm-text" id="summary-highest">—</span>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div id="history-empty" class="bg-hm-panel border border-hm-border-s p-20 text-center rounded-[6px]">
+        <span class="material-symbols-outlined text-[64px] text-hm-faint">history</span>
+        <h3 class="font-display text-3xl uppercase text-hm-text mt-3">NO LOTS CONCLUDED YET</h3>
+        <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
+          Settled lots will appear here with full bid logs.
+        </p>
+      </div>
+
+      <!-- SETTLED LOTS -->
+      <div id="history-list" class="space-y-4 hidden"></div>
+
+    </div>
+  </main>
+
+  <footer class="w-full bg-hm-charcoal border-t border-hm-border py-4">
+    <div class="max-w-[1440px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between text-hm-faint gap-2 font-mono text-[10px] uppercase tracking-widest">
+      <span>HAMMER // 2026 OFFICIAL CRICKET AUCTION ENGINE</span>
+      <span class="text-hm-vermilion font-bold">ARCHIVAL AUDIT VERIFIED</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer-ux.js"></script>
+
+  <script>
+  (async function() {
+    await Hammer.init();
+
+    async function loadHistory() {
+      try {
+        const history = await Hammer.API.getAuctionHistory();
+        renderHistory(history);
+      } catch (e) { console.error(e); }
+    }
+
+    function renderHistory(history) {
+      document.getElementById('total-lots').textContent = history.length;
+
+      const sold = history.filter(h => h.result === 'sold');
+      const unsold = history.filter(h => h.result === 'unsold');
+      const totalSpend = sold.reduce((sum, h) => sum + h.soldPrice, 0);
+      const highest = sold.reduce((max, h) => h.soldPrice > max.price ? { price: h.soldPrice, name: h.player.name, team: h.soldTo?.shortName } : max, { price: 0, name: '', team: '' });
+
+      document.getElementById('summary-sold').textContent = sold.length;
+      document.getElementById('summary-unsold').textContent = unsold.length;
+      document.getElementById('summary-spend').textContent = Hammer.formatCurrency(totalSpend);
+      document.getElementById('summary-highest').textContent = highest.price > 0 ? Hammer.formatCurrency(highest.price) : '—';
+
+      if (history.length === 0) {
+        document.getElementById('history-empty').classList.remove('hidden');
+        document.getElementById('history-list').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('history-empty').classList.add('hidden');
+      const list = document.getElementById('history-list');
+      list.classList.remove('hidden');
+
+      list.innerHTML = history.slice().reverse().map((entry, i) => {
+        const isSold = entry.result === 'sold';
+        const time = new Date(entry.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+        const bidTimeline = (entry.bidHistory || []).map((b, j) => `
+          <div class="flex items-center justify-between px-3 py-1.5 ${j === entry.bidHistory.length - 1 && isSold ? 'bg-hm-elevated border border-hm-vermilion font-bold' : 'bg-hm-charcoal border border-hm-border'} rounded-[4px]">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-[9px] text-hm-faint font-bold">#${j+1}</span>
+              <span class="font-mono text-xs text-hm-text font-bold">${b.teamShortName}</span>
+            </div>
+            <span class="font-mono text-xs ${j === entry.bidHistory.length - 1 ? 'text-hm-vermilion font-bold' : 'text-hm-text'}">${Hammer.formatCurrency(b.amount)}</span>
+          </div>
+        `).join('');
+
+        return `
+          <div class="bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-hm-border gap-2">
+              <div class="flex items-center gap-3">
+                <span class="font-mono text-xs font-bold text-hm-text bg-hm-elevated border border-hm-border-s px-2 py-0.5 rounded-[3px]">
+                  LOT #${String(entry.player.lotNumber || i + 1).padStart(3, '0')}
+                </span>
+                <div>
+                  <h3 class="font-display text-3xl uppercase text-hm-text leading-tight">${entry.player.name}</h3>
+                  <span class="font-mono text-[10px] text-hm-muted uppercase">${Hammer.getRoleLabel(entry.player.role)}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${isSold ? 'bg-hm-vermilion text-hm-text border border-hm-vermilion' : 'bg-hm-elevated text-hm-faint border border-hm-border-s'} rounded-[3px]">
+                  ${isSold ? 'SOLD' : 'UNSOLD'}
+                </span>
+                <span class="font-display text-3xl ${isSold ? 'text-hm-vermilion' : 'text-hm-faint'}">
+                  ${isSold ? Hammer.formatCurrency(entry.soldPrice) : 'PASSED'}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between font-mono text-[10px] text-hm-faint mb-3 gap-2">
+              <span>BASE RESERVE: ${Hammer.formatCurrency(entry.basePrice)}</span>
+              <span>ACQUIRED BY: <strong class="text-hm-text">${isSold && entry.soldTo ? entry.soldTo.name : 'UNSOLD'}</strong></span>
+              <span>SETTLED AT: ${time}</span>
+              <span>BIDS RECEIVED: ${entry.bidCount || 0}</span>
+            </div>
+
+            ${(entry.bidHistory && entry.bidHistory.length > 0) ? `
+              <details class="cursor-pointer">
+                <summary class="font-mono text-[10px] text-hm-vermilion font-bold uppercase tracking-wider py-1 hover:underline">
+                  VIEW FULL BID TIMELINE (${entry.bidHistory.length} BIDS)
+                </summary>
+                <div class="mt-2 space-y-1 pl-2 border-l-2 border-hm-border-s">
+                  ${bidTimeline}
+                </div>
+              </details>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    await loadHistory();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // 403 Access Restricted</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "hm-ink": "#0B0C0D",
+            "hm-charcoal": "#121416",
+            "hm-panel": "#181A1C",
+            "hm-elevated": "#1E2022",
+            "hm-surface": "#242628",
+            "hm-text": "#F2F0EA",
+            "hm-muted": "#A7A9AA",
+            "hm-faint": "#6F7274",
+            "hm-dim": "#4A4C4E",
+            "hm-border": "#232527",
+            "hm-border-s": "#303234",
+            "hm-border-strong": "#444648",
+            "hm-vermilion": "#C74632",
+            "hm-vermilion-dk": "#9E3628",
+            "hm-amber": "#C4932A",
+            "hm-emerald": "#2D8B5A"
+          },
+          fontFamily: {
+            "ui": ["'Inter'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            "display": ["'Bebas Neue'", "'Inter'", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-hm-ink text-hm-text min-h-screen flex flex-col items-center justify-center font-ui antialiased p-4">
+  <div class="paper-grain-overlay"></div>
+
+  <div class="w-full max-w-lg mx-auto relative z-10 text-center">
+    
+    <!-- BRAND MARK -->
+    <div class="w-16 h-16 mx-auto border-2 border-hm-vermilion bg-hm-panel flex items-center justify-center text-hm-vermilion font-display text-4xl mb-6 rounded-[6px]">
+      !
+    </div>
+
+    <!-- RESTRICTED CARD -->
+    <div class="bg-hm-panel border border-hm-border-s p-8 sm:p-10 text-left rounded-[6px]">
+      <div class="flex items-center justify-between pb-3 mb-5 border-b border-hm-border">
+        <span class="font-mono text-[10px] tracking-widest text-hm-vermilion uppercase font-bold">SECURITY // CODE 403</span>
+        <span class="font-mono text-[9px] text-hm-faint uppercase">UNAUTHORIZED</span>
+      </div>
+
+      <h1 class="font-display text-4xl sm:text-5xl text-hm-text uppercase tracking-wide leading-tight">
+        ACCESS RESTRICTED
+      </h1>
+
+      <p class="font-mono text-xs text-hm-muted uppercase tracking-wider mt-3 leading-relaxed">
+        This control sector is reserved for the Presiding Auctioneer and HAMMER Officials.
+      </p>
+
+      <div class="my-6 p-4 bg-hm-charcoal border border-hm-border rounded-[4px]">
+        <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest block mb-1">CURRENT OPERATOR:</span>
+        <div class="font-mono text-xs font-bold text-hm-text" id="unauth-user-info">
+          AUTHENTICATED FRANCHISE // ROLE INSUFFICIENT
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <a href="index.html" class="btn-paper-physical flex-1 py-3 text-center font-mono text-xs font-bold uppercase tracking-wider">
+          RETURN TO BROADCAST
+        </a>
+        <a href="login.html" class="btn-hammer-physical flex-1 py-3 text-center font-mono text-xs font-bold uppercase tracking-wider">
+          SWITCH OPERATOR
+        </a>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="mt-6 font-mono text-[10px] text-hm-faint uppercase tracking-widest">
+      HAMMER SECURITY // ALL BREACH ATTEMPTS RECORDED
+    </div>
+
+  </div>
+
+  <script src="/js/hammer.js"></script>
+  <script>
+    (async function() {
+      await Hammer.init();
+      const user = Hammer.getUser();
+      if (user) {
+        document.getElementById('unauth-user-info').textContent = 
+          `LOGGED IN AS: ${user.username.toUpperCase()} (ROLE: ${user.role.toUpperCase()})`;
+      } else {
+        document.getElementById('unauth-user-info').textContent = 'UNAUTHENTICATED VISITOR';
+      }
+    })();
+  </script>
+</body>
+</html>

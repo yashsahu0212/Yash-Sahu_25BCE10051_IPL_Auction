@@ -67,6 +67,8 @@
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
       </nav>
 
       <div class="flex items-center space-x-3">
@@ -96,6 +98,27 @@
       <div class="flex items-center gap-3">
         <span class="text-hm-muted">STATUS:</span>
         <span class="px-2 py-0.5 bg-hm-panel border border-hm-border-s font-bold text-hm-text rounded-[4px]" id="hammer-status-badge">ON HAMMER</span>
+      </div>
+    </div>
+
+    <!-- LANDING & COMPETITION OVERVIEW STRIP -->
+    <div id="landing-hero-strip" class="w-full bg-hm-panel border-b border-hm-border-s px-4 lg:px-8 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3 font-mono text-xs">
+      <div class="flex items-center gap-3">
+        <span class="w-2 h-2 rounded-full bg-hm-emerald" id="hero-status-dot"></span>
+        <span class="text-hm-faint uppercase" id="hero-tagline">CRICKET PLAYER AUCTION</span>
+        <span class="text-hm-dim hidden sm:inline">|</span>
+        <span class="font-bold text-hm-text text-[11px]" id="hero-dynamic-status">10 FRANCHISES • 73 REGISTERED CRICKETERS • OFFICIAL MEGA AUCTION</span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="final-squads.html" class="px-2.5 py-1 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text text-[10px] uppercase font-bold rounded-[3px] transition-colors">
+          FINAL SQUADS
+        </a>
+        <a href="activity-log.html" class="px-2.5 py-1 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text text-[10px] uppercase font-bold rounded-[3px] transition-colors">
+          ACTIVITY LOG
+        </a>
+        <a href="lot-replay.html" class="px-2.5 py-1 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text text-[10px] uppercase font-bold rounded-[3px] transition-colors">
+          LOT REPLAY
+        </a>
       </div>
     </div>
 
@@ -470,6 +493,26 @@
       const bidAdvance = document.getElementById('bid-advance');
       const inc = state.bidIncrement || Hammer.getBidIncrement(state.currentBid);
       if (bidAdvance) bidAdvance.textContent = '+₹' + inc + 'L';
+
+      // Update dynamic hero strip
+      const heroDot = document.getElementById('hero-status-dot');
+      const heroTag = document.getElementById('hero-tagline');
+      const heroStatus = document.getElementById('hero-dynamic-status');
+      if (heroDot && heroTag && heroStatus) {
+        if (state.status === 'live') {
+          heroDot.className = 'w-2 h-2 rounded-full bg-hm-vermilion live-pulse';
+          heroTag.textContent = 'LIVE ON HAMMER';
+          heroStatus.textContent = `LOT #${state.currentPlayer?.lotNumber || state.lotIndex || '—'} // ${state.currentPlayer?.name || 'CRICKETER'} • CURRENT: ${Hammer.formatCurrency(state.currentBid || state.basePrice)} (${state.leadingTeam ? state.leadingTeam.shortName : 'BASE'}) • TIMER: ${state.timer}s`;
+        } else if (state.status === 'completed') {
+          heroDot.className = 'w-2 h-2 rounded-full bg-hm-amber';
+          heroTag.textContent = 'AUCTION COMPLETE';
+          heroStatus.textContent = 'ALL LOTS CONCLUDED • 10 FRANCHISES RATIFIED • VIEW FINAL SQUADS & EXPORTS';
+        } else {
+          heroDot.className = 'w-2 h-2 rounded-full bg-hm-emerald';
+          heroTag.textContent = 'STAGE READY';
+          heroStatus.textContent = '10 FRANCHISES • 73 REGISTERED CRICKETERS • OFFICIAL MEGA AUCTION';
+        }
+      }
     }
 
     function resetGavelSteps(stage) {

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // Live Auction Activity Log & Chronological Transcript</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "hm-ink": "#0B0C0D",
+            "hm-charcoal": "#121416",
+            "hm-panel": "#181A1C",
+            "hm-elevated": "#1E2022",
+            "hm-surface": "#242628",
+            "hm-text": "#F2F0EA",
+            "hm-muted": "#A7A9AA",
+            "hm-faint": "#6F7274",
+            "hm-dim": "#4A4C4E",
+            "hm-border": "#232527",
+            "hm-border-s": "#303234",
+            "hm-border-strong": "#444648",
+            "hm-vermilion": "#C74632",
+            "hm-vermilion-dk": "#9E3628",
+            "hm-amber": "#C4932A",
+            "hm-emerald": "#2D8B5A"
+          },
+          fontFamily: {
+            "ui": ["'Inter'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            "display": ["'Bebas Neue'", "'Inter'", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @keyframes entrySlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .entry-animate {
+      animation: entrySlide 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
+  <div class="paper-grain-overlay"></div>
+
+  <!-- NAVIGATION -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
+    <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="flex flex-col">
+          <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">ACTIVITY LOG</span>
+        </div>
+      </a>
+
+      <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="index.html">LIVE AUCTION</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
+        <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="activity-log.html">ACTIVITY</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <!-- CONNECTION INDICATOR -->
+        <div id="conn-indicator" class="flex items-center gap-1.5 px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-emerald">
+          <span class="w-2 h-2 rounded-full bg-hm-emerald live-pulse"></span>
+          <span id="conn-text">LIVE</span>
+        </div>
+
+        <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase hidden sm:inline" id="clock-tick"></span>
+        <a href="login.html" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
+          <span class="material-symbols-outlined text-[16px]">account_circle</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="w-full flex-1 pt-14">
+    <div class="max-w-[1440px] mx-auto px-4 lg:px-8 py-8">
+
+      <!-- HEADER -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-4 border-b border-hm-border-s">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-mono text-[10px] text-hm-vermilion uppercase font-bold tracking-[0.25em]">OFFICIAL TOURNAMENT STREAM</span>
+            <span class="text-hm-dim">/</span>
+            <span class="font-mono text-[10px] text-hm-muted uppercase tracking-wider">SERVER-AUTHORITATIVE ADJUDICATION</span>
+          </div>
+          <h1 class="font-display text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
+            AUCTION ACTIVITY LOG
+          </h1>
+          <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
+            REAL-TIME SEQUENCED EVENT AUDIT ACROSS ALL 10 FRANCHISES
+          </p>
+        </div>
+
+        <!-- ACTIONS & EXPORTS -->
+        <div class="flex flex-wrap items-center gap-2">
+          <a href="/api/export/activity?format=csv" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text font-mono text-[11px] uppercase tracking-wider font-bold rounded-[4px] transition-colors">
+            <span class="material-symbols-outlined text-[14px]">download</span>
+            EXPORT CSV
+          </a>
+          <a href="/api/export/activity?format=json" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text font-mono text-[11px] uppercase tracking-wider font-bold rounded-[4px] transition-colors">
+            <span class="material-symbols-outlined text-[14px]">code</span>
+            EXPORT JSON
+          </a>
+          <button id="btn-scroll-top" class="p-1.5 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text rounded-[4px] transition-colors" title="Scroll to Top">
+            <span class="material-symbols-outlined text-[18px]">vertical_align_top</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTER BAR & LIVE STATS -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-hm-panel border border-hm-border-s p-3 rounded-[6px]">
+        <!-- FILTERS -->
+        <div class="flex flex-wrap items-center gap-1.5 font-mono text-[11px] uppercase">
+          <button class="filter-btn px-3 py-1 bg-hm-vermilion text-hm-text font-bold rounded-[3px] border border-hm-vermilion" data-filter="all">ALL EVENTS</button>
+          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s" data-filter="bids">BIDS</button>
+          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s" data-filter="lots">LOT OPENINGS</button>
+          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s" data-filter="hammer">HAMMER / SETTLEMENT</button>
+          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s" data-filter="system">SYSTEM & TIMERS</button>
+        </div>
+
+        <!-- STATS -->
+        <div class="flex items-center gap-4 font-mono text-[11px] text-hm-faint">
+          <div>TOTAL EVENTS: <strong id="stat-total" class="text-hm-text">0</strong></div>
+          <div>LATEST SEQ: <strong id="stat-seq" class="text-hm-amber">#0</strong></div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY FEED CONTAINER -->
+      <div class="bg-hm-panel border border-hm-border-s rounded-[6px] overflow-hidden">
+        
+        <!-- FEED HEADER -->
+        <div class="bg-hm-charcoal border-b border-hm-border px-4 py-2.5 flex items-center justify-between font-mono text-[10px] text-hm-faint uppercase tracking-wider">
+          <div class="flex items-center gap-6">
+            <span class="w-16">SEQ / TIME</span>
+            <span class="w-28">EVENT TYPE</span>
+            <span>ACTIVITY DETAILS</span>
+          </div>
+          <div class="hidden md:flex items-center gap-6">
+            <span class="w-24 text-right">VALUATION</span>
+            <span class="w-24 text-center">ACTION</span>
+          </div>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div id="activity-empty" class="p-16 text-center">
+          <span class="material-symbols-outlined text-[48px] text-hm-faint mb-2">sync</span>
+          <h3 class="font-display text-2xl uppercase text-hm-text">AWAITING AUCTION EVENTS</h3>
+          <p class="font-mono text-xs text-hm-faint uppercase tracking-wider mt-1">
+            Authoritative bids, lot openings, and adjudications will stream here without page refresh.
+          </p>
+        </div>
+
+        <!-- EVENT LIST -->
+        <div id="activity-stream" class="divide-y divide-hm-border hidden"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="w-full bg-hm-charcoal border-t border-hm-border py-4 mt-12">
+    <div class="max-w-[1440px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between text-hm-faint gap-2 font-mono text-[10px] uppercase tracking-widest">
+      <span>HAMMER // 2026 OFFICIAL CRICKET AUCTION ENGINE</span>
+      <span class="text-hm-vermilion font-bold">AUTHORITATIVE REALTIME ADJUDICATION AUDIT</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer-ux.js"></script>
+
+  <script>
+  (async function() {
+    await Hammer.init();
+    Hammer.startClock();
+
+    let allEvents = [];
+    let currentFilter = 'all';
+    let latestSequence = 0;
+
+    const streamEl = document.getElementById('activity-stream');
+    const emptyEl = document.getElementById('activity-empty');
+    const totalEl = document.getElementById('stat-total');
+    const seqEl = document.getElementById('stat-seq');
+    const connIndicator = document.getElementById('conn-indicator');
+    const connText = document.getElementById('conn-text');
+
+    // Connection state handler
+    Hammer.on('connected', (e) => {
+      connIndicator.className = 'flex items-center gap-1.5 px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-emerald';
+      connIndicator.querySelector('.w-2').className = 'w-2 h-2 rounded-full bg-hm-emerald live-pulse';
+      connText.textContent = 'LIVE';
+    });
+
+    Hammer.on('reconnecting', () => {
+      connIndicator.className = 'flex items-center gap-1.5 px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-amber';
+      connIndicator.querySelector('.w-2').className = 'w-2 h-2 rounded-full bg-hm-amber live-pulse';
+      connText.textContent = 'RECONNECTING...';
+    });
+
+    Hammer.on('disconnected', () => {
+      connIndicator.className = 'flex items-center gap-1.5 px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-faint';
+      connIndicator.querySelector('.w-2').className = 'w-2 h-2 rounded-full bg-hm-faint';
+      connText.textContent = 'OFFLINE';
+    });
+
+    // Format badge according to event type
+    function getEventBadge(type) {
+      if (type === 'BID_PLACED') {
+        return `<span class="px-2 py-0.5 bg-hm-ink text-hm-amber border border-hm-border-s font-mono text-[10px] font-bold rounded-[3px]">BID</span>`;
+      }
+      if (type === 'LOT_SOLD') {
+        return `<span class="px-2 py-0.5 bg-hm-vermilion text-hm-text border border-hm-vermilion font-mono text-[10px] font-bold rounded-[3px]">SOLD</span>`;
+      }
+      if (type === 'LOT_UNSOLD') {
+        return `<span class="px-2 py-0.5 bg-hm-elevated text-hm-faint border border-hm-border-s font-mono text-[10px] font-bold rounded-[3px]">UNSOLD</span>`;
+      }
+      if (type === 'LOT_OPENED' || type === 'LOT_STARTED') {
+        return `<span class="px-2 py-0.5 bg-hm-charcoal text-hm-emerald border border-hm-border font-mono text-[10px] font-bold rounded-[3px]">LOT OPEN</span>`;
+      }
+      if (type === 'AUCTION_PAUSED' || type === 'LOT_PAUSED') {
+        return `<span class="px-2 py-0.5 bg-hm-elevated text-hm-amber border border-hm-border-s font-mono text-[10px] font-bold rounded-[3px]">PAUSED</span>`;
+      }
+      if (type === 'AUCTION_RESUMED' || type === 'LOT_RESUMED') {
+        return `<span class="px-2 py-0.5 bg-hm-elevated text-hm-emerald border border-hm-border-s font-mono text-[10px] font-bold rounded-[3px]">RESUMED</span>`;
+      }
+      if (type === 'TIMER_CHANGED') {
+        return `<span class="px-2 py-0.5 bg-hm-elevated text-hm-muted border border-hm-border-s font-mono text-[10px] rounded-[3px]">TIMER</span>`;
+      }
+      if (type === 'TEAM_SQUAD_UPDATED') {
+        return `<span class="px-2 py-0.5 bg-hm-charcoal text-hm-text border border-hm-border font-mono text-[10px] rounded-[3px]">ROSTER</span>`;
+      }
+      return `<span class="px-2 py-0.5 bg-hm-elevated text-hm-faint border border-hm-border-s font-mono text-[10px] rounded-[3px]">${type.replace('AUCTION_', '')}</span>`;
+    }
+
+    // Build single row HTML
+    function buildEventRow(ev) {
+      const timeStr = new Date(ev.timestamp || ev.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const lotLabel = ev.lot_id != null ? `LOT #${String(ev.lot_id).padStart(3, '0')}` : 'STAGE';
+      const playerText = ev.player_name ? `<strong class="text-hm-text">${ev.player_name}</strong>` : '';
+
+      let detailsHtml = '';
+      if (ev.event_type === 'BID_PLACED') {
+        detailsHtml = `
+          <div class="flex items-center gap-2">
+            <span class="px-1.5 py-0.5 bg-hm-elevated border border-hm-border-s text-hm-text font-bold rounded-[2px]">${ev.actor_team_id || ev.actor_team_name}</span>
+            <span class="text-hm-muted">tendered valid bid of</span>
+            <span class="text-hm-amber font-bold font-mono">${Hammer.formatCurrency(ev.amount_lakh)}</span>
+            ${ev.player_name ? `<span class="text-hm-faint">on</span> ${playerText}` : ''}
+          </div>
+        `;
+      } else if (ev.event_type === 'LOT_SOLD') {
+        detailsHtml = `
+          <div class="flex items-center gap-2">
+            <span class="px-1.5 py-0.5 bg-hm-vermilion text-hm-text font-bold rounded-[2px]">${ev.actor_team_id || ev.actor_team_name}</span>
+            <span class="text-hm-muted">acquired</span>
+            ${playerText}
+            <span class="text-hm-muted">at official adjudication of</span>
+            <span class="text-hm-vermilion font-bold font-mono">${Hammer.formatCurrency(ev.amount_lakh)}</span>
+          </div>
+        `;
+      } else if (ev.event_type === 'LOT_UNSOLD') {
+        detailsHtml = `
+          <div class="flex items-center gap-2 text-hm-faint">
+            ${playerText}
+            <span>passed with reserve base price of</span>
+            <span class="font-mono text-hm-muted">${Hammer.formatCurrency(ev.amount_lakh)}</span>
+          </div>
+        `;
+      } else if (ev.event_type === 'LOT_OPENED' || ev.event_type === 'LOT_STARTED') {
+        detailsHtml = `
+          <div class="flex items-center gap-2">
+            <span class="text-hm-muted">Adjudication opened for</span>
+            ${playerText}
+            <span class="text-hm-faint">// Base Reserve:</span>
+            <span class="font-mono text-hm-text">${Hammer.formatCurrency(ev.amount_lakh)}</span>
+          </div>
+        `;
+      } else if (ev.event_type === 'AUCTION_PAUSED') {
+        detailsHtml = `<span class="text-hm-amber font-mono text-xs">Stage clock paused by Auctioneer Adjudicator.</span>`;
+      } else if (ev.event_type === 'AUCTION_RESUMED') {
+        detailsHtml = `<span class="text-hm-emerald font-mono text-xs">Stage clock resumed. Bidding active.</span>`;
+      } else if (ev.event_type === 'TIMER_CHANGED') {
+        detailsHtml = `<span class="text-hm-muted font-mono text-xs">Lot duration reconfigured to ${ev.metadata?.maxTimer || 15}s.</span>`;
+      } else if (ev.event_type === 'TEAM_SQUAD_UPDATED') {
+        detailsHtml = `<span class="text-hm-faint font-mono text-xs">Purse & roster reconciled for ${ev.actor_team_id}.</span>`;
+      } else {
+        detailsHtml = `<span class="text-hm-muted font-mono text-xs">${ev.event_type} // ${ev.actor_role || 'system'}</span>`;
+      }
+
+      const replayBtn = (ev.lot_id != null && (ev.event_type === 'LOT_SOLD' || ev.event_type === 'LOT_UNSOLD' || ev.event_type === 'BID_PLACED'))
+        ? `<a href="lot-replay.html?lot=${ev.lot_id}" class="inline-flex items-center gap-1 text-[10px] text-hm-vermilion hover:underline font-mono uppercase tracking-wider font-bold">
+             REPLAY <span class="material-symbols-outlined text-[12px]">replay</span>
+           </a>`
+        : `<span class="text-hm-dim">—</span>`;
+
+      return `
+        <div class="px-4 py-3 hover:bg-hm-charcoal/50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs entry-animate" data-type="${ev.event_type}">
+          <div class="flex items-center gap-4 flex-1">
+            <div class="flex flex-col font-mono text-[10px] text-hm-faint w-16">
+              <span class="font-bold text-hm-dim">#${ev.event_sequence || '—'}</span>
+              <span>${timeStr}</span>
+            </div>
+            <div class="w-24 shrink-0">
+              ${getEventBadge(ev.event_type)}
+            </div>
+            <div class="font-mono text-xs text-hm-dim shrink-0">
+              <span class="px-1.5 py-0.5 bg-hm-elevated border border-hm-border-s rounded-[2px] text-hm-text font-bold text-[10px]">${lotLabel}</span>
+            </div>
+            <div class="flex-1 text-sm">
+              ${detailsHtml}
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between md:justify-end gap-6 font-mono text-xs shrink-0 pl-20 md:pl-0 border-t md:border-t-0 border-hm-border/50 pt-2 md:pt-0">
+            <div class="w-24 text-right">
+              ${ev.amount_lakh > 0 ? `<span class="font-bold ${ev.event_type === 'LOT_SOLD' ? 'text-hm-vermilion font-display text-lg' : 'text-hm-text'}">${Hammer.formatCurrency(ev.amount_lakh)}</span>` : '<span class="text-hm-dim">—</span>'}
+            </div>
+            <div class="w-20 text-center">
+              ${replayBtn}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Filter matcher
+    function matchesFilter(ev, filter) {
+      if (filter === 'all') return true;
+      if (filter === 'bids') return ev.event_type === 'BID_PLACED' || ev.event_type === 'BID_REJECTED';
+      if (filter === 'lots') return ev.event_type.startsWith('LOT_');
+      if (filter === 'hammer') return ev.event_type === 'LOT_SOLD' || ev.event_type === 'LOT_UNSOLD';
+      if (filter === 'system') return ev.event_type.startsWith('AUCTION_') || ev.event_type === 'TIMER_CHANGED';
+      return true;
+    }
+
+    function renderFeed() {
+      const filtered = allEvents.filter(ev => matchesFilter(ev, currentFilter));
+      totalEl.textContent = allEvents.length;
+      seqEl.textContent = `#${latestSequence}`;
+
+      if (filtered.length === 0) {
+        streamEl.classList.add('hidden');
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+      streamEl.classList.remove('hidden');
+      streamEl.innerHTML = filtered.map(buildEventRow).join('');
+    }
+
+    // Initial fetch
+    try {
+      const data = await Hammer.getActivityLog({ limit: 150 });
+      allEvents = (data.events || []).sort((a, b) => (b.event_sequence || 0) - (a.event_sequence || 0));
+      latestSequence = data.latestSequence || (allEvents[0]?.event_sequence || 0);
+      renderFeed();
+    } catch (e) {
+      console.error('Failed to load activity events:', e);
+    }
+
+    // Realtime stream handler
+    function handleIncomingEvent(event) {
+      if (!event) return;
+      if (allEvents.some(e => e.id === event.id || (event.event_sequence && e.event_sequence === event.event_sequence))) {
+        return; // Prevent duplicate entries
+      }
+
+      allEvents.unshift(event);
+      if (event.event_sequence && event.event_sequence > latestSequence) {
+        latestSequence = event.event_sequence;
+      }
+
+      // If user is scrolled near top, prepend smoothly
+      if (matchesFilter(event, currentFilter)) {
+        emptyEl.classList.add('hidden');
+        streamEl.classList.remove('hidden');
+        const temp = document.createElement('div');
+        temp.innerHTML = buildEventRow(event);
+        const newEl = temp.firstElementChild;
+        streamEl.insertBefore(newEl, streamEl.firstChild);
+      }
+
+      totalEl.textContent = allEvents.length;
+      seqEl.textContent = `#${latestSequence}`;
+    }
+
+    Hammer.on('auction:event', handleIncomingEvent);
+    Hammer.on('activity_created', handleIncomingEvent);
+
+    // Filter button clicks
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+          b.className = 'filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s';
+        });
+        btn.className = 'filter-btn px-3 py-1 bg-hm-vermilion text-hm-text font-bold rounded-[3px] border border-hm-vermilion';
+        currentFilter = btn.dataset.filter;
+        renderFeed();
+      });
+    });
+
+    document.getElementById('btn-scroll-top').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+  })();
+  </script>
+</body>
+</html>

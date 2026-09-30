@@ -103,6 +103,58 @@ let auction = {
 };
 
 let auctionHistory = [];    // completed lots: { player, soldTo, soldPrice, bidHistory, timestamp }
+try {
+  const historyPath = path.join(__dirname, 'data', 'history.json');
+  if (fs.existsSync(historyPath)) {
+    auctionHistory = JSON.parse(fs.readFileSync(historyPath, 'utf-8'));
+  }
+} catch (e) { auctionHistory = []; }
+
+let auctionEvents = [];     // chronological authoritative event stream
+try {
+  const activityPath = path.join(__dirname, 'data', 'activity_log.json');
+  if (fs.existsSync(activityPath)) {
+    auctionEvents = JSON.parse(fs.readFileSync(activityPath, 'utf-8'));
+  }
+} catch (e) { auctionEvents = []; }
+
+let eventSequenceCounter = auctionEvents.length > 0
+  ? Math.max(...auctionEvents.map(e => Number(e.event_sequence) || 0), 0)
+  : 0;
+
+function logAuctionEvent(eventType, payload = {}) {
+  eventSequenceCounter++;
+  const event = {
+    id: crypto.randomUUID(),
+    auction_id: 1,
+    lot_id: payload.lot_id !== undefined ? payload.lot_id : (auction.lotIndex || null),
+    player_id: payload.player_id !== undefined ? payload.player_id : (auction.currentPlayerId || null),
+    player_name: payload.player_name || (payload.player_id ? getPlayer(payload.player_id)?.name : (auction.currentPlayerId ? getPlayer(auction.currentPlayerId)?.name : null)),
+    event_type: eventType,
+    actor_user_id: payload.actor_user_id || null,
+    actor_team_id: payload.actor_team_id || null,
+    actor_team_name: payload.actor_team_name || (payload.actor_team_id ? getTeam(payload.actor_team_id)?.name : null),
+    actor_role: payload.actor_role || 'system',
+    amount_lakh: payload.amount_lakh !== undefined ? Number(payload.amount_lakh) : 0,
+    previous_amount_lakh: payload.previous_amount_lakh !== undefined ? Number(payload.previous_amount_lakh) : 0,
+    event_sequence: eventSequenceCounter,
+    metadata: payload.metadata || {},
+    timestamp: Date.now(),
+    created_at: new Date().toISOString()
+  };
+
+  auctionEvents.push(event);
+
+  // Asynchronous non-blocking persistence
+  fs.writeFile(path.join(__dirname, 'data', 'activity_log.json'), JSON.stringify(auctionEvents, null, 2), err => {
+    if (err) console.error('Error saving activity_log.json:', err);
+  });
+
+  io.emit('auction:event', event);
+  io.emit('activity_created', event);
+  return event;
+}
+
 let timerInterval = null;
 
 // ─── HELPERS ────────────────────────────────────────────────
@@ -189,6 +241,9 @@ function saveData() {
   });
   fs.writeFile(path.join(__dirname, 'data', 'teams.json'), JSON.stringify(teams, null, 2), err => {
     if (err) console.error('Error saving teams.json:', err);
+  });
+  fs.writeFile(path.join(__dirname, 'data', 'history.json'), JSON.stringify(auctionHistory, null, 2), err => {
+    if (err) console.error('Error saving history.json:', err);
   });
 }
 
@@ -315,6 +370,21 @@ function startAuctionForPlayer(playerId) {
 
   startTimer();
   const state = getPublicAuctionState();
+
+  logAuctionEvent('LOT_OPENED', {
+    lot_id: player.lotNumber || auction.lotIndex,
+    player_id: player.id,
+    player_name: player.name,
+    amount_lakh: player.basePrice,
+    actor_role: 'auctioneer',
+    metadata: {
+      role: player.role,
+      nationality: player.nationality,
+      basePrice: player.basePrice,
+      capped: player.capped
+    }
+  });
+
   io.emit('auction:started', state);
   io.emit('auction:state', state);
   io.emit('auction:timer', {
@@ -407,6 +477,22 @@ function placeBid(teamId, expectedBid) {
   if (!timerInterval) startTimer();
 
   const state = getPublicAuctionState();
+
+  logAuctionEvent('BID_PLACED', {
+    lot_id: auction.lotIndex,
+    player_id: auction.currentPlayerId,
+    player_name: getPlayer(auction.currentPlayerId)?.name,
+    actor_team_id: teamId,
+    actor_team_name: team.name,
+    actor_role: 'team_owner',
+    amount_lakh: newBid,
+    previous_amount_lakh: auction.bidHistory.length > 1 ? auction.bidHistory[auction.bidHistory.length - 2].amount : auction.basePrice,
+    metadata: {
+      teamShortName: team.shortName,
+      bidCount: auction.bidHistory.length
+    }
+  });
+
   io.emit('auction:timer', {
     timer: auction.timer,
     maxTimer: auction.maxTimer,
@@ -489,6 +575,36 @@ function markSold() {
 
   saveData();
   const state = getPublicAuctionState();
+
+  logAuctionEvent('LOT_SOLD', {
+    lot_id: player.lotNumber || auction.lotIndex,
+    player_id: player.id,
+    player_name: player.name,
+    actor_team_id: team.id,
+    actor_team_name: team.name,
+    actor_role: 'auctioneer',
+    amount_lakh: player.soldPrice,
+    previous_amount_lakh: auction.basePrice,
+    metadata: {
+      soldTo: team.shortName,
+      bidsCount: playerItem.price ? auctionHistory[auctionHistory.length - 1]?.bidCount : 0
+    }
+  });
+
+  logAuctionEvent('TEAM_SQUAD_UPDATED', {
+    lot_id: player.lotNumber || auction.lotIndex,
+    player_id: player.id,
+    player_name: player.name,
+    actor_team_id: team.id,
+    actor_team_name: team.name,
+    actor_role: 'auctioneer',
+    amount_lakh: player.soldPrice,
+    metadata: {
+      teamRemaining: team.remaining,
+      filledSlots: team.filledSlots
+    }
+  });
+
   io.emit('auction:sold', {
     player: { id: player.id, name: player.name },
     team: { id: team.id, name: team.name, shortName: team.shortName },
@@ -547,6 +663,18 @@ function markUnsold() {
 
   saveData();
   const state = getPublicAuctionState();
+
+  logAuctionEvent('LOT_UNSOLD', {
+    lot_id: player ? player.lotNumber : auction.lotIndex,
+    player_id: player ? player.id : null,
+    player_name: player ? player.name : null,
+    actor_role: 'auctioneer',
+    amount_lakh: auction.basePrice,
+    metadata: {
+      bidsCount: auction.bidHistory ? auction.bidHistory.length : 0
+    }
+  });
+
   io.emit('auction:unsold', {
     player: player ? { id: player.id, name: player.name } : null,
     state
@@ -561,6 +689,11 @@ function pauseAuction() {
   auction.status = 'paused';
   stopTimer();
   const state = getPublicAuctionState();
+  logAuctionEvent('AUCTION_PAUSED', {
+    lot_id: auction.lotIndex,
+    player_id: auction.currentPlayerId,
+    actor_role: 'auctioneer'
+  });
   io.emit('auction:paused', state);
   io.emit('auction:state', state);
   return { success: true };
@@ -571,6 +704,11 @@ function resumeAuction() {
   auction.status = 'live';
   startTimer();
   const state = getPublicAuctionState();
+  logAuctionEvent('AUCTION_RESUMED', {
+    lot_id: auction.lotIndex,
+    player_id: auction.currentPlayerId,
+    actor_role: 'auctioneer'
+  });
   io.emit('auction:resumed', state);
   io.emit('auction:state', state);
   return { success: true };
@@ -698,6 +836,230 @@ app.get('/api/auction/state', (req, res) => {
 
 app.get('/api/auction/history', (req, res) => {
   res.json(auctionHistory);
+});
+
+// ─── ACTIVITY LOG ROUTE ─────────────────────────────────────
+app.get('/api/auction/activity', (req, res) => {
+  let result = [...auctionEvents];
+  if (req.query.type && req.query.type !== 'all') {
+    const t = req.query.type.toUpperCase();
+    if (t === 'BIDS') {
+      result = result.filter(e => e.event_type === 'BID_PLACED' || e.event_type === 'BID_REJECTED');
+    } else if (t === 'LOTS') {
+      result = result.filter(e => e.event_type.startsWith('LOT_'));
+    } else if (t === 'HAMMER' || t === 'SOLD') {
+      result = result.filter(e => e.event_type === 'LOT_SOLD' || e.event_type === 'LOT_UNSOLD');
+    } else if (t === 'SYSTEM') {
+      result = result.filter(e => e.event_type.startsWith('AUCTION_') || e.event_type === 'TIMER_CHANGED');
+    } else {
+      result = result.filter(e => e.event_type === t);
+    }
+  }
+  if (req.query.lot_id) {
+    result = result.filter(e => String(e.lot_id) === String(req.query.lot_id));
+  }
+  if (req.query.player_id) {
+    result = result.filter(e => String(e.player_id) === String(req.query.player_id));
+  }
+  if (req.query.team_id) {
+    result = result.filter(e => e.actor_team_id === req.query.team_id.toUpperCase());
+  }
+
+  // Authoritative reverse-chronological by sequence
+  result.sort((a, b) => (b.event_sequence || 0) - (a.event_sequence || 0));
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 100;
+  const total = result.length;
+  const totalPages = Math.ceil(total / limit) || 1;
+  const offset = (page - 1) * limit;
+  const events = result.slice(offset, offset + limit);
+
+  res.json({ events, total, page, totalPages, limit, latestSequence: eventSequenceCounter });
+});
+
+// ─── AUTHORITATIVE EXPORT ENGINE ────────────────────────────
+function toCSV(headers, rows) {
+  const escapeCell = (v) => {
+    if (v == null) return '""';
+    const s = String(v).replace(/"/g, '""');
+    return `"${s}"`;
+  };
+  const headerLine = headers.map(escapeCell).join(',');
+  const rowLines = rows.map(r => r.map(escapeCell).join(','));
+  return [headerLine, ...rowLines].join('\r\n');
+}
+
+// 1. Export All Squads (Franchise-wise or Complete)
+app.get('/api/export/squads', (req, res) => {
+  const format = (req.query.format || 'csv').toLowerCase();
+  let targetTeams = [...teams];
+  if (req.query.team) {
+    targetTeams = targetTeams.filter(t => t.id === req.query.team.toUpperCase());
+  }
+
+  if (format === 'json') {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="hammer_squads_2026.json"');
+    return res.json({
+      tournament: 'IPL 2026 AUCTION',
+      exported_at: new Date().toISOString(),
+      franchises: targetTeams.map(t => ({
+        id: t.id,
+        name: t.name,
+        shortName: t.shortName,
+        startingPurseLakhs: t.purse,
+        totalSpentLakhs: t.spent,
+        remainingPurseLakhs: t.remaining,
+        slotsFilled: t.filledSlots,
+        maxSlots: t.maxSlots,
+        squad: t.players || []
+      }))
+    });
+  }
+
+  const headers = ['Franchise Code', 'Franchise Name', 'Player Name', 'Role', 'Nationality', 'Overseas', 'Price (Lakhs)', 'Price (Cr)', 'Lot Number'];
+  const rows = [];
+  targetTeams.forEach(t => {
+    const squad = t.players || [];
+    if (squad.length === 0) {
+      rows.push([t.id, t.name, '— (NO ACQUISITIONS YET)', '', '', '', 0, '₹0', '']);
+    } else {
+      squad.forEach(p => {
+        rows.push([
+          t.id,
+          t.name,
+          p.name,
+          p.roleLabel || p.role,
+          p.nationality || 'India',
+          p.overseas ? 'YES' : 'NO',
+          p.price,
+          formatCR(p.price),
+          p.lotNumber || ''
+        ]);
+      });
+    }
+  });
+
+  const csv = toCSV(headers, rows);
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="hammer_squads_2026.csv"');
+  res.send(csv);
+});
+
+// 2. Export All Sold Players
+app.get('/api/export/sold', (req, res) => {
+  const format = (req.query.format || 'csv').toLowerCase();
+  const soldPlayers = players.filter(p => p.status === 'sold');
+
+  if (format === 'json') {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="hammer_sold_players_2026.json"');
+    return res.json({
+      tournament: 'IPL 2026 AUCTION',
+      count: soldPlayers.length,
+      exported_at: new Date().toISOString(),
+      players: soldPlayers.map(p => ({
+        lotNumber: p.lotNumber,
+        name: p.name,
+        role: p.role,
+        roleLabel: p.roleLabel,
+        nationality: p.nationality,
+        overseas: !!p.overseas,
+        franchise: p.soldTo,
+        soldPriceLakhs: p.soldPrice,
+        basePriceLakhs: p.basePrice
+      }))
+    });
+  }
+
+  const headers = ['Lot #', 'Player Name', 'Franchise', 'Role', 'Nationality', 'Overseas', 'Sold Price (Lakhs)', 'Sold Price (Cr)', 'Base Price (Lakhs)'];
+  const rows = soldPlayers.map(p => [
+    p.lotNumber,
+    p.name,
+    p.soldTo || 'UNKNOWN',
+    p.roleLabel || p.role,
+    p.nationality || 'India',
+    p.overseas ? 'YES' : 'NO',
+    p.soldPrice,
+    formatCR(p.soldPrice),
+    p.basePrice
+  ]);
+
+  const csv = toCSV(headers, rows);
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="hammer_sold_players_2026.csv"');
+  res.send(csv);
+});
+
+// 3. Export Activity Log
+app.get('/api/export/activity', (req, res) => {
+  const format = (req.query.format || 'csv').toLowerCase();
+
+  if (format === 'json') {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="hammer_activity_log_2026.json"');
+    return res.json({
+      tournament: 'IPL 2026 AUCTION',
+      total_events: auctionEvents.length,
+      exported_at: new Date().toISOString(),
+      events: auctionEvents
+    });
+  }
+
+  const headers = ['Sequence', 'Timestamp (ISO)', 'Event Type', 'Lot #', 'Player Name', 'Actor / Team', 'Role', 'Amount (Lakhs)', 'Prev Amount (Lakhs)', 'Metadata'];
+  const rows = auctionEvents.map(e => [
+    e.event_sequence,
+    e.created_at,
+    e.event_type,
+    e.lot_id != null ? e.lot_id : '',
+    e.player_name || '',
+    e.actor_team_id || (e.actor_team_name || ''),
+    e.actor_role || '',
+    e.amount_lakh || 0,
+    e.previous_amount_lakh || 0,
+    JSON.stringify(e.metadata || {})
+  ]);
+
+  const csv = toCSV(headers, rows);
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="hammer_activity_log_2026.csv"');
+  res.send(csv);
+});
+
+// 4. Export Specific Lot Replay History
+app.get('/api/export/lot/:id', (req, res) => {
+  const format = (req.query.format || 'csv').toLowerCase();
+  const idStr = String(req.params.id);
+  const lot = auctionHistory.find(h => String(h.player.id) === idStr || String(h.player.lotNumber) === idStr);
+
+  if (!lot) {
+    return res.status(404).json({ error: 'Lot history not found' });
+  }
+
+  if (format === 'json') {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="hammer_lot_${lot.player.lotNumber}_replay.json"`);
+    return res.json(lot);
+  }
+
+  const headers = ['Bid #', 'Team Code', 'Team Name', 'Bid Amount (Lakhs)', 'Bid Amount (Cr)', 'Timestamp (ISO)'];
+  const rows = (lot.bidHistory || []).map((b, i) => [
+    i + 1,
+    b.teamShortName || b.teamId,
+    b.teamName || '',
+    b.amount,
+    formatCR(b.amount),
+    new Date(b.timestamp).toISOString()
+  ]);
+
+  // Append summary row at bottom
+  rows.push(['RESULT', lot.result.toUpperCase(), lot.soldTo ? lot.soldTo.name : 'PASSED', lot.soldPrice || 0, formatCR(lot.soldPrice), new Date(lot.timestamp).toISOString()]);
+
+  const csv = toCSV(headers, rows);
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename="hammer_lot_${lot.player.lotNumber}_replay.csv"`);
+  res.send(csv);
 });
 
 app.post('/api/auction/start', requireAuth(['auctioneer']), (req, res) => {
@@ -925,6 +1287,16 @@ app.get(['/lot-replay', '/lot-replay.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'lot-replay.html'));
 });
 
+// 3b. Chronological Live Activity Log
+app.get(['/activity-log', '/activity-log.html', '/activity'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'activity-log.html'));
+});
+
+// 3c. Final Squads & Sold Players View
+app.get(['/final-squads', '/final-squads.html', '/squads'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'final-squads.html'));
+});
+
 // 4. Unified Authentication Portal
 app.get(['/login', '/login.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
@@ -1048,6 +1420,8 @@ server.listen(PORT, () => {
   console.log(`  ║  Auction Desk:  http://localhost:${PORT}/auction-desk.html║`);
   console.log(`  ║  Team Console:  http://localhost:${PORT}/team-console.html║`);
   console.log(`  ║  Lot Replay:    http://localhost:${PORT}/lot-replay.html  ║`);
+  console.log(`  ║  Activity Log:  http://localhost:${PORT}/activity-log.html║`);
+  console.log(`  ║  Final Squads:  http://localhost:${PORT}/final-squads.html║`);
   console.log(`  ║  Login:         http://localhost:${PORT}/login.html       ║`);
   console.log(`  ╠══════════════════════════════════════════════╣`);
   console.log(`  ║  Players loaded: ${players.length.toString().padEnd(27)}║`);

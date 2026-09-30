@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>HAMMER // Final Squads & Sold Players Audit</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "hm-ink": "#0B0C0D",
+            "hm-charcoal": "#121416",
+            "hm-panel": "#181A1C",
+            "hm-elevated": "#1E2022",
+            "hm-surface": "#242628",
+            "hm-text": "#F2F0EA",
+            "hm-muted": "#A7A9AA",
+            "hm-faint": "#6F7274",
+            "hm-dim": "#4A4C4E",
+            "hm-border": "#232527",
+            "hm-border-s": "#303234",
+            "hm-border-strong": "#444648",
+            "hm-vermilion": "#C74632",
+            "hm-vermilion-dk": "#9E3628",
+            "hm-amber": "#C4932A",
+            "hm-emerald": "#2D8B5A"
+          },
+          fontFamily: {
+            "ui": ["'Inter'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            "display": ["'Bebas Neue'", "'Inter'", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
+  <div class="paper-grain-overlay"></div>
+
+  <!-- NAVIGATION -->
+  <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
+    <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="flex flex-col">
+          <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">FINAL SQUADS</span>
+        </div>
+      </a>
+
+      <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="index.html">LIVE AUCTION</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
+        <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="final-squads.html">FINAL SQUADS</a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase hidden sm:inline" id="clock-tick"></span>
+        <a href="login.html" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
+          <span class="material-symbols-outlined text-[16px]">account_circle</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="w-full flex-1 pt-14">
+    <div class="max-w-[1440px] mx-auto px-4 lg:px-8 py-8">
+
+      <!-- HEADER & METRICS -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-4 border-b border-hm-border-s">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-mono text-[10px] text-hm-vermilion uppercase font-bold tracking-[0.25em]">2026 TOURNAMENT RATIFICATION</span>
+            <span class="text-hm-dim">/</span>
+            <span class="font-mono text-[10px] text-hm-muted uppercase tracking-wider">OFFICIAL FRANCHISE ROSTERS</span>
+          </div>
+          <h1 class="font-display text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
+            FINAL SQUADS & SOLD PLAYERS
+          </h1>
+          <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
+            RATIFIED IPL FRANCHISE COMPOSITION & ADJUDICATED CRICKETERS
+          </p>
+        </div>
+
+        <!-- AUTHORITATIVE EXPORTS -->
+        <div class="flex flex-wrap items-center gap-2">
+          <a href="/api/export/squads?format=csv" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text font-mono text-[11px] uppercase tracking-wider font-bold rounded-[4px] transition-colors">
+            <span class="material-symbols-outlined text-[14px]">download</span>
+            EXPORT SQUADS (CSV)
+          </a>
+          <a href="/api/export/sold?format=csv" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text font-mono text-[11px] uppercase tracking-wider font-bold rounded-[4px] transition-colors">
+            <span class="material-symbols-outlined text-[14px]">download</span>
+            EXPORT SOLD (CSV)
+          </a>
+          <a href="/api/export/squads?format=json" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text font-mono text-[11px] uppercase tracking-wider font-bold rounded-[4px] transition-colors">
+            <span class="material-symbols-outlined text-[14px]">code</span>
+            EXPORT JSON
+          </a>
+        </div>
+      </div>
+
+      <!-- TOURNAMENT SUMMARY STRIP -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div class="bg-hm-panel border border-hm-border-s p-4 rounded-[6px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest font-bold">CRICKETERS SOLD</span>
+          <span class="font-display text-4xl text-hm-vermilion" id="metric-sold-count">0</span>
+        </div>
+        <div class="bg-hm-panel border border-hm-border-s p-4 rounded-[6px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest font-bold">GROSS EXPENDITURE</span>
+          <span class="font-display text-4xl text-hm-text" id="metric-gross-spend">₹0</span>
+        </div>
+        <div class="bg-hm-panel border border-hm-border-s p-4 rounded-[6px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest font-bold">AVERAGE PRICE</span>
+          <span class="font-display text-4xl text-hm-amber" id="metric-avg-price">₹0</span>
+        </div>
+        <div class="bg-hm-panel border border-hm-border-s p-4 rounded-[6px]">
+          <span class="font-mono text-[9px] text-hm-faint block uppercase tracking-widest font-bold">TOP ACQUISITION</span>
+          <span class="font-display text-4xl text-hm-text truncate block" id="metric-peak-buy">—</span>
+        </div>
+      </div>
+
+      <!-- VIEW TOGGLE TABS -->
+      <div class="flex items-center gap-2 border-b border-hm-border-s pb-4 mb-6 font-mono text-xs uppercase tracking-wider">
+        <button id="tab-btn-squads" class="px-4 py-2 bg-hm-vermilion text-hm-text font-bold rounded-[4px] border border-hm-vermilion transition-colors">
+          FRANCHISE SQUADS (10)
+        </button>
+        <button id="tab-btn-sold" class="px-4 py-2 bg-hm-panel text-hm-muted hover:text-hm-text rounded-[4px] border border-hm-border-s transition-colors">
+          ALL SOLD CRICKETERS
+        </button>
+      </div>
+
+      <!-- VIEW 1: FRANCHISE SQUADS GRID -->
+      <section id="view-squads" class="space-y-6">
+        <div id="teams-grid" class="space-y-6"></div>
+      </section>
+
+      <!-- VIEW 2: ALL SOLD PLAYERS -->
+      <section id="view-sold" class="space-y-4 hidden">
+        <!-- CONTROLS & FILTERS -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-hm-panel border border-hm-border-s p-3 rounded-[6px]">
+          <div class="flex flex-1 items-center gap-2 bg-hm-charcoal border border-hm-border px-3 py-1.5 rounded-[4px]">
+            <span class="material-symbols-outlined text-[16px] text-hm-faint">search</span>
+            <input id="sold-search" type="text" placeholder="SEARCH SOLD CRICKETERS BY NAME..." class="bg-transparent border-none text-xs text-hm-text font-mono w-full focus:outline-none"/>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
+            <select id="sold-filter-team" class="bg-hm-charcoal border border-hm-border text-hm-text px-2.5 py-1.5 rounded-[4px] uppercase focus:outline-none">
+              <option value="all">ALL FRANCHISES</option>
+            </select>
+            <select id="sold-filter-role" class="bg-hm-charcoal border border-hm-border text-hm-text px-2.5 py-1.5 rounded-[4px] uppercase focus:outline-none">
+              <option value="all">ALL ROLES</option>
+              <option value="batter">BATTERS</option>
+              <option value="bowler">BOWLERS</option>
+              <option value="allrounder">ALL-ROUNDERS</option>
+              <option value="wicketkeeper">WICKETKEEPERS</option>
+            </select>
+            <select id="sold-sort" class="bg-hm-charcoal border border-hm-border text-hm-text px-2.5 py-1.5 rounded-[4px] uppercase focus:outline-none">
+              <option value="price-desc">PRICE: HIGH TO LOW</option>
+              <option value="price-asc">PRICE: LOW TO HIGH</option>
+              <option value="lot-asc">LOT NUMBER</option>
+              <option value="name-asc">PLAYER NAME</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SOLD PLAYERS TABLE -->
+        <div class="bg-hm-panel border border-hm-border-s rounded-[6px] overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left font-mono text-xs">
+              <thead class="bg-hm-charcoal border-b border-hm-border text-[10px] text-hm-faint uppercase tracking-wider">
+                <tr>
+                  <th class="px-4 py-3 w-16">LOT #</th>
+                  <th class="px-4 py-3">CRICKETER</th>
+                  <th class="px-4 py-3">ROLE</th>
+                  <th class="px-4 py-3">FRANCHISE</th>
+                  <th class="px-4 py-3">NATIONALITY</th>
+                  <th class="px-4 py-3 text-right">BASE RESERVE</th>
+                  <th class="px-4 py-3 text-right">ACQUISITION PRICE</th>
+                  <th class="px-4 py-3 text-center">ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="sold-table-body" class="divide-y divide-hm-border"></tbody>
+            </table>
+          </div>
+          <div id="sold-empty" class="p-16 text-center hidden">
+            <span class="material-symbols-outlined text-[48px] text-hm-faint mb-2">sports_cricket</span>
+            <h3 class="font-display text-2xl uppercase text-hm-text">NO SOLD CRICKETERS MATCHING CRITERIA</h3>
+            <p class="font-mono text-xs text-hm-faint uppercase tracking-wider mt-1">Adjust your search or filter settings.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="w-full bg-hm-charcoal border-t border-hm-border py-4 mt-12">
+    <div class="max-w-[1440px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between text-hm-faint gap-2 font-mono text-[10px] uppercase tracking-widest">
+      <span>HAMMER // 2026 OFFICIAL CRICKET AUCTION ENGINE</span>
+      <span class="text-hm-vermilion font-bold">OFFICIAL FRANCHISE RATIFICATION LEDGER</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/supabase-config.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer-ux.js"></script>
+
+  <script>
+  (async function() {
+    await Hammer.init();
+    Hammer.startClock();
+
+    let teams = [];
+    let soldPlayers = [];
+
+    const squadsTabBtn = document.getElementById('tab-btn-squads');
+    const soldTabBtn = document.getElementById('tab-btn-sold');
+    const squadsView = document.getElementById('view-squads');
+    const soldView = document.getElementById('view-sold');
+
+    squadsTabBtn.addEventListener('click', () => {
+      squadsTabBtn.className = 'px-4 py-2 bg-hm-vermilion text-hm-text font-bold rounded-[4px] border border-hm-vermilion transition-colors';
+      soldTabBtn.className = 'px-4 py-2 bg-hm-panel text-hm-muted hover:text-hm-text rounded-[4px] border border-hm-border-s transition-colors';
+      squadsView.classList.remove('hidden');
+      soldView.classList.add('hidden');
+    });
+
+    soldTabBtn.addEventListener('click', () => {
+      soldTabBtn.className = 'px-4 py-2 bg-hm-vermilion text-hm-text font-bold rounded-[4px] border border-hm-vermilion transition-colors';
+      squadsTabBtn.className = 'px-4 py-2 bg-hm-panel text-hm-muted hover:text-hm-text rounded-[4px] border border-hm-border-s transition-colors';
+      soldView.classList.remove('hidden');
+      squadsView.classList.add('hidden');
+    });
+
+    // Validate squad constraints based on competition rules
+    function evaluateSquadRules(team) {
+      const roster = team.players || team.squad || [];
+      const total = roster.length;
+      const wks = roster.filter(p => p.role === 'wicketkeeper').length;
+      const bowlers = roster.filter(p => p.role === 'bowler').length;
+      const overseas = roster.filter(p => p.overseas).length;
+
+      const hasMinSquad = total >= 7;
+      const hasMinWK = wks >= 1;
+      const hasMinBowlers = bowlers >= 3;
+      const withinOverseas = overseas <= 8;
+
+      const isCompliant = hasMinSquad && hasMinWK && hasMinBowlers && withinOverseas;
+
+      return {
+        total,
+        wks,
+        bowlers,
+        overseas,
+        hasMinSquad,
+        hasMinWK,
+        hasMinBowlers,
+        withinOverseas,
+        isCompliant
+      };
+    }
+
+    async function loadData() {
+      try {
+        const [fetchedTeams, fetchedPlayers] = await Promise.all([
+          Hammer.getTeams(),
+          Hammer.getPlayers({ status: 'sold', limit: 200 })
+        ]);
+        teams = fetchedTeams || [];
+        soldPlayers = (fetchedPlayers.players || fetchedPlayers || []).filter(p => p.status === 'sold');
+
+        // Populate Franchise filter
+        const teamSelect = document.getElementById('sold-filter-team');
+        teamSelect.innerHTML = '<option value="all">ALL FRANCHISES</option>' +
+          teams.map(t => `<option value="${t.id}">${t.shortName} — ${t.name}</option>`).join('');
+
+        renderMetrics();
+        renderSquads();
+        renderSoldTable();
+      } catch (err) {
+        console.error('Failed to load final squads data:', err);
+      }
+    }
+
+    function renderMetrics() {
+      const soldCount = soldPlayers.length;
+      const grossSpend = soldPlayers.reduce((sum, p) => sum + (p.soldPrice || 0), 0);
+      const avgPrice = soldCount > 0 ? Math.round(grossSpend / soldCount) : 0;
+      const topBuy = soldPlayers.reduce((max, p) => (p.soldPrice || 0) > (max.soldPrice || 0) ? p : max, { soldPrice: 0, name: '—' });
+
+      document.getElementById('metric-sold-count').textContent = soldCount;
+      document.getElementById('metric-gross-spend').textContent = Hammer.formatCurrency(grossSpend);
+      document.getElementById('metric-avg-price').textContent = avgPrice > 0 ? Hammer.formatCurrency(avgPrice) : '₹0';
+      document.getElementById('metric-peak-buy').textContent = topBuy.soldPrice > 0 ? `${topBuy.name} (${Hammer.formatCurrency(topBuy.soldPrice)})` : '—';
+    }
+
+    function renderSquads() {
+      const grid = document.getElementById('teams-grid');
+
+      grid.innerHTML = teams.map(t => {
+        const roster = t.players || t.squad || [];
+        const rules = evaluateSquadRules(t);
+
+        const rosterRows = roster.length > 0 ? roster.map((p, idx) => `
+          <tr class="hover:bg-hm-charcoal/40 transition-colors">
+            <td class="px-4 py-2 font-mono text-[10px] text-hm-faint">#${String(p.lotNumber || idx + 1).padStart(3, '0')}</td>
+            <td class="px-4 py-2 font-bold text-hm-text">${p.name}</td>
+            <td class="px-4 py-2 text-hm-muted font-mono text-[10px] uppercase">${p.roleLabel || Hammer.getRoleLabel(p.role)}</td>
+            <td class="px-4 py-2 text-hm-faint font-mono text-[10px]">${p.nationality || 'India'}</td>
+            <td class="px-4 py-2 text-center font-mono text-[10px]">
+              ${p.overseas ? '<span class="px-1.5 py-0.5 bg-hm-ink text-hm-amber border border-hm-border-s font-bold rounded-[2px]">INTL</span>' : '<span class="text-hm-dim">IND</span>'}
+            </td>
+            <td class="px-4 py-2 text-right font-mono font-bold text-hm-vermilion">${Hammer.formatCurrency(p.price || p.soldPrice)}</td>
+          </tr>
+        `).join('') : `
+          <tr>
+            <td colspan="6" class="px-4 py-8 text-center text-hm-faint font-mono text-xs uppercase">
+              No Cricketers Acquired Yet
+            </td>
+          </tr>
+        `;
+
+        return `
+          <div class="bg-hm-panel border border-hm-border-s rounded-[6px] overflow-hidden">
+            <!-- FRANCHISE HEADER -->
+            <div class="p-5 border-b border-hm-border-s flex flex-col lg:flex-row lg:items-center justify-between gap-4" style="border-left: 4px solid ${t.color || '#C74632'}">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-hm-charcoal border border-hm-border rounded-[4px] flex items-center justify-center font-display text-2xl" style="color: ${t.color || '#C74632'}">
+                  ${t.shortName}
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h2 class="font-display text-3xl uppercase text-hm-text leading-none">${t.name}</h2>
+                    <span class="font-mono text-[10px] text-hm-faint font-bold">(${t.code || t.shortName})</span>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-3 font-mono text-xs text-hm-muted mt-1">
+                    <span>PURSE REMAINING: <strong class="text-hm-emerald">${Hammer.formatCurrency(t.remaining)}</strong></span>
+                    <span class="text-hm-dim">•</span>
+                    <span>TOTAL SPENT: <strong class="text-hm-text">${Hammer.formatCurrency(t.spent)}</strong></span>
+                    <span class="text-hm-dim">•</span>
+                    <span>ROSTER: <strong class="text-hm-text">${roster.length}</strong> / 25</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SQUAD RULES VALIDATION STATUS -->
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2 py-1 font-mono text-[10px] font-bold uppercase rounded-[3px] ${rules.hasMinSquad ? 'bg-hm-charcoal text-hm-emerald border border-hm-border' : 'bg-hm-elevated text-hm-amber border border-hm-border-s'}">
+                  SIZE: ${rules.total}/7+
+                </span>
+                <span class="px-2 py-1 font-mono text-[10px] font-bold uppercase rounded-[3px] ${rules.hasMinWK ? 'bg-hm-charcoal text-hm-emerald border border-hm-border' : 'bg-hm-elevated text-hm-amber border border-hm-border-s'}">
+                  WK: ${rules.wks}/1+
+                </span>
+                <span class="px-2 py-1 font-mono text-[10px] font-bold uppercase rounded-[3px] ${rules.hasMinBowlers ? 'bg-hm-charcoal text-hm-emerald border border-hm-border' : 'bg-hm-elevated text-hm-amber border border-hm-border-s'}">
+                  BOWLERS: ${rules.bowlers}/3+
+                </span>
+                <span class="px-2 py-1 font-mono text-[10px] font-bold uppercase rounded-[3px] ${rules.withinOverseas ? 'bg-hm-charcoal text-hm-muted border border-hm-border' : 'bg-hm-vermilion text-hm-text'}">
+                  OVERSEAS: ${rules.overseas}/8
+                </span>
+                <span class="px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider rounded-[3px] ${rules.isCompliant ? 'bg-hm-emerald text-hm-text' : 'bg-hm-elevated text-hm-amber border border-hm-border-s'}">
+                  ${rules.isCompliant ? '✓ COMPLIANT' : 'BUILDING SQUAD'}
+                </span>
+                <a href="/api/export/squads?format=csv&team=${t.id}" download class="p-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-muted hover:text-hm-text rounded-[4px] transition-colors" title="Export ${t.shortName} Squad CSV">
+                  <span class="material-symbols-outlined text-[16px]">download</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- ROSTER TABLE -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left font-mono text-xs">
+                <thead class="bg-hm-charcoal/60 border-b border-hm-border text-[9px] text-hm-faint uppercase tracking-wider">
+                  <tr>
+                    <th class="px-4 py-2 w-16">LOT</th>
+                    <th class="px-4 py-2">CRICKETER</th>
+                    <th class="px-4 py-2">ROLE</th>
+                    <th class="px-4 py-2">ORIGIN</th>
+                    <th class="px-4 py-2 text-center">CATEGORY</th>
+                    <th class="px-4 py-2 text-right">ACQUISITION</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-hm-border">
+                  ${rosterRows}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSoldTable() {
+      const search = document.getElementById('sold-search').value.toLowerCase().trim();
+      const teamFilter = document.getElementById('sold-filter-team').value;
+      const roleFilter = document.getElementById('sold-filter-role').value;
+      const sort = document.getElementById('sold-sort').value;
+
+      let filtered = soldPlayers.filter(p => {
+        if (search && !p.name.toLowerCase().includes(search)) return false;
+        if (teamFilter !== 'all' && (p.soldTo || '').toUpperCase() !== teamFilter.toUpperCase()) return false;
+        if (roleFilter !== 'all' && p.role !== roleFilter) return false;
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        if (sort === 'price-desc') return (b.soldPrice || 0) - (a.soldPrice || 0);
+        if (sort === 'price-asc') return (a.soldPrice || 0) - (b.soldPrice || 0);
+        if (sort === 'lot-asc') return (a.lotNumber || 0) - (b.lotNumber || 0);
+        if (sort === 'name-asc') return (a.name || '').localeCompare(b.name || '');
+        return 0;
+      });
+
+      const tbody = document.getElementById('sold-table-body');
+      const empty = document.getElementById('sold-empty');
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      tbody.innerHTML = filtered.map(p => {
+        const teamObj = teams.find(t => t.id === p.soldTo);
+        const teamName = teamObj ? teamObj.shortName : (p.soldTo || '—');
+
+        return `
+          <tr class="hover:bg-hm-charcoal/50 transition-colors">
+            <td class="px-4 py-3 font-mono font-bold text-hm-faint">LOT #${String(p.lotNumber || 0).padStart(3, '0')}</td>
+            <td class="px-4 py-3 font-bold text-hm-text">${p.name}</td>
+            <td class="px-4 py-3 text-hm-muted font-mono uppercase text-[10px]">${p.roleLabel || Hammer.getRoleLabel(p.role)}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-0.5 bg-hm-elevated border border-hm-border-s font-bold text-hm-text rounded-[3px]">${teamName}</span>
+            </td>
+            <td class="px-4 py-3 text-hm-faint font-mono text-[10px]">
+              ${p.nationality || 'India'} ${p.overseas ? '<span class="text-hm-amber font-bold">(INTL)</span>' : ''}
+            </td>
+            <td class="px-4 py-3 text-right text-hm-muted font-mono">${Hammer.formatCurrency(p.basePrice)}</td>
+            <td class="px-4 py-3 text-right font-mono font-bold text-hm-vermilion text-sm">${Hammer.formatCurrency(p.soldPrice)}</td>
+            <td class="px-4 py-3 text-center">
+              <a href="lot-replay.html?lot=${p.lotNumber || p.id}" class="text-[10px] text-hm-vermilion hover:underline uppercase font-bold tracking-wider">
+                REPLAY
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('sold-search').addEventListener('input', renderSoldTable);
+    document.getElementById('sold-filter-team').addEventListener('change', renderSoldTable);
+    document.getElementById('sold-filter-role').addEventListener('change', renderSoldTable);
+    document.getElementById('sold-sort').addEventListener('change', renderSoldTable);
+
+    // Realtime listeners to keep final squads updated live without manual refresh
+    Hammer.on('teams:update', (updatedTeams) => {
+      teams = updatedTeams;
+      renderSquads();
+      renderSoldTable();
+    });
+
+    Hammer.on('auction:sold', () => {
+      loadData();
+    });
+
+    await loadData();
+  })();
+  </script>
+</body>
+</html>

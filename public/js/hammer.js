@@ -379,6 +379,48 @@
       }));
     },
 
+    async getActivityLog(params = {}) {
+      const sb = this.client;
+      let query = sb
+        .from('auction_events')
+        .select('*')
+        .order('event_sequence', { ascending: false });
+
+      if (params.type && params.type !== 'all') {
+        const t = params.type.toUpperCase();
+        if (t === 'BIDS') {
+          query = query.in('event_type', ['BID_PLACED', 'BID_REJECTED']);
+        } else if (t === 'LOTS') {
+          query = query.like('event_type', 'LOT_%');
+        } else if (t === 'HAMMER' || t === 'SOLD') {
+          query = query.in('event_type', ['LOT_SOLD', 'LOT_UNSOLD']);
+        } else if (t === 'SYSTEM') {
+          query = query.in('event_type', ['AUCTION_STARTED', 'AUCTION_PAUSED', 'AUCTION_RESUMED', 'AUCTION_RESET', 'TIMER_CHANGED']);
+        } else {
+          query = query.eq('event_type', t);
+        }
+      }
+      if (params.lot_id) {
+        query = query.eq('lot_id', params.lot_id);
+      }
+      if (params.player_id) {
+        query = query.eq('player_id', params.player_id);
+      }
+      if (params.team_id) {
+        query = query.eq('actor_team_id', params.team_id.toUpperCase());
+      }
+      const limit = params.limit || 100;
+      query = query.limit(limit);
+
+      const { data, error } = await query;
+      if (error) throw new Error(error.message);
+      return {
+        events: data || [],
+        total: (data || []).length,
+        latestSequence: data && data.length > 0 ? (data[0].event_sequence || 0) : 0
+      };
+    },
+
     // ── Atomic Stored Procedures (Edge Functions / RPC) ──
     async placeBid(expectedBid) {
       const sb = this.client;
@@ -522,6 +564,23 @@
       return state;
     },
     getAuctionHistory() { return this._fetch('GET', '/api/auction/history'); },
+    getActivityLog(params = {}) {
+      const qs = new URLSearchParams();
+      if (params.type) qs.set('type', params.type);
+      if (params.lot_id) qs.set('lot_id', params.lot_id);
+      if (params.player_id) qs.set('player_id', params.player_id);
+      if (params.team_id) qs.set('team_id', params.team_id);
+      if (params.limit) qs.set('limit', params.limit);
+      if (params.page) qs.set('page', params.page);
+      const queryStr = qs.toString() ? `?${qs.toString()}` : '';
+      return this._fetch('GET', `/api/auction/activity${queryStr}`);
+    },
+    getExportUrl(type = 'squads', format = 'csv', id = null) {
+      if (type === 'lot' && id) {
+        return `/api/export/lot/${encodeURIComponent(id)}?format=${format}`;
+      }
+      return `/api/export/${type}?format=${format}`;
+    },
     startAuction(playerId) { return this._fetch('POST', '/api/auction/start', { playerId }); },
     placeBid(expectedBid) { return this._fetch('POST', '/api/auction/bid', { expectedBid }); },
     setTimerDuration(duration) { return this._fetch('POST', '/api/auction/timer/settings', { duration }); },
@@ -547,6 +606,8 @@
   });
 
   // ─── REALTIME CONNECTIONS ───────────────────────────────
+  let _connectionStatus = 'offline';
+
   function connectRealtime() {
     if (isSupabaseMode()) {
       connectSupabaseRealtime();
@@ -582,6 +643,13 @@
           });
         } catch (e) { console.error('Failed to process bid realtime:', e); }
       })
+      // 2b. Authoritative auction events stream
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'auction_events' }, (payload) => {
+        if (payload.new) {
+          emit('auction:event', payload.new);
+          emit('activity_created', payload.new);
+        }
+      })
       // 3. Team purse / squad updates
       .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, async () => {
         try {
@@ -602,14 +670,28 @@
       .on('broadcast', { event: 'auction:sold' }, (msg) => emit('auction:sold', msg.payload))
       .on('broadcast', { event: 'auction:unsold' }, (msg) => emit('auction:unsold', msg.payload))
       .on('broadcast', { event: 'auction:timer' }, (msg) => emit('auction:timer', msg.payload))
+      .on('broadcast', { event: 'auction:timer_settings' }, (msg) => emit('auction:timer_settings', msg.payload))
       .on('broadcast', { event: 'auction:paused' }, (msg) => emit('auction:paused', msg.payload))
       .on('broadcast', { event: 'auction:resumed' }, (msg) => emit('auction:resumed', msg.payload))
       .on('broadcast', { event: 'auction:reset' }, (msg) => emit('auction:reset', msg.payload))
+      .on('broadcast', { event: 'activity_created' }, (msg) => {
+        emit('auction:event', msg.payload);
+        emit('activity_created', msg.payload);
+      })
+      .on('broadcast', { event: 'auction:event' }, (msg) => {
+        emit('auction:event', msg.payload);
+        emit('activity_created', msg.payload);
+      })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
-          emit('connected');
+          _connectionStatus = 'connected';
+          emit('connected', { mode: 'supabase' });
         } else if (status === 'CLOSED') {
-          emit('disconnected');
+          _connectionStatus = 'disconnected';
+          emit('disconnected', { mode: 'supabase' });
+        } else if (status === 'CHANNEL_ERROR') {
+          _connectionStatus = 'reconnecting';
+          emit('reconnecting', { mode: 'supabase' });
         }
       });
   }
@@ -649,8 +731,8 @@
 
     const events = [
       'auction:state', 'auction:started', 'auction:bid', 'auction:sold',
-      'auction:unsold', 'auction:timer', 'auction:paused', 'auction:resumed',
-      'auction:reset', 'auction:hammer_ready', 'teams:update', 'error'
+      'auction:unsold', 'auction:timer', 'auction:timer_settings', 'auction:paused', 'auction:resumed',
+      'auction:reset', 'auction:hammer_ready', 'auction:event', 'activity_created', 'teams:update', 'error'
     ];
 
     events.forEach(event => {
@@ -658,8 +740,9 @@
     });
 
     _socket.on('connect', () => {
+      _connectionStatus = 'connected';
       if (token) _socket.emit('auth', { token });
-      emit('connected');
+      emit('connected', { mode: 'socket' });
       // Immediately pull fresh state to guarantee zero desync across all clients
       API.getAuctionState().then(state => {
         if (state) emit('auction:state', state);
@@ -667,13 +750,33 @@
     });
 
     _socket.on('reconnect', () => {
+      _connectionStatus = 'connected';
       if (token) _socket.emit('auth', { token });
+      emit('connected', { mode: 'socket' });
       API.getAuctionState().then(state => {
         if (state) emit('auction:state', state);
       }).catch(() => {});
     });
 
-    _socket.on('disconnect', () => emit('disconnected'));
+    _socket.on('reconnect_attempt', () => {
+      _connectionStatus = 'reconnecting';
+      emit('reconnecting', { mode: 'socket' });
+    });
+
+    _socket.on('reconnecting', () => {
+      _connectionStatus = 'reconnecting';
+      emit('reconnecting', { mode: 'socket' });
+    });
+
+    _socket.on('disconnect', () => {
+      _connectionStatus = 'disconnected';
+      emit('disconnected', { mode: 'socket' });
+    });
+
+    _socket.on('connect_error', () => {
+      _connectionStatus = 'reconnecting';
+      emit('reconnecting', { mode: 'socket' });
+    });
   }
 
   async function socketBid(expectedBid) {
@@ -695,6 +798,26 @@
   }
 
   // ─── EVENT BUS ──────────────────────────────────────────
+  let _lastProcessedSequence = 0;
+  const _processedEventIds = new Set();
+
+  function isDuplicateEvent(data) {
+    if (!data) return false;
+    if (data.id && _processedEventIds.has(data.id)) return true;
+    if (data.event_sequence && data.event_sequence <= _lastProcessedSequence) return true;
+    if (data.id) {
+      _processedEventIds.add(data.id);
+      if (_processedEventIds.size > 2000) {
+        const first = _processedEventIds.values().next().value;
+        _processedEventIds.delete(first);
+      }
+    }
+    if (data.event_sequence && data.event_sequence > _lastProcessedSequence) {
+      _lastProcessedSequence = data.event_sequence;
+    }
+    return false;
+  }
+
   function on(event, callback) {
     if (!_listeners[event]) _listeners[event] = [];
     _listeners[event].push(callback);
@@ -706,6 +829,10 @@
   }
 
   function emit(event, data) {
+    if (event === 'auction:event' || event === 'activity_created') {
+      if (isDuplicateEvent(data)) return;
+    }
+
     if (event === 'auction:state' || event === 'auction:started' || event === 'auction:paused' || event === 'auction:resumed') {
       _lastAuctionState = data;
     } else if (event === 'auction:bid' && data?.state) {
@@ -1163,6 +1290,9 @@
       return s;
     },
     getAuctionHistory: () => API.getAuctionHistory(),
+    getActivityLog: (params) => API.getActivityLog(params),
+    getExportUrl: (type, format, id) => API.getExportUrl ? API.getExportUrl(type, format, id) : `/api/export/${type || 'squads'}?format=${format || 'csv'}`,
+    getConnectionState: () => _connectionStatus,
     startAuction: (playerId) => API.startAuction(playerId),
     sellPlayer: () => API.markSold(),
     unsoldPlayer: () => API.markUnsold(),

@@ -1,0 +1,36 @@
+[
+  {
+    "player": {
+      "id": 1,
+      "name": "VIRAT KOHLI",
+      "role": "batter",
+      "lotNumber": 1
+    },
+    "result": "sold",
+    "soldTo": {
+      "id": "MI",
+      "name": "MUMBAI INDIANS",
+      "shortName": "MI"
+    },
+    "soldPrice": 220,
+    "basePrice": 200,
+    "bidCount": 2,
+    "bidHistory": [
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 200,
+        "timestamp": 1790799780856
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 220,
+        "timestamp": 1790799780860
+      }
+    ],
+    "timestamp": 1790799780863
+  }
+]

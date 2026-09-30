@@ -63,10 +63,12 @@
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
         <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="lot-replay.html">LOT REPLAY</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
+        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
       </nav>
 
       <div class="flex items-center space-x-3">
-        <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase" id="clock-tick"></span>
+        <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase hidden sm:inline" id="clock-tick"></span>
         <a href="login.html" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
           <span class="material-symbols-outlined text-[16px]">account_circle</span>
         </a>
@@ -82,15 +84,102 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-hm-border-s">
         <div>
           <h1 class="font-display text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
-            SETTLEMENT ARCHIVE
+            LOT REPLAY & AUDIT
           </h1>
           <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
-            TIMESTAMPED BID-BY-BID ADJUDICATION AUDIT
+            STEP-BY-STEP ADJUDICATION REPLAY & HISTORICAL ARCHIVE
           </p>
         </div>
         <div class="flex items-center gap-3 font-mono text-xs">
           <span class="text-hm-faint uppercase">SETTLED LOTS:</span>
           <span class="text-base font-bold text-hm-text" id="total-lots">0</span>
+        </div>
+      </div>
+
+      <!-- REPLAY THEATRE (ACTIVE WHEN A LOT IS SELECTED) -->
+      <div id="theatre-container" class="hidden mb-10 bg-hm-panel border border-hm-border-strong rounded-[6px] p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 mb-6 border-b border-hm-border-s">
+          <div class="flex items-center gap-3">
+            <span class="px-2.5 py-1 bg-hm-vermilion text-hm-text font-mono text-xs font-bold rounded-[3px]" id="theatre-lot-badge">
+              LOT #001
+            </span>
+            <div>
+              <h2 class="font-display text-4xl uppercase text-hm-text leading-none" id="theatre-player-name">Dewald Brevis</h2>
+              <span class="font-mono text-xs text-hm-muted uppercase" id="theatre-player-role">Batter // India</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <a id="btn-export-lot-csv" href="#" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text font-mono text-[11px] uppercase tracking-wider font-bold rounded-[4px] transition-colors">
+              <span class="material-symbols-outlined text-[14px]">download</span>
+              EXPORT LOT CSV
+            </a>
+            <button id="btn-close-theatre" class="p-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-muted hover:text-hm-text rounded-[4px]" title="Close Theatre">
+              <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- REPLAY CONTROLS & TIMELINE -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- LEFT: LIVE SIMULATION STAGE -->
+          <div class="lg:col-span-7 bg-hm-charcoal border border-hm-border p-6 rounded-[6px] flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-hm-faint font-mono text-xs pb-3 border-b border-hm-border mb-4">
+                <span>REPLAY STEP: <strong id="theatre-step-label" class="text-hm-text">0 / 0</strong></span>
+                <span>STATUS: <strong id="theatre-status-label" class="text-hm-amber uppercase">REPLAY READY</strong></span>
+              </div>
+
+              <div class="text-center py-6">
+                <span class="font-mono text-xs text-hm-faint uppercase tracking-widest block mb-1">LEADING FRANCHISE BID</span>
+                <div class="font-display text-6xl text-hm-vermilion" id="theatre-current-bid">₹0</div>
+                <div class="mt-2 font-mono text-sm text-hm-text font-bold" id="theatre-leading-team">—</div>
+              </div>
+            </div>
+
+            <!-- CONTROLS BAR -->
+            <div class="pt-4 border-t border-hm-border">
+              <div class="flex items-center justify-between gap-4 mb-3">
+                <div class="flex items-center gap-2">
+                  <button id="btn-replay-prev" class="p-2 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text rounded-[4px]" title="Previous Bid">
+                    <span class="material-symbols-outlined text-[18px]">skip_previous</span>
+                  </button>
+                  <button id="btn-replay-play" class="px-4 py-2 bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text font-mono text-xs font-bold uppercase rounded-[4px] flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px]" id="icon-play">play_arrow</span>
+                    <span id="text-play">PLAY REPLAY</span>
+                  </button>
+                  <button id="btn-replay-next" class="p-2 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text rounded-[4px]" title="Next Bid">
+                    <span class="material-symbols-outlined text-[18px]">skip_next</span>
+                  </button>
+                  <button id="btn-replay-reset" class="p-2 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-muted hover:text-hm-text rounded-[4px]" title="Reset Replay">
+                    <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-2 font-mono text-xs text-hm-faint">
+                  <span>SPEED:</span>
+                  <select id="select-replay-speed" class="bg-hm-panel border border-hm-border-s text-hm-text px-2 py-1 rounded-[3px]">
+                    <option value="1500">1x (1.5s)</option>
+                    <option value="800" selected>2x (0.8s)</option>
+                    <option value="400">4x (0.4s)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- TIMELINE PROGRESS BAR -->
+              <div class="w-full bg-hm-ink h-2 rounded-full overflow-hidden border border-hm-border">
+                <div id="theatre-progress-bar" class="bg-hm-vermilion h-full w-0 transition-all duration-300"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: COMPLETE BID SEQUENCE LOG -->
+          <div class="lg:col-span-5 bg-hm-charcoal border border-hm-border p-4 rounded-[6px] flex flex-col h-[320px]">
+            <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider font-bold block mb-2 pb-2 border-b border-hm-border">
+              BID SEQUENCE LEDGER
+            </span>
+            <div id="theatre-bid-list" class="flex-1 overflow-y-auto space-y-1.5 pr-1"></div>
+          </div>
         </div>
       </div>
 
@@ -145,11 +234,28 @@
   <script>
   (async function() {
     await Hammer.init();
+    Hammer.startClock();
+
+    let historyRecords = [];
+    let activeTheatreLot = null;
+    let replayStep = 0;
+    let replayTimer = null;
 
     async function loadHistory() {
       try {
         const history = await Hammer.API.getAuctionHistory();
-        renderHistory(history);
+        historyRecords = history || [];
+        renderHistory(historyRecords);
+
+        // Check URL param ?lot=X
+        const urlParams = new URLSearchParams(window.location.search);
+        const lotParam = urlParams.get('lot');
+        if (lotParam) {
+          const match = historyRecords.find(h => String(h.player.lotNumber) === lotParam || String(h.player.id) === lotParam);
+          if (match) {
+            openLotTheatre(match);
+          }
+        }
       } catch (e) { console.error(e); }
     }
 
@@ -184,7 +290,7 @@
           <div class="flex items-center justify-between px-3 py-1.5 ${j === entry.bidHistory.length - 1 && isSold ? 'bg-hm-elevated border border-hm-vermilion font-bold' : 'bg-hm-charcoal border border-hm-border'} rounded-[4px]">
             <div class="flex items-center gap-2">
               <span class="font-mono text-[9px] text-hm-faint font-bold">#${j+1}</span>
-              <span class="font-mono text-xs text-hm-text font-bold">${b.teamShortName}</span>
+              <span class="font-mono text-xs text-hm-text font-bold">${b.teamShortName || b.teamId}</span>
             </div>
             <span class="font-mono text-xs ${j === entry.bidHistory.length - 1 ? 'text-hm-vermilion font-bold' : 'text-hm-text'}">${Hammer.formatCurrency(b.amount)}</span>
           </div>
@@ -219,20 +325,155 @@
               <span>BIDS RECEIVED: ${entry.bidCount || 0}</span>
             </div>
 
-            ${(entry.bidHistory && entry.bidHistory.length > 0) ? `
-              <details class="cursor-pointer">
-                <summary class="font-mono text-[10px] text-hm-vermilion font-bold uppercase tracking-wider py-1 hover:underline">
-                  VIEW FULL BID TIMELINE (${entry.bidHistory.length} BIDS)
-                </summary>
-                <div class="mt-2 space-y-1 pl-2 border-l-2 border-hm-border-s">
-                  ${bidTimeline}
-                </div>
-              </details>
-            ` : ''}
+            <div class="flex items-center justify-between pt-2 border-t border-hm-border/50">
+              <button class="btn-open-theatre inline-flex items-center gap-1.5 px-3 py-1 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-vermilion font-mono text-[11px] font-bold uppercase rounded-[3px] transition-colors" data-lot="${entry.player.lotNumber || entry.player.id}">
+                <span class="material-symbols-outlined text-[14px]">play_circle</span>
+                REPLAY LOT TIMELINE
+              </button>
+
+              ${(entry.bidHistory && entry.bidHistory.length > 0) ? `
+                <details class="cursor-pointer">
+                  <summary class="font-mono text-[10px] text-hm-muted font-bold uppercase tracking-wider py-1 hover:underline">
+                    QUICK LOG (${entry.bidHistory.length} BIDS)
+                  </summary>
+                  <div class="mt-2 space-y-1 pl-2 border-l-2 border-hm-border-s">
+                    ${bidTimeline}
+                  </div>
+                </details>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Wire Replay Theatre open buttons
+      document.querySelectorAll('.btn-open-theatre').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const lotId = btn.dataset.lot;
+          const match = historyRecords.find(h => String(h.player.lotNumber) === lotId || String(h.player.id) === lotId);
+          if (match) openLotTheatre(match);
+        });
+      });
+    }
+
+    // ─── INTERACTIVE LOT REPLAY THEATRE ─────────────────────────
+    function openLotTheatre(lot) {
+      activeTheatreLot = lot;
+      replayStep = 0;
+      clearInterval(replayTimer);
+      replayTimer = null;
+
+      document.getElementById('theatre-container').classList.remove('hidden');
+      document.getElementById('theatre-lot-badge').textContent = `LOT #${String(lot.player.lotNumber || 1).padStart(3, '0')}`;
+      document.getElementById('theatre-player-name').textContent = lot.player.name;
+      document.getElementById('theatre-player-role').textContent = `${Hammer.getRoleLabel(lot.player.role)} // Base: ${Hammer.formatCurrency(lot.basePrice)}`;
+
+      document.getElementById('btn-export-lot-csv').href = `/api/export/lot/${lot.player.lotNumber || lot.player.id}?format=csv`;
+
+      renderTheatreStep();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderTheatreStep() {
+      if (!activeTheatreLot) return;
+      const bids = activeTheatreLot.bidHistory || [];
+      const totalSteps = bids.length;
+
+      document.getElementById('theatre-step-label').textContent = `${replayStep} / ${totalSteps}`;
+
+      const progress = totalSteps > 0 ? (replayStep / totalSteps) * 100 : 0;
+      document.getElementById('theatre-progress-bar').style.width = `${progress}%`;
+
+      if (replayStep === 0) {
+        document.getElementById('theatre-current-bid').textContent = Hammer.formatCurrency(activeTheatreLot.basePrice);
+        document.getElementById('theatre-leading-team').textContent = 'RESERVE BASE PRICE';
+        document.getElementById('theatre-status-label').textContent = 'LOT OPENED';
+      } else {
+        const currBid = bids[replayStep - 1];
+        document.getElementById('theatre-current-bid').textContent = Hammer.formatCurrency(currBid.amount);
+        document.getElementById('theatre-leading-team').textContent = `${currBid.teamShortName || currBid.teamId} (${currBid.teamName || 'Franchise'})`;
+        document.getElementById('theatre-status-label').textContent = replayStep === totalSteps
+          ? (activeTheatreLot.result === 'sold' ? 'LOT SOLD // HAMMER DOWN' : 'LOT PASSED // UNSOLD')
+          : `BID #${replayStep} ACCEPTED`;
+      }
+
+      // Render Bid Sequence Ledger with active highlights
+      const listEl = document.getElementById('theatre-bid-list');
+      listEl.innerHTML = bids.map((b, i) => {
+        const isActive = i === replayStep - 1;
+        const isPast = i < replayStep;
+        return `
+          <div class="flex items-center justify-between px-3 py-1.5 text-xs font-mono rounded-[3px] border ${isActive ? 'bg-hm-elevated border-hm-vermilion font-bold text-hm-vermilion' : (isPast ? 'bg-hm-ink border-hm-border text-hm-text' : 'bg-transparent border-hm-border/30 text-hm-dim')}">
+            <div class="flex items-center gap-2">
+              <span class="text-[9px] font-bold">#${i + 1}</span>
+              <span>${b.teamShortName || b.teamId}</span>
+            </div>
+            <span>${Hammer.formatCurrency(b.amount)}</span>
           </div>
         `;
       }).join('');
     }
+
+    document.getElementById('btn-close-theatre').addEventListener('click', () => {
+      clearInterval(replayTimer);
+      replayTimer = null;
+      document.getElementById('theatre-container').classList.add('hidden');
+    });
+
+    document.getElementById('btn-replay-prev').addEventListener('click', () => {
+      if (!activeTheatreLot) return;
+      if (replayStep > 0) {
+        replayStep--;
+        renderTheatreStep();
+      }
+    });
+
+    document.getElementById('btn-replay-next').addEventListener('click', () => {
+      if (!activeTheatreLot) return;
+      const bids = activeTheatreLot.bidHistory || [];
+      if (replayStep < bids.length) {
+        replayStep++;
+        renderTheatreStep();
+      }
+    });
+
+    document.getElementById('btn-replay-reset').addEventListener('click', () => {
+      replayStep = 0;
+      clearInterval(replayTimer);
+      replayTimer = null;
+      document.getElementById('icon-play').textContent = 'play_arrow';
+      document.getElementById('text-play').textContent = 'PLAY REPLAY';
+      renderTheatreStep();
+    });
+
+    document.getElementById('btn-replay-play').addEventListener('click', () => {
+      if (!activeTheatreLot) return;
+      const bids = activeTheatreLot.bidHistory || [];
+
+      if (replayTimer) {
+        clearInterval(replayTimer);
+        replayTimer = null;
+        document.getElementById('icon-play').textContent = 'play_arrow';
+        document.getElementById('text-play').textContent = 'RESUME';
+      } else {
+        if (replayStep >= bids.length) replayStep = 0;
+        document.getElementById('icon-play').textContent = 'pause';
+        document.getElementById('text-play').textContent = 'PAUSE';
+
+        const speed = parseInt(document.getElementById('select-replay-speed').value) || 800;
+        replayTimer = setInterval(() => {
+          if (replayStep < bids.length) {
+            replayStep++;
+            renderTheatreStep();
+          } else {
+            clearInterval(replayTimer);
+            replayTimer = null;
+            document.getElementById('icon-play').textContent = 'play_arrow';
+            document.getElementById('text-play').textContent = 'REPLAY';
+          }
+        }, speed);
+      }
+    });
 
     await loadHistory();
   })();

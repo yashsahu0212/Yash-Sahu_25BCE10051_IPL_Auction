@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS public.auctions (
     leading_team_id TEXT REFERENCES public.teams(id) ON DELETE SET NULL,
     round INT NOT NULL DEFAULT 1,
     lot_index INT NOT NULL DEFAULT 0,
-    timer INT NOT NULL DEFAULT 10,
-    max_timer INT NOT NULL DEFAULT 10,    -- 10-second countdown rule
+    timer INT NOT NULL DEFAULT 15,
+    max_timer INT NOT NULL DEFAULT 15,    -- Authoritative auction duration
     gavel_stage INT NOT NULL DEFAULT 0 CHECK (gavel_stage BETWEEN 0 AND 3),
     bid_increment INT NOT NULL DEFAULT 10,-- Integer lakhs (+10L, +20L, +50L)
     session_label TEXT NOT NULL DEFAULT '2026 MEGA AUCTION',
@@ -376,8 +376,7 @@ BEGIN
         current_bid = 0,
         base_price = v_player.base_price,
         leading_team_id = NULL,
-        timer = 10,
-        max_timer = 10,
+        timer = max_timer,
         gavel_stage = 0,
         bid_increment = public.get_bid_increment(v_player.base_price),
         updated_at = now()
@@ -608,6 +607,37 @@ END;
 $$;
 
 -- 6. TIMER & GAVEL MANAGEMENT
+CREATE OR REPLACE FUNCTION public.fn_set_timer_duration(p_duration INT)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_user_id UUID;
+    v_profile RECORD;
+BEGIN
+    v_user_id := auth.uid();
+    IF v_user_id IS NOT NULL THEN
+        SELECT * INTO v_profile FROM public.profiles WHERE id = v_user_id;
+        IF v_profile IS NOT NULL AND v_profile.role != 'auctioneer' THEN
+            RAISE EXCEPTION 'Access Denied: Only Auctioneer can configure timer settings' USING ERRCODE = '20013';
+        END IF;
+    END IF;
+
+    IF p_duration IS NULL OR p_duration < 5 OR p_duration > 120 THEN
+        RAISE EXCEPTION 'Timer duration must be between 5 and 120 seconds';
+    END IF;
+
+    UPDATE public.auctions
+    SET max_timer = p_duration,
+        timer = CASE WHEN status = 'idle' THEN p_duration ELSE timer END,
+        updated_at = now()
+    WHERE id = 1;
+
+    RETURN jsonb_build_object('success', true, 'max_timer', p_duration);
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.fn_add_timer(p_seconds INT DEFAULT 10)
 RETURNS JSONB
 LANGUAGE plpgsql
@@ -617,23 +647,27 @@ DECLARE
     v_timer INT;
 BEGIN
     UPDATE public.auctions
-    SET timer = LEAST(60, timer + p_seconds), updated_at = now()
+    SET timer = LEAST(120, timer + p_seconds), updated_at = now()
     WHERE id = 1
     RETURNING timer INTO v_timer;
     RETURN jsonb_build_object('success', true, 'timer', v_timer);
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.fn_reset_timer(p_seconds INT DEFAULT 10)
+CREATE OR REPLACE FUNCTION public.fn_reset_timer(p_seconds INT DEFAULT NULL)
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
     v_timer INT;
+    v_reset_val INT;
 BEGIN
+    SELECT max_timer INTO v_reset_val FROM public.auctions WHERE id = 1;
+    v_reset_val := COALESCE(p_seconds, v_reset_val, 15);
+
     UPDATE public.auctions
-    SET timer = p_seconds, updated_at = now()
+    SET timer = v_reset_val, updated_at = now()
     WHERE id = 1
     RETURNING timer INTO v_timer;
     RETURN jsonb_build_object('success', true, 'timer', v_timer);

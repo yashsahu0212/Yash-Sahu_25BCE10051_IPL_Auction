@@ -39,6 +39,36 @@ let teams = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'teams.json'
 teams.forEach(t => { t.remaining = parseFloat((t.purse - t.spent).toFixed(2)); });
 
 const sessions = new Map(); // token -> { userId, role, teamId, username }
+const revokedTokens = new Set();
+const SESSION_SECRET = process.env.SESSION_SECRET || 'hammer-authoritative-auction-secret-2026';
+
+function signSession(data) {
+  const payload = Buffer.from(JSON.stringify({ ...data, exp: Date.now() + 24 * 60 * 60 * 1000 })).toString('base64url');
+  const sig = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+  return `hm.${payload}.${sig}`;
+}
+
+function verifySignedSession(token) {
+  if (!token || typeof token !== 'string' || !token.startsWith('hm.')) return null;
+  if (revokedTokens.has(token)) return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const [, payloadB64, sig] = parts;
+    const expectedSig = crypto.createHmac('sha256', SESSION_SECRET).update(payloadB64).digest('base64url');
+    if (crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
+      const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
+      if (payload.exp && payload.exp < Date.now()) return null;
+      return {
+        userId: payload.userId,
+        role: payload.role,
+        teamId: payload.teamId,
+        username: payload.username
+      };
+    }
+  } catch (e) {}
+  return null;
+}
 
 const USERS = [
   { id: 'auctioneer', username: 'auctioneer', password: 'hammer2026', role: 'auctioneer', teamId: null },
@@ -64,8 +94,8 @@ let auction = {
   leadingTeamId: null,
   round: 1,
   lotIndex: 0,
-  timer: 10,
-  maxTimer: 10,            // Task brief: 10-second timer
+  timer: 15,
+  maxTimer: 15,            // Default 15-second timer (authoritative & configurable)
   gavelStage: 0,           // 0=bidding, 1=1st call, 2=2nd call, 3=final call
   bidIncrement: 10,        // Integer lakhs (+10L, +20L, +50L)
   bidHistory: [],          // { teamId, teamName, amount, timestamp }
@@ -111,18 +141,24 @@ function decodeSupabaseJwt(token) {
 }
 
 function getSession(req) {
+  const checkToken = (token) => {
+    if (!token || revokedTokens.has(token)) return null;
+    if (sessions.has(token)) return sessions.get(token);
+    const signed = verifySignedSession(token);
+    if (signed) return signed;
+    const decoded = decodeSupabaseJwt(token);
+    if (decoded) return decoded;
+    return null;
+  };
+
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.slice(7);
-    if (sessions.has(token)) return sessions.get(token);
-    const decoded = decodeSupabaseJwt(token);
-    if (decoded) return decoded;
+    const s = checkToken(authHeader.slice(7));
+    if (s) return s;
   }
   if (req.cookies && req.cookies.hammer_token) {
-    const token = req.cookies.hammer_token;
-    if (sessions.has(token)) return sessions.get(token);
-    const decoded = decodeSupabaseJwt(token);
-    if (decoded) return decoded;
+    const s = checkToken(req.cookies.hammer_token);
+    if (s) return s;
   }
   return null;
 }
@@ -183,13 +219,15 @@ function startTimer() {
     if (auction.status !== 'live') return;
     auction.timer--;
 
-    // 10-second Gavel stage progression (Rule 9 from brief)
-    if (auction.timer <= 7 && auction.timer > 4) auction.gavelStage = 1;
-    else if (auction.timer <= 4 && auction.timer > 1) auction.gavelStage = 2;
-    else if (auction.timer <= 1 && auction.timer > 0) auction.gavelStage = 3;
+    // Dynamic Gavel stage progression based on maxTimer
+    const ratio = auction.timer / auction.maxTimer;
+    if (ratio <= 0.66 && ratio > 0.33) auction.gavelStage = 1;
+    else if (ratio <= 0.33 && ratio > 0.1) auction.gavelStage = 2;
+    else if (ratio <= 0.1 && auction.timer > 0) auction.gavelStage = 3;
 
     io.emit('auction:timer', {
       timer: auction.timer,
+      maxTimer: auction.maxTimer,
       gavelStage: auction.gavelStage
     });
 
@@ -217,7 +255,7 @@ function stopTimer() {
 }
 
 function resetTimer() {
-  auction.timer = auction.maxTimer; // 10s
+  auction.timer = auction.maxTimer;
   auction.gavelStage = 0;
 }
 
@@ -237,8 +275,7 @@ function startAuctionForPlayer(playerId) {
   auction.leadingTeamId = null;
   auction.bidHistory = [];
   auction.gavelStage = 0;
-  auction.timer = 10;
-  auction.maxTimer = 10;
+  auction.timer = auction.maxTimer; // Use configured auction duration
   auction.bidIncrement = getBidIncrement(player.basePrice);
   auction.lotIndex++;
 
@@ -469,14 +506,14 @@ function resumeAuction() {
 // ─── AUTH ROUTES ────────────────────────────────────────────
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
-  const user = USERS.find(u => u.username === username && u.password === password);
+  const user = USERS.find(u => u.username.toLowerCase() === (username || '').trim().toLowerCase() && u.password === password);
   if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
-  const token = crypto.randomBytes(32).toString('hex');
   const sessionData = { userId: user.id, role: user.role, teamId: user.teamId, username: user.username };
+  const token = signSession(sessionData);
   sessions.set(token, sessionData);
 
-  res.cookie('hammer_token', token, { httpOnly: false, maxAge: 24 * 60 * 60 * 1000 });
+  res.cookie('hammer_token', token, { httpOnly: false, maxAge: 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
   res.json({
     token,
     user: { id: user.id, username: user.username, role: user.role, teamId: user.teamId },
@@ -485,13 +522,17 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  const session = getSession(req);
-  if (session) {
-    const authHeader = req.headers.authorization;
-    if (authHeader) sessions.delete(authHeader.slice(7));
-    if (req.cookies.hammer_token) sessions.delete(req.cookies.hammer_token);
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const t = authHeader.slice(7);
+    sessions.delete(t);
+    revokedTokens.add(t);
   }
-  res.clearCookie('hammer_token');
+  if (req.cookies && req.cookies.hammer_token) {
+    sessions.delete(req.cookies.hammer_token);
+    revokedTokens.add(req.cookies.hammer_token);
+  }
+  res.clearCookie('hammer_token', { path: '/' });
   res.json({ success: true });
 });
 
@@ -604,24 +645,45 @@ app.post('/api/auction/bid', requireAuth(['team_owner']), (req, res) => {
   res.json(result);
 });
 
+// Auctioneer configures authoritative timer duration (e.g. 5s, 10s, 15s, 20s, 30s, 45s, 60s)
+app.post('/api/auction/timer/settings', requireAuth(['auctioneer']), (req, res) => {
+  const duration = parseInt(req.body.duration);
+  if (isNaN(duration) || duration < 5 || duration > 120 || !Number.isInteger(duration)) {
+    return res.status(400).json({ error: 'Invalid timer duration. Must be an integer between 5 and 120 seconds.' });
+  }
+
+  auction.maxTimer = duration;
+  if (auction.status === 'idle') {
+    auction.timer = duration;
+  }
+
+  io.emit('auction:timer_settings', {
+    maxTimer: auction.maxTimer,
+    timer: auction.timer
+  });
+  io.emit('auction:state', getPublicAuctionState());
+
+  res.json({ success: true, duration: auction.maxTimer, maxTimer: auction.maxTimer, timer: auction.timer, state: getPublicAuctionState() });
+});
+
 // Auctioneer extends timer by N seconds
 app.post('/api/auction/timer/add', requireAuth(['auctioneer']), (req, res) => {
   if (auction.status !== 'live') return res.status(400).json({ error: 'Auction is not live' });
   const seconds = parseInt(req.body.seconds) || 10;
-  auction.timer = Math.min(auction.timer + seconds, 60);
-  io.emit('auction:timer', { timer: auction.timer, gavelStage: auction.gavelStage });
-  res.json({ success: true, timer: auction.timer });
+  auction.timer = Math.min(auction.timer + seconds, 120);
+  io.emit('auction:timer', { timer: auction.timer, maxTimer: auction.maxTimer, gavelStage: auction.gavelStage });
+  res.json({ success: true, timer: auction.timer, maxTimer: auction.maxTimer });
 });
 
-// Auctioneer resets timer to N seconds
+// Auctioneer resets timer to configured or specified seconds
 app.post('/api/auction/timer/reset', requireAuth(['auctioneer']), (req, res) => {
   if (auction.status !== 'live' && auction.status !== 'paused') {
     return res.status(400).json({ error: 'Auction is not active' });
   }
-  const seconds = parseInt(req.body.seconds) || 10;
+  const seconds = parseInt(req.body.seconds) || auction.maxTimer || 15;
   auction.timer = seconds;
-  io.emit('auction:timer', { timer: auction.timer, gavelStage: auction.gavelStage });
-  res.json({ success: true, timer: auction.timer });
+  io.emit('auction:timer', { timer: auction.timer, maxTimer: auction.maxTimer, gavelStage: auction.gavelStage });
+  res.json({ success: true, timer: auction.timer, maxTimer: auction.maxTimer });
 });
 
 // Auctioneer manually advances or sets gavel stage (0=Bidding, 1=1st Call, 2=2nd Call, 3=Final Call)
@@ -695,8 +757,8 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
     leadingTeamId: null,
     round: 1,
     lotIndex: 0,
-    timer: 10,
-    maxTimer: 10,
+    timer: 15,
+    maxTimer: 15,
     gavelStage: 0,
     bidIncrement: 10,
     bidHistory: [],

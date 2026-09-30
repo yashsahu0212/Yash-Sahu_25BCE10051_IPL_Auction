@@ -419,20 +419,32 @@
       const { data, error } = await sb.rpc('fn_set_gavel', { p_stage: stage });
       if (error) throw new Error(error.message);
       return data;
+    },
+
+    async setTimerDuration(duration = 15) {
+      const sb = this.client;
+      const { data, error } = await sb.rpc('fn_set_timer_duration', { p_duration: Number(duration) });
+      if (error) {
+        await sb.from('auctions').update({ max_timer: Number(duration) }).eq('id', 1);
+        return { success: true, maxTimer: Number(duration) };
+      }
+      return data;
     }
   };
 
   // ─── LOCAL NODE / REST API (FALLBACK) ───────────────────
   const LocalAPI = {
     async _fetch(method, url, body) {
+      const activeToken = _token || localStorage.getItem('hammer_token');
       const opts = {
         method,
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' }
       };
-      if (_token) opts.headers['Authorization'] = `Bearer ${_token}`;
+      if (activeToken) opts.headers['Authorization'] = `Bearer ${activeToken}`;
       if (body) opts.body = JSON.stringify(body);
       const res = await fetch(API_BASE + url, opts);
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Request failed');
       return data;
     },
@@ -476,8 +488,9 @@
     getAuctionHistory() { return this._fetch('GET', '/api/auction/history'); },
     startAuction(playerId) { return this._fetch('POST', '/api/auction/start', { playerId }); },
     placeBid(expectedBid) { return this._fetch('POST', '/api/auction/bid', { expectedBid }); },
+    setTimerDuration(duration) { return this._fetch('POST', '/api/auction/timer/settings', { duration }); },
     addTimer(seconds = 10) { return this._fetch('POST', '/api/auction/timer/add', { seconds }); },
-    resetTimer(seconds = 10) { return this._fetch('POST', '/api/auction/timer/reset', { seconds }); },
+    resetTimer(seconds) { return this._fetch('POST', '/api/auction/timer/reset', { seconds }); },
     setGavel(stage) { return this._fetch('POST', '/api/auction/gavel', { stage }); },
     markSold() { return this._fetch('POST', '/api/auction/sold'); },
     markUnsold() { return this._fetch('POST', '/api/auction/unsold'); },
@@ -633,7 +646,32 @@
       _lastAuctionState = data.state;
     } else if (event === 'auction:timer' && _lastAuctionState) {
       _lastAuctionState.timer = data.timer;
+      if (data.maxTimer !== undefined) _lastAuctionState.maxTimer = data.maxTimer;
       if (data.gavelStage !== undefined) _lastAuctionState.gavelStage = data.gavelStage;
+    } else if (event === 'auction:timer_settings' && _lastAuctionState) {
+      if (data.maxTimer !== undefined) _lastAuctionState.maxTimer = data.maxTimer;
+      if (data.timer !== undefined) _lastAuctionState.timer = data.timer;
+    }
+
+    // Authoritative audio triggering with duplicate prevention
+    if (window.HammerUX) {
+      try {
+        if (event === 'auction:timer') {
+          HammerUX.handleTimerTick(data.timer, _lastAuctionState?.status || 'live');
+        } else if (event === 'auction:sold') {
+          HammerUX.handleAuctionSold(data);
+        } else if (event === 'auction:unsold') {
+          HammerUX.handleAuctionUnsold(data);
+        } else if (event === 'auction:bid') {
+          HammerUX.handleAuctionBid(data);
+        } else if (event === 'auction:paused') {
+          HammerUX.handleAuctionPause();
+        } else if (event === 'auction:reset') {
+          HammerUX.handleAuctionReset();
+        }
+      } catch (e) {
+        console.warn('Audio handler error:', e);
+      }
     }
 
     if (_listeners[event]) {
@@ -673,15 +711,24 @@
   }
 
   async function checkAuth() {
+    _token = _token || localStorage.getItem('hammer_token');
+
     if (isSupabaseMode()) {
       try {
         const result = await SupabaseAPI.me();
         if (result && result.user) {
           _user = result.user;
+          _token = result.token || _token;
           localStorage.setItem('hammer_user', JSON.stringify(_user));
+          if (_token) {
+            document.cookie = `hammer_token=${_token}; path=/; max-age=86400; SameSite=Lax`;
+          }
         } else {
           _user = null;
+          _token = null;
           localStorage.removeItem('hammer_user');
+          localStorage.removeItem('hammer_token');
+          document.cookie = 'hammer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
         }
         return result;
       } catch (e) {
@@ -692,24 +739,29 @@
     if (!_token) {
       _user = null;
       localStorage.removeItem('hammer_user');
+      localStorage.removeItem('hammer_token');
+      document.cookie = 'hammer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
       return null;
     }
+
     try {
       const result = await LocalAPI.me();
       _user = result.user;
       localStorage.setItem('hammer_user', JSON.stringify(_user));
+      document.cookie = `hammer_token=${_token}; path=/; max-age=86400; SameSite=Lax`;
       return result;
     } catch (e) {
       _token = null;
       _user = null;
       localStorage.removeItem('hammer_token');
       localStorage.removeItem('hammer_user');
+      document.cookie = 'hammer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
       return null;
     }
   }
 
   function getUser() { return _user; }
-  function getToken() { return _token; }
+  function getToken() { return _token || localStorage.getItem('hammer_token'); }
   function isLoggedIn() { return !!_user; }
 
   // ─── UI UTILITIES ───────────────────────────────────────
@@ -988,6 +1040,7 @@
     resetAuction: () => API.resetAuction(),
     addTimer: (sec) => API.addTimer(sec),
     resetTimer: (sec) => API.resetTimer(sec),
+    setTimerDuration: (dur) => API.setTimerDuration(dur),
     setGavelStage: (stage) => API.setGavel(stage),
     getState: () => _lastAuctionState,
     getBidIncrement,

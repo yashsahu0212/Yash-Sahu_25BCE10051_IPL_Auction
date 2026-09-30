@@ -26,9 +26,9 @@
       "debutYear": 2008
     },
     "tacticalProfile": "IPL all-time highest run-scorer. Supreme anchor and pacing index through the middle overs with elite boundary conversion against high-pace.",
-    "status": "sold",
-    "soldTo": "MI",
-    "soldPrice": 220,
+    "status": "available",
+    "soldTo": null,
+    "soldPrice": null,
     "imageUrl": null,
     "image_url": null
   },

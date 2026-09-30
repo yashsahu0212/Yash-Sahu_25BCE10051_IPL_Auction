@@ -209,9 +209,9 @@
 
               <!-- Hammer Buttons -->
               <div class="grid grid-cols-2 gap-2">
-                <button id="desk-btn-sold" class="btn-hammer-physical font-mono text-xs uppercase tracking-wider font-bold px-4 py-3 flex items-center justify-center gap-2">
+                <button id="desk-btn-sold" disabled class="btn-paper-physical text-hm-faint font-mono text-xs uppercase tracking-wider font-bold px-4 py-3 opacity-60 cursor-not-allowed flex items-center justify-center gap-2">
                   <span class="material-symbols-outlined text-[16px]">gavel</span>
-                  <span>HAMMER SOLD</span>
+                  <span>HAMMER SOLD (NO BIDS)</span>
                 </button>
                 <button id="desk-btn-unsold" class="btn-paper-physical text-hm-muted font-mono text-xs uppercase tracking-wider font-bold px-4 py-3 flex items-center justify-center gap-2">
                   <span class="material-symbols-outlined text-[16px]">block</span>
@@ -426,8 +426,11 @@
       // Guard: don't start if an auction is already live with a different player
       const currentState = Hammer.getState();
       if (currentState && currentState.status === 'live' && currentState.currentPlayer?.id !== playerId) {
-        Hammer.showToast('ANOTHER LOT IS CURRENTLY LIVE', 'error');
-        return;
+        // If timer is at 0 and no bids, allow advancing
+        if (!(currentState.timer <= 0 && !currentState.leadingTeamId)) {
+          Hammer.showToast('ANOTHER LOT IS CURRENTLY LIVE', 'error');
+          return;
+        }
       }
 
       _startingAuction = true;
@@ -443,6 +446,12 @@
 
       try {
         const result = await Hammer.startAuction(playerId);
+        const p = allPlayers.find(x => x.id === playerId);
+        if (p) p.status = 'on_hammer';
+        renderQueue();
+        if (result && result.state) {
+          renderAuctionState(result.state);
+        }
         Hammer.showToast('LOT BROUGHT TO HAMMER', 'success');
       } catch (err) {
         Hammer.showToast(err.message || 'Failed to start lot', 'error');
@@ -638,7 +647,16 @@
     if (putNextBtn) {
       putNextBtn.addEventListener('click', async () => {
         if (_actionInFlight) return;
-        const nextPlayer = allPlayers.find(p => p.status === 'upcoming' || p.status === 'available');
+        let nextPlayer = allPlayers.find(p => p.status === 'upcoming' || p.status === 'available');
+        if (!nextPlayer) {
+          // If no available player found in cache, reload pool once
+          try {
+            const res = await Hammer.getPlayers({ limit: 100 });
+            allPlayers = res.players || [];
+            renderQueue();
+            nextPlayer = allPlayers.find(p => p.status === 'upcoming' || p.status === 'available');
+          } catch (e) {}
+        }
         if (!nextPlayer) {
           Hammer.showToast('NO MORE AVAILABLE PLAYERS IN POOL', 'info');
           return;
@@ -648,7 +666,12 @@
         const textSpan = document.getElementById('desk-btn-put-next-text');
         if (textSpan) textSpan.textContent = 'PUTTING ON BID...';
         try {
-          await Hammer.startAuction(nextPlayer.id);
+          const result = await Hammer.startAuction(nextPlayer.id);
+          nextPlayer.status = 'on_hammer';
+          renderQueue();
+          if (result && result.state) {
+            renderAuctionState(result.state);
+          }
           Hammer.showToast(`LOT #${String(nextPlayer.lotNumber).padStart(3, '0')} ${nextPlayer.name} BROUGHT TO HAMMER`, 'success');
         } catch (e) {
           Hammer.showToast(e.message || 'Failed to start lot', 'error');
@@ -664,29 +687,56 @@
 
     document.getElementById('desk-btn-sold').addEventListener('click', async () => {
       if (_actionInFlight) return;
+      const state = Hammer.getState();
+      if (!state || (state.status !== 'live' && state.status !== 'paused')) {
+        Hammer.showToast('NO ACTIVE AUCTION TO SELL', 'error');
+        return;
+      }
+      if (!state.leadingTeamId) {
+        Hammer.showToast('CANNOT SELL: NO BIDS ON LOT. CLICK MARK UNSOLD INSTEAD', 'error');
+        return;
+      }
+
       _actionInFlight = true;
       const btn = document.getElementById('desk-btn-sold');
       btn.disabled = true;
       btn.querySelector('span:last-child').textContent = 'CONFIRMING SOLD...';
       try {
-        await Hammer.sellPlayer();
+        const result = await Hammer.sellPlayer();
+        if (result && result.state) {
+          renderAuctionState(result.state);
+        }
         Hammer.showToast('HAMMER FELL: LOT SOLD!', 'success');
       } catch (e) {
         Hammer.showToast(e.message || 'Sold failed', 'error');
       } finally {
         _actionInFlight = false;
-        btn.disabled = false;
+        const cur = Hammer.getState();
+        if (cur && cur.leadingTeamId && (cur.status === 'live' || cur.status === 'paused')) {
+          btn.disabled = false;
+        } else {
+          btn.disabled = true;
+        }
       }
     });
 
     document.getElementById('desk-btn-unsold').addEventListener('click', async () => {
       if (_actionInFlight) return;
+      const state = Hammer.getState();
+      if (!state || (state.status !== 'live' && state.status !== 'paused')) {
+        Hammer.showToast('NO ACTIVE AUCTION TO MARK UNSOLD', 'error');
+        return;
+      }
+
       _actionInFlight = true;
       const btn = document.getElementById('desk-btn-unsold');
       btn.disabled = true;
       btn.querySelector('span:last-child').textContent = 'MARKING UNSOLD...';
       try {
-        await Hammer.unsoldPlayer();
+        const result = await Hammer.unsoldPlayer();
+        if (result && result.state) {
+          renderAuctionState(result.state);
+        }
         Hammer.showToast('LOT MARKED UNSOLD', 'info');
       } catch (e) {
         Hammer.showToast(e.message || 'Unsold failed', 'error');
@@ -843,12 +893,30 @@
     });
 
     // Realtime listeners
-    Hammer.on('auction:state', (s) => { renderAuctionState(s); renderQueue(); });
-    Hammer.on('auction:started', (s) => { renderAuctionState(s); renderQueue(); });
-    Hammer.on('auction:bid', (d) => { renderAuctionState(d.state); });
+    Hammer.on('auction:state', (s) => {
+      renderAuctionState(s);
+      if (s?.currentPlayer?.id) {
+        const p = allPlayers.find(x => x.id === s.currentPlayer.id);
+        if (p) p.status = 'on_hammer';
+      }
+      renderQueue();
+    });
+    Hammer.on('auction:started', (s) => {
+      renderAuctionState(s);
+      if (s?.currentPlayer?.id) {
+        const p = allPlayers.find(x => x.id === s.currentPlayer.id);
+        if (p) p.status = 'on_hammer';
+      }
+      renderQueue();
+    });
+    Hammer.on('auction:bid', (d) => {
+      if (d?.state) renderAuctionState(d.state);
+    });
     Hammer.on('auction:timer', (d) => {
-      document.getElementById('desk-timer').textContent = Hammer.formatTimer(d.timer);
-      document.getElementById('desk-gavel-label').textContent = Hammer.getGavelLabel(d.gavelStage);
+      const timerEl = document.getElementById('desk-timer');
+      const gavelEl = document.getElementById('desk-gavel-label');
+      if (timerEl) timerEl.textContent = Hammer.formatTimer(d.timer);
+      if (gavelEl) gavelEl.textContent = Hammer.getGavelLabel(d.gavelStage);
     });
     Hammer.on('auction:timer_settings', (d) => {
       if (d.maxTimer) {
@@ -856,8 +924,23 @@
         if (settingTimerVal) settingTimerVal.textContent = d.maxTimer;
       }
     });
-    Hammer.on('auction:sold', (d) => { renderAuctionState(d.state); renderQueue(); loadPurseOverview(); });
-    Hammer.on('auction:unsold', (d) => { renderAuctionState(d.state); renderQueue(); });
+    Hammer.on('auction:sold', (d) => {
+      if (d?.player?.id) {
+        const p = allPlayers.find(x => x.id === d.player.id);
+        if (p) p.status = 'sold';
+      }
+      renderAuctionState(d.state);
+      renderQueue();
+      loadPurseOverview();
+    });
+    Hammer.on('auction:unsold', (d) => {
+      if (d?.player?.id) {
+        const p = allPlayers.find(x => x.id === d.player.id);
+        if (p) p.status = 'unsold';
+      }
+      renderAuctionState(d.state);
+      renderQueue();
+    });
 
     await loadPlayers();
     await loadPurseOverview();

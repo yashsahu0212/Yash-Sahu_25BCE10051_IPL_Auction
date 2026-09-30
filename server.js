@@ -184,8 +184,12 @@ function requireAuth(roles = []) {
 }
 
 function saveData() {
-  fs.writeFileSync(path.join(__dirname, 'data', 'players.json'), JSON.stringify(players, null, 2));
-  fs.writeFileSync(path.join(__dirname, 'data', 'teams.json'), JSON.stringify(teams, null, 2));
+  fs.writeFile(path.join(__dirname, 'data', 'players.json'), JSON.stringify(players, null, 2), err => {
+    if (err) console.error('Error saving players.json:', err);
+  });
+  fs.writeFile(path.join(__dirname, 'data', 'teams.json'), JSON.stringify(teams, null, 2), err => {
+    if (err) console.error('Error saving teams.json:', err);
+  });
 }
 
 function getPublicAuctionState() {
@@ -224,33 +228,41 @@ function startTimer() {
   auction.timer = auction.maxTimer;
   auction.gavelStage = 0;
   timerInterval = setInterval(() => {
-    if (auction.status !== 'live') return;
-    auction.timer--;
-
-    // Dynamic Gavel stage progression based on maxTimer
-    const ratio = auction.timer / auction.maxTimer;
-    if (ratio <= 0.66 && ratio > 0.33) auction.gavelStage = 1;
-    else if (ratio <= 0.33 && ratio > 0.1) auction.gavelStage = 2;
-    else if (ratio <= 0.1 && auction.timer > 0) auction.gavelStage = 3;
-
-    io.emit('auction:timer', {
-      timer: auction.timer,
-      maxTimer: auction.maxTimer,
-      gavelStage: auction.gavelStage
-    });
-
-    if (auction.timer <= 0) {
-      stopTimer();
-      // Auto-action when timer expires
-      if (auction.leadingTeamId) {
-        io.emit('auction:hammer_ready', {
-          message: 'Timer expired. Confirm SOLD or continue.',
-          leadingTeamId: auction.leadingTeamId,
-          currentBid: auction.currentBid
-        });
-      } else {
-        markUnsold();
+    try {
+      if (auction.status !== 'live') {
+        stopTimer();
+        return;
       }
+      auction.timer--;
+
+      // Dynamic Gavel stage progression based on maxTimer
+      const ratio = auction.timer / auction.maxTimer;
+      if (ratio <= 0.66 && ratio > 0.33) auction.gavelStage = 1;
+      else if (ratio <= 0.33 && ratio > 0.1) auction.gavelStage = 2;
+      else if (ratio <= 0.1 && auction.timer > 0) auction.gavelStage = 3;
+
+      io.emit('auction:timer', {
+        timer: auction.timer,
+        maxTimer: auction.maxTimer,
+        gavelStage: auction.gavelStage,
+        timestamp: Date.now()
+      });
+
+      if (auction.timer <= 0) {
+        stopTimer();
+        // Auto-action when timer expires
+        if (auction.leadingTeamId) {
+          io.emit('auction:hammer_ready', {
+            message: 'Timer expired. Confirm SOLD or continue.',
+            leadingTeamId: auction.leadingTeamId,
+            currentBid: auction.currentBid
+          });
+        } else {
+          markUnsold();
+        }
+      }
+    } catch (err) {
+      console.error('Error in auction timer interval:', err);
     }
   }, 1000);
 }
@@ -262,17 +274,31 @@ function stopTimer() {
   }
 }
 
-function resetTimer() {
-  auction.timer = auction.maxTimer;
+function resetTimer(seconds) {
+  auction.timer = seconds != null ? seconds : auction.maxTimer;
   auction.gavelStage = 0;
+  io.emit('auction:timer', {
+    timer: auction.timer,
+    maxTimer: auction.maxTimer,
+    gavelStage: auction.gavelStage,
+    timestamp: Date.now()
+  });
 }
 
 // ─── AUCTION ENGINE ─────────────────────────────────────────
 function startAuctionForPlayer(playerId) {
   const player = getPlayer(playerId);
   if (!player) return { error: 'Player not found' };
-  if (player.status !== 'available' && player.status !== 'on_hammer') return { error: 'Player not available' };
-  if (auction.status === 'live' && auction.currentPlayerId !== playerId) return { error: 'Auction already in progress' };
+  if (player.status === 'sold') return { error: 'Player already sold to franchise', code: 'ALREADY_SOLD' };
+
+  // If another lot was active but expired without bids or was idle, clean it up
+  if (auction.status === 'live' && auction.currentPlayerId !== playerId) {
+    if (auction.timer <= 0 && !auction.leadingTeamId) {
+      markUnsold();
+    } else {
+      return { error: 'Auction already in progress', currentLot: auction.currentPlayerId };
+    }
+  }
 
   // Set player on hammer
   player.status = 'on_hammer';
@@ -288,8 +314,16 @@ function startAuctionForPlayer(playerId) {
   auction.lotIndex++;
 
   startTimer();
-  io.emit('auction:started', getPublicAuctionState());
-  return { success: true, state: getPublicAuctionState() };
+  const state = getPublicAuctionState();
+  io.emit('auction:started', state);
+  io.emit('auction:state', state);
+  io.emit('auction:timer', {
+    timer: auction.timer,
+    maxTimer: auction.maxTimer,
+    gavelStage: auction.gavelStage,
+    timestamp: Date.now()
+  });
+  return { success: true, state };
 }
 
 function placeBid(teamId, expectedBid) {
@@ -367,11 +401,18 @@ function placeBid(teamId, expectedBid) {
   };
   auction.bidHistory.push(bidRecord);
 
-  // RULE 9: Reset lot timer to 10 seconds on each accepted bid
-  resetTimer();
+  // RULE 9: Reset lot timer on each accepted bid (minimum 10s or configured duration)
+  auction.timer = Math.max(10, auction.maxTimer);
+  auction.gavelStage = 0;
   if (!timerInterval) startTimer();
 
   const state = getPublicAuctionState();
+  io.emit('auction:timer', {
+    timer: auction.timer,
+    maxTimer: auction.maxTimer,
+    gavelStage: auction.gavelStage,
+    timestamp: Date.now()
+  });
   io.emit('auction:bid', {
     teamId,
     teamName: team.name,
@@ -381,17 +422,25 @@ function placeBid(teamId, expectedBid) {
     bid: bidRecord,
     state
   });
+  io.emit('auction:state', state);
 
   return { success: true, acceptedBid: newBid, amount: newBid, state };
 }
 
 function markSold() {
-  if (auction.status !== 'live' && auction.status !== 'paused') return { error: 'No active auction' };
-  if (!auction.leadingTeamId) return { error: 'No leading bidder' };
+  if (auction.status !== 'live' && auction.status !== 'paused') {
+    return { error: 'No active auction on hammer', code: 'NO_ACTIVE_AUCTION' };
+  }
+  if (!auction.leadingTeamId) {
+    return { error: 'Cannot mark SOLD: No bids placed yet. Use MARK UNSOLD instead.', code: 'NO_BIDS' };
+  }
 
   stopTimer();
   const player = getPlayer(auction.currentPlayerId);
   const team = getTeam(auction.leadingTeamId);
+
+  if (!player) return { error: 'Current player not found', code: 'PLAYER_NOT_FOUND' };
+  if (!team) return { error: 'Leading team not found', code: 'TEAM_NOT_FOUND' };
 
   // Update player
   player.status = 'sold';
@@ -429,9 +478,12 @@ function markSold() {
     timestamp: Date.now()
   });
 
-  // Reset auction state
+  // Reset auction state COMPLETELY
   auction.status = 'idle';
   auction.currentPlayerId = null;
+  auction.leadingTeamId = null;
+  auction.currentBid = 0;
+  auction.bidHistory = [];
   auction.gavelStage = 0;
   auction.timer = 0;
 
@@ -443,6 +495,11 @@ function markSold() {
     price: player.soldPrice,
     state
   });
+  io.emit('auction:state', state);
+  io.emit('teams:update', teams.map(t => ({
+    ...t,
+    remaining: t.purse - t.spent
+  })));
 
   return {
     success: true,
@@ -455,42 +512,46 @@ function markSold() {
 
 function markUnsold() {
   if (auction.status !== 'live' && auction.status !== 'paused' && auction.status !== 'idle') {
-    // Allow markUnsold even from timer expiry
+    // allow
   }
   if (!auction.currentPlayerId) return { error: 'No player on hammer' };
 
   stopTimer();
   const player = getPlayer(auction.currentPlayerId);
-
-  // Update player
-  player.status = 'unsold';
+  if (player) {
+    player.status = 'unsold';
+  }
 
   // Record history
-  auctionHistory.push({
-    player: { id: player.id, name: player.name, role: player.role, lotNumber: player.lotNumber },
-    result: 'unsold',
-    soldTo: null,
-    soldPrice: null,
-    basePrice: auction.basePrice,
-    bidCount: auction.bidHistory.length,
-    bidHistory: [...auction.bidHistory],
-    timestamp: Date.now()
-  });
+  if (player) {
+    auctionHistory.push({
+      player: { id: player.id, name: player.name, role: player.role, lotNumber: player.lotNumber },
+      result: 'unsold',
+      soldTo: null,
+      soldPrice: null,
+      basePrice: auction.basePrice,
+      bidCount: auction.bidHistory.length,
+      bidHistory: [...auction.bidHistory],
+      timestamp: Date.now()
+    });
+  }
 
-  // Reset auction state
+  // Reset auction state COMPLETELY
   auction.status = 'idle';
   auction.currentPlayerId = null;
   auction.leadingTeamId = null;
   auction.currentBid = 0;
+  auction.bidHistory = [];
   auction.gavelStage = 0;
   auction.timer = 0;
 
   saveData();
   const state = getPublicAuctionState();
   io.emit('auction:unsold', {
-    player: { id: player.id, name: player.name },
+    player: player ? { id: player.id, name: player.name } : null,
     state
   });
+  io.emit('auction:state', state);
 
   return { success: true, state };
 }
@@ -499,7 +560,9 @@ function pauseAuction() {
   if (auction.status !== 'live') return { error: 'Auction not live' };
   auction.status = 'paused';
   stopTimer();
-  io.emit('auction:paused', getPublicAuctionState());
+  const state = getPublicAuctionState();
+  io.emit('auction:paused', state);
+  io.emit('auction:state', state);
   return { success: true };
 }
 
@@ -507,7 +570,9 @@ function resumeAuction() {
   if (auction.status !== 'paused') return { error: 'Auction not paused' };
   auction.status = 'live';
   startTimer();
-  io.emit('auction:resumed', getPublicAuctionState());
+  const state = getPublicAuctionState();
+  io.emit('auction:resumed', state);
+  io.emit('auction:state', state);
   return { success: true };
 }
 

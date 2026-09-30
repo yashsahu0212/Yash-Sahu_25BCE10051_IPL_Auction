@@ -424,6 +424,22 @@
       }
     }
 
+    function syncTeamData(teamsList) {
+      if (!teamsList || !Array.isArray(teamsList)) return;
+      renderCompetitorsList(teamsList);
+      const me = teamsList.find(t => t.id === myTeamId);
+      if (me) {
+        if (!myTeamData) {
+          myTeamData = { ...me, purse: 12500, spent: 12500 - me.remaining, squad: [] };
+        } else {
+          myTeamData.remaining = me.remaining;
+          myTeamData.filledSlots = me.filledSlots;
+        }
+        tcPurseRemaining.textContent = Hammer.formatCurrency(me.remaining);
+      }
+      if (currentAuctionState) renderBiddingButton(currentAuctionState);
+    }
+
     function renderCompetitorsList(teams) {
       tcAllTeams.innerHTML = teams.map(t => {
         const isMe = t.id === myTeamId;
@@ -605,19 +621,19 @@
     // ─── SOCKET HANDLERS ─────────────────────────
     Hammer.on('auction:state', (state) => {
       renderAuctionState(state);
-      loadTeamData();
+      if (state?.teams) syncTeamData(state.teams);
     });
 
     Hammer.on('auction:started', (state) => {
       HammerUX.playGavelStrike();
       renderAuctionState(state);
-      loadTeamData();
+      if (state?.teams) syncTeamData(state.teams);
     });
 
     Hammer.on('auction:bid', (data) => {
       HammerUX.playBidClick();
       renderAuctionState(data.state);
-      loadTeamData();
+      if (data?.state?.teams) syncTeamData(data.state.teams);
       if (data.teamId !== myTeamId) {
         Hammer.showToast(`${data.teamShortName} BID ${Hammer.formatCurrency(data.amount)}`, 'bid');
       }
@@ -626,6 +642,10 @@
     Hammer.on('auction:timer', (data) => {
       tcTimer.textContent = Hammer.formatTimer(data.timer);
       tcGavelLabel.textContent = Hammer.getGavelLabel(data.gavelStage);
+    });
+
+    Hammer.on('teams:update', (teams) => {
+      syncTeamData(teams);
     });
 
     Hammer.on('auction:sold', (data) => {
@@ -641,7 +661,7 @@
 
     Hammer.on('auction:unsold', (data) => {
       renderAuctionState(data.state);
-      loadTeamData();
+      if (data?.state?.teams) syncTeamData(data.state.teams);
       Hammer.showToast(`${data.player.name} — UNSOLD`, 'info');
     });
 

@@ -637,7 +637,15 @@
       return;
     }
 
-    _socket = io({ auth: { token } });
+    _socket = io({
+      auth: { token },
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 400,
+      reconnectionDelayMax: 1500,
+      timeout: 10000
+    });
 
     const events = [
       'auction:state', 'auction:started', 'auction:bid', 'auction:sold',
@@ -652,7 +660,19 @@
     _socket.on('connect', () => {
       if (token) _socket.emit('auth', { token });
       emit('connected');
+      // Immediately pull fresh state to guarantee zero desync across all clients
+      API.getAuctionState().then(state => {
+        if (state) emit('auction:state', state);
+      }).catch(() => {});
     });
+
+    _socket.on('reconnect', () => {
+      if (token) _socket.emit('auth', { token });
+      API.getAuctionState().then(state => {
+        if (state) emit('auction:state', state);
+      }).catch(() => {});
+    });
+
     _socket.on('disconnect', () => emit('disconnected'));
   }
 

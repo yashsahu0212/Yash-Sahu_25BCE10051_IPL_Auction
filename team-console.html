@@ -167,10 +167,13 @@
               <!-- Athlete Banner -->
               <div class="flex items-start gap-4 p-4 bg-hm-charcoal border border-hm-border rounded-[4px]">
                 <div class="w-32 h-36 sm:w-36 sm:h-44 bg-hm-panel border border-hm-border flex items-center justify-center overflow-hidden flex-shrink-0 relative select-none rounded-[4px]">
-                  <img id="tc-player-img" class="w-full h-full object-contain object-bottom" src="" alt="Player Portrait"/>
-                  <div id="tc-player-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-hm-charcoal">
+                  <div id="tc-img-skeleton" class="absolute inset-0 skeleton-shimmer z-0 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[42px] text-hm-dim opacity-40 animate-pulse">sports_cricket</span>
+                  </div>
+                  <img id="tc-player-img" class="w-full h-full object-contain object-bottom opacity-0 transition-opacity duration-300 z-10" src="" alt="Player Portrait"/>
+                  <div id="tc-player-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-hm-charcoal z-10">
                     <span id="tc-player-icon" class="material-symbols-outlined text-[42px] text-hm-faint">sports_cricket</span>
-                    <span class="font-display text-xl text-hm-text mt-1" id="tc-player-initials">VK</span>
+                    <span class="font-display text-xl text-hm-text mt-1" id="tc-player-initials">HM</span>
                     <span class="font-mono text-[8px] text-hm-faint uppercase tracking-widest mt-0.5">DOSSIER</span>
                   </div>
                 </div>
@@ -301,8 +304,8 @@
   <script src="/js/supabase-config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/player-images.js"></script>
-  <script src="/js/hammer.js"></script>
   <script src="/js/hammer-ux.js"></script>
+  <script src="/js/hammer.js"></script>
 
   <script>
   (async function() {
@@ -549,22 +552,34 @@
       if (stats.strikeRate != null) statParts.push('SR ' + stats.strikeRate);
       tcStatsSummary.textContent = statParts.join(' • ') || 'OFFICIAL IPL RECORD';
 
-      // Player Image
+      // Player Image with Skeleton
       const initials = (p.name || '').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'HM';
       if (tcPlayerInitials) tcPlayerInitials.textContent = initials;
       if (tcPlayerIcon) tcPlayerIcon.textContent = Hammer.getRoleIcon(p.role);
+      const tcSkeleton = document.getElementById('tc-img-skeleton');
 
       function showPlayerFallback() {
+        if (tcSkeleton) tcSkeleton.classList.add('hidden');
         tcPlayerImg.classList.add('hidden');
         if (tcPlayerFallback) tcPlayerFallback.classList.remove('hidden');
       }
 
       if (p.image) {
+        if (tcSkeleton) tcSkeleton.classList.remove('hidden');
+        tcPlayerImg.classList.remove('hidden');
+        tcPlayerImg.style.opacity = '0';
+        if (tcPlayerFallback) tcPlayerFallback.classList.add('hidden');
         tcPlayerImg.src = p.image;
         tcPlayerImg.alt = p.name;
-        tcPlayerImg.classList.remove('hidden');
-        if (tcPlayerFallback) tcPlayerFallback.classList.add('hidden');
+        tcPlayerImg.onload = () => {
+          tcPlayerImg.style.opacity = '1';
+          if (tcSkeleton) tcSkeleton.classList.add('hidden');
+        };
         tcPlayerImg.onerror = showPlayerFallback;
+        if (tcPlayerImg.complete && tcPlayerImg.naturalHeight > 0) {
+          tcPlayerImg.style.opacity = '1';
+          if (tcSkeleton) tcSkeleton.classList.add('hidden');
+        }
       } else {
         showPlayerFallback();
       }

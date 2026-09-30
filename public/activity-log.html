@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="/js/team-themes.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -79,8 +80,8 @@
       <div class="flex items-center space-x-3">
         <!-- CONNECTION INDICATOR -->
         <div id="conn-indicator" class="flex items-center gap-1.5 px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-emerald">
-          <span class="w-2 h-2 rounded-full bg-hm-emerald live-pulse"></span>
-          <span id="conn-text">LIVE</span>
+          <span class="w-2 h-2 rounded-full bg-hm-emerald"></span>
+          <span id="conn-text">CONNECTED</span>
         </div>
 
         <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase hidden sm:inline" id="clock-tick"></span>
@@ -98,17 +99,9 @@
       <!-- HEADER -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-4 border-b border-hm-border-s">
         <div>
-          <div class="flex items-center gap-2 mb-1">
-            <span class="font-mono text-[10px] text-hm-vermilion uppercase font-bold tracking-[0.25em]">OFFICIAL TOURNAMENT STREAM</span>
-            <span class="text-hm-dim">/</span>
-            <span class="font-mono text-[10px] text-hm-muted uppercase tracking-wider">SERVER-AUTHORITATIVE ADJUDICATION</span>
-          </div>
           <h1 class="font-display text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
-            AUCTION ACTIVITY LOG
+            ACTIVITY LOG
           </h1>
-          <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
-            REAL-TIME SEQUENCED EVENT AUDIT ACROSS ALL 10 FRANCHISES
-          </p>
         </div>
 
         <!-- ACTIONS & EXPORTS -->
@@ -209,13 +202,13 @@
     // Connection state handler
     Hammer.on('connected', (e) => {
       connIndicator.className = 'flex items-center gap-1.5 px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-emerald';
-      connIndicator.querySelector('.w-2').className = 'w-2 h-2 rounded-full bg-hm-emerald live-pulse';
-      connText.textContent = 'LIVE';
+      connIndicator.querySelector('.w-2').className = 'w-2 h-2 rounded-full bg-hm-emerald';
+      connText.textContent = 'CONNECTED';
     });
 
     Hammer.on('reconnecting', () => {
       connIndicator.className = 'flex items-center gap-1.5 px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-amber';
-      connIndicator.querySelector('.w-2').className = 'w-2 h-2 rounded-full bg-hm-amber live-pulse';
+      connIndicator.querySelector('.w-2').className = 'w-2 h-2 rounded-full bg-hm-amber';
       connText.textContent = 'RECONNECTING...';
     });
 
@@ -264,7 +257,7 @@
       if (ev.event_type === 'BID_PLACED') {
         detailsHtml = `
           <div class="flex items-center gap-2">
-            <span class="px-1.5 py-0.5 bg-hm-elevated border border-hm-border-s text-hm-text font-bold rounded-[2px]">${ev.actor_team_id || ev.actor_team_name}</span>
+            ${typeof renderTeamBadge === 'function' ? renderTeamBadge(ev.actor_team_id || ev.actor_team_name, { size: 'sm' }) : `<span class="px-1.5 py-0.5 bg-hm-elevated border border-hm-border-s text-hm-text font-bold rounded-[2px]">${ev.actor_team_id || ev.actor_team_name}</span>`}
             <span class="text-hm-muted">tendered valid bid of</span>
             <span class="text-hm-amber font-bold font-mono">${Hammer.formatCurrency(ev.amount_lakh)}</span>
             ${ev.player_name ? `<span class="text-hm-faint">on</span> ${playerText}` : ''}
@@ -273,7 +266,7 @@
       } else if (ev.event_type === 'LOT_SOLD') {
         detailsHtml = `
           <div class="flex items-center gap-2">
-            <span class="px-1.5 py-0.5 bg-hm-vermilion text-hm-text font-bold rounded-[2px]">${ev.actor_team_id || ev.actor_team_name}</span>
+            ${typeof renderTeamBadge === 'function' ? renderTeamBadge(ev.actor_team_id || ev.actor_team_name, { size: 'sm' }) : `<span class="px-1.5 py-0.5 bg-hm-vermilion text-hm-text font-bold rounded-[2px]">${ev.actor_team_id || ev.actor_team_name}</span>`}
             <span class="text-hm-muted">acquired</span>
             ${playerText}
             <span class="text-hm-muted">at official adjudication of</span>

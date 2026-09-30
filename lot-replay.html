@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="/js/team-themes.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -84,11 +85,8 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-hm-border-s">
         <div>
           <h1 class="font-display text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
-            LOT REPLAY & AUDIT
+            LOT REPLAY
           </h1>
-          <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
-            STEP-BY-STEP ADJUDICATION REPLAY & HISTORICAL ARCHIVE
-          </p>
         </div>
         <div class="flex items-center gap-3 font-mono text-xs">
           <span class="text-hm-faint uppercase">SETTLED LOTS:</span>
@@ -320,7 +318,7 @@
 
             <div class="flex flex-wrap items-center justify-between font-mono text-[10px] text-hm-faint mb-3 gap-2">
               <span>BASE RESERVE: ${Hammer.formatCurrency(entry.basePrice)}</span>
-              <span>ACQUIRED BY: <strong class="text-hm-text">${isSold && entry.soldTo ? entry.soldTo.name : 'UNSOLD'}</strong></span>
+              <span>ACQUIRED BY: <strong class="text-hm-text">${isSold && entry.soldTo ? (typeof renderTeamBadge === 'function' ? renderTeamBadge(entry.soldTo.id || entry.soldTo.shortName, { size: 'sm' }) : entry.soldTo.name) : 'UNSOLD'}</strong></span>
               <span>SETTLED AT: ${time}</span>
               <span>BIDS RECEIVED: ${entry.bidCount || 0}</span>
             </div>
@@ -391,7 +389,9 @@
       } else {
         const currBid = bids[replayStep - 1];
         document.getElementById('theatre-current-bid').textContent = Hammer.formatCurrency(currBid.amount);
-        document.getElementById('theatre-leading-team').textContent = `${currBid.teamShortName || currBid.teamId} (${currBid.teamName || 'Franchise'})`;
+        document.getElementById('theatre-leading-team').innerHTML = typeof renderTeamBadge === 'function'
+          ? renderTeamBadge(currBid.teamId || currBid.teamShortName, { size: 'md', showFullName: true })
+          : `${currBid.teamShortName || currBid.teamId} (${currBid.teamName || 'Franchise'})`;
         document.getElementById('theatre-status-label').textContent = replayStep === totalSteps
           ? (activeTheatreLot.result === 'sold' ? 'LOT SOLD // HAMMER DOWN' : 'LOT PASSED // UNSOLD')
           : `BID #${replayStep} ACCEPTED`;
@@ -406,7 +406,7 @@
           <div class="flex items-center justify-between px-3 py-1.5 text-xs font-mono rounded-[3px] border ${isActive ? 'bg-hm-elevated border-hm-vermilion font-bold text-hm-vermilion' : (isPast ? 'bg-hm-ink border-hm-border text-hm-text' : 'bg-transparent border-hm-border/30 text-hm-dim')}">
             <div class="flex items-center gap-2">
               <span class="text-[9px] font-bold">#${i + 1}</span>
-              <span>${b.teamShortName || b.teamId}</span>
+              <span>${typeof renderTeamBadge === 'function' ? renderTeamBadge(b.teamId || b.teamShortName, { size: 'sm' }) : (b.teamShortName || b.teamId)}</span>
             </div>
             <span>${Hammer.formatCurrency(b.amount)}</span>
           </div>

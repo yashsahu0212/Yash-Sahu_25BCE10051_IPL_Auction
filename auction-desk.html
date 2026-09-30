@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="/js/team-themes.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -69,8 +70,7 @@
 
       <div class="flex items-center space-x-3">
         <div class="hidden md:flex items-center bg-hm-charcoal border border-hm-border px-3 py-1.5 space-x-2 rounded-[4px]">
-          <span class="w-2 h-2 rounded-full bg-hm-vermilion live-pulse"></span>
-          <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase">AUCTIONEER AUTHORITY</span>
+          <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase font-bold">AUCTION CONTROL</span>
           <div class="border-l border-hm-border pl-2 flex items-center gap-1">
             <span class="material-symbols-outlined text-[13px] text-hm-vermilion">gavel</span>
             <span class="font-mono text-[10px] font-bold text-hm-vermilion tracking-widest uppercase" id="clock-tick">GAVEL ACTIVE</span>
@@ -93,9 +93,6 @@
           <h1 class="font-display text-4xl lg:text-5xl uppercase tracking-wide text-hm-text leading-none">
             AUCTION CONTROL
           </h1>
-          <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
-            STAGE CADENCE // LOT ADVANCEMENT // GAVEL ADJUDICATION
-          </p>
         </div>
         <div class="flex items-center gap-2">
           <span class="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]" id="desk-status">OFFLINE</span>
@@ -393,7 +390,7 @@
 
         let badgeClass = 'text-hm-muted bg-hm-elevated border border-hm-border';
         let badgeText = 'UPCOMING';
-        if (isCurrent) { badgeClass = 'text-hm-vermilion bg-hm-vermilion/10 border border-hm-vermilion font-bold live-pulse'; badgeText = 'ON HAMMER'; }
+        if (isCurrent) { badgeClass = 'text-hm-vermilion bg-hm-vermilion/10 border border-hm-vermilion font-bold'; badgeText = 'ON HAMMER'; }
         else if (isSold) { badgeClass = 'text-hm-text bg-hm-vermilion font-bold'; badgeText = 'SOLD'; }
         else if (isUnsold) { badgeClass = 'text-hm-faint bg-hm-elevated border border-hm-border'; badgeText = 'UNSOLD'; }
 
@@ -476,7 +473,7 @@
       }
 
       if (state.status === 'idle' || !state.currentPlayer) {
-        deskStatus.textContent = 'IDLE';
+        deskStatus.textContent = 'AWAITING LOT';
         deskStatus.className = 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-hm-border-s bg-hm-elevated text-hm-faint rounded-[4px]';
         lotEmpty.classList.remove('hidden');
         lotActive.classList.add('hidden');
@@ -487,7 +484,7 @@
 
       deskStatus.textContent = state.status === 'live' ? 'LIVE ON HAMMER' : 'PAUSED';
       deskStatus.className = state.status === 'live'
-        ? 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border-2 border-hm-vermilion text-hm-vermilion bg-hm-vermilion/10 live-pulse rounded-[4px]'
+        ? 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border-2 border-hm-vermilion text-hm-vermilion bg-hm-vermilion/10 rounded-[4px]'
         : 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-hm-border-s text-hm-faint bg-hm-elevated rounded-[4px]';
 
       lotEmpty.classList.add('hidden');
@@ -538,7 +535,13 @@
       }
 
       document.getElementById('desk-current-bid').textContent = Hammer.formatCurrency(state.currentBid);
-      document.getElementById('desk-leading-team').textContent = state.leadingTeam ? state.leadingTeam.shortName : 'NONE (AWAITING BID)';
+      if (state.leadingTeam) {
+        document.getElementById('desk-leading-team').innerHTML = typeof renderTeamBadge === 'function'
+          ? renderTeamBadge(state.leadingTeam.id, { size: 'sm' })
+          : state.leadingTeam.shortName;
+      } else {
+        document.getElementById('desk-leading-team').textContent = 'NONE (AWAITING BID)';
+      }
       document.getElementById('desk-bid-count').textContent = state.bidHistory.length;
       document.getElementById('desk-bid-status').textContent = state.leadingTeamId ? 'BID RECEIVED' : 'AWAITING FIRST BID';
       document.getElementById('desk-timer').textContent = Hammer.formatTimer(state.timer);
@@ -601,7 +604,7 @@
         <div class="flex items-center justify-between bg-hm-charcoal border ${i === 0 ? 'border-hm-vermilion' : 'border-hm-border'} px-3 py-1.5 transition-all rounded-[4px]">
           <div class="flex items-center gap-2">
             <span class="font-mono text-[9px] text-hm-faint">#${history.length - i}</span>
-            <span class="font-mono text-xs font-bold ${i === 0 ? 'text-hm-vermilion' : 'text-hm-text'}">${bid.teamShortName}</span>
+            <span>${typeof renderTeamBadge === 'function' ? renderTeamBadge(bid.teamId || bid.teamShortName, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${bid.teamShortName}</span>`}</span>
             <span class="font-mono text-[9px] text-hm-faint">${new Date(bid.timestamp).toLocaleTimeString()}</span>
           </div>
           <span class="font-mono text-xs font-bold text-hm-text">${Hammer.formatCurrency(bid.amount)}</span>
@@ -615,6 +618,13 @@
         const container = document.getElementById('purse-list');
         container.innerHTML = teams.map(t => `
           <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border purse-row rounded-[4px]" data-team="${t.id}">
+            <div class="flex items-center gap-2">
+              ${typeof renderTeamBadge === 'function' ? renderTeamBadge(t.id, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${t.shortName}</span>`}
+              <span class="font-mono text-[9px] text-hm-faint">${t.filledSlots || 0}/${t.maxSlots || 25}</span>
+            </div>
+            <span class="font-mono text-xs font-bold text-hm-text">${Hammer.formatCurrency(t.remaining)}</span>
+          </div>
+        `).join('');
             <div class="flex items-center gap-2">
               <span class="font-mono text-xs font-bold text-hm-text">${t.shortName}</span>
               <span class="font-mono text-[9px] text-hm-faint">${t.filledSlots || 0}/${t.maxSlots || 25}</span>

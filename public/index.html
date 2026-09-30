@@ -47,107 +47,86 @@
     };
   </script>
 </head>
-<body class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text overflow-x-hidden">
+<body class="bg-hm-ink text-hm-text antialiased min-h-screen lg:h-screen lg:overflow-hidden flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text overflow-x-hidden">
   <div class="paper-grain-overlay"></div>
 
   <!-- BROADCAST MASTHEAD NAVIGATION -->
   <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
-    <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
+    <div class="h-12 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="w-7 h-7 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-base tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
         <div class="flex flex-col">
-          <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-display text-lg tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
           <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">LIVE AUCTION</span>
         </div>
       </a>
 
       <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
-        <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="index.html">LIVE AUCTION</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
+        <a class="px-2.5 py-1 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="index.html">LIVE AUCTION</a>
+        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
+        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
+        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
+        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
       </nav>
 
       <div class="flex items-center space-x-3">
-        <div class="hidden md:flex items-center bg-hm-charcoal border border-hm-border px-3 py-1.5 space-x-2 rounded-[4px]">
-          <span class="w-2 h-2 rounded-full bg-hm-vermilion live-pulse"></span>
-          <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase">LIVE</span>
+        <div class="hidden md:flex items-center bg-hm-charcoal border border-hm-border px-2.5 py-1 space-x-2 rounded-[4px]">
+          <span class="w-2 h-2 rounded-full bg-hm-emerald"></span>
+          <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase">LIVE STAGE</span>
           <span class="text-hm-border-s">|</span>
-          <span class="font-mono text-[10px] font-bold text-hm-vermilion uppercase tracking-wider" id="clock-tick">18:42:05 IST</span>
+          <span class="font-mono text-[10px] font-bold text-hm-vermilion uppercase tracking-wider" id="clock-tick">--:--:--</span>
         </div>
-        <a href="login.html" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text hover:border-hm-border-strong transition-colors rounded-[4px]">
-          <span class="material-symbols-outlined text-[16px]">account_circle</span>
+        <a href="login.html" class="w-7 h-7 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text hover:border-hm-border-strong transition-colors rounded-[4px]">
+          <span class="material-symbols-outlined text-[15px]">account_circle</span>
         </a>
       </div>
     </div>
   </header>
 
-  <!-- LIVE STAGE VIEWPORT -->
-  <main class="w-full pt-14 flex-1 flex flex-col justify-between">
+  <!-- LIVE STAGE VIEWPORT (OPTIMIZED FOR PROJECTOR 100DVH / ZERO PAGE SCROLL) -->
+  <main class="w-full pt-12 flex-1 min-h-0 flex flex-col justify-between">
     
-    <!-- SUB-BAR STATUS -->
-    <div class="w-full bg-hm-charcoal border-b border-hm-border px-4 lg:px-8 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-widest">
+    <!-- SUB-BAR STATUS (CLEAN, NO RED BLINK, NO FAKE ROUND TAGS) -->
+    <div class="w-full bg-hm-charcoal border-b border-hm-border px-4 lg:px-8 py-1.5 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-widest shrink-0">
       <div class="flex items-center gap-2">
-        <span class="w-2 h-2 bg-hm-vermilion live-pulse rounded-full"></span>
-        <span class="font-bold text-hm-vermilion">STAGE:</span>
-        <span class="text-hm-text font-bold" id="stage-session-label">ROUND 03 // 2026 MEGA AUCTION</span>
+        <span class="w-1.5 h-1.5 bg-hm-vermilion rounded-[2px]"></span>
+        <span class="text-hm-muted">ACTIVE LOT:</span>
+        <span class="text-hm-text font-bold" id="stage-session-label">AWAITING COMMENCEMENT</span>
       </div>
-      <div class="flex items-center gap-3">
-        <span class="text-hm-muted">STATUS:</span>
-        <span class="px-2 py-0.5 bg-hm-panel border border-hm-border-s font-bold text-hm-text rounded-[4px]" id="hammer-status-badge">ON HAMMER</span>
-      </div>
-    </div>
-
-    <!-- LANDING & COMPETITION OVERVIEW STRIP -->
-    <div id="landing-hero-strip" class="w-full bg-hm-panel border-b border-hm-border-s px-4 lg:px-8 py-2.5 flex flex-col md:flex-row items-center justify-between gap-3 font-mono text-xs">
-      <div class="flex items-center gap-3">
-        <span class="w-2 h-2 rounded-full bg-hm-emerald" id="hero-status-dot"></span>
-        <span class="text-hm-faint uppercase" id="hero-tagline">CRICKET PLAYER AUCTION</span>
-        <span class="text-hm-dim hidden sm:inline">|</span>
-        <span class="font-bold text-hm-text text-[11px]" id="hero-dynamic-status">10 FRANCHISES • 73 REGISTERED CRICKETERS • OFFICIAL MEGA AUCTION</span>
-      </div>
-      <div class="flex items-center gap-2 shrink-0">
-        <a href="final-squads.html" class="px-2.5 py-1 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text text-[10px] uppercase font-bold rounded-[3px] transition-colors">
-          FINAL SQUADS
-        </a>
-        <a href="activity-log.html" class="px-2.5 py-1 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text text-[10px] uppercase font-bold rounded-[3px] transition-colors">
-          ACTIVITY LOG
-        </a>
-        <a href="lot-replay.html" class="px-2.5 py-1 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text text-[10px] uppercase font-bold rounded-[3px] transition-colors">
-          LOT REPLAY
-        </a>
+      <div class="flex items-center gap-2">
+        <span class="text-hm-muted">AUCTION STATUS:</span>
+        <span class="px-2 py-0.5 bg-hm-panel border border-hm-border-s font-bold text-hm-text rounded-[3px]" id="hammer-status-badge">AWAITING LOT</span>
       </div>
     </div>
 
     <!-- MAIN CENTRAL BROADCAST ARENA -->
-    <div class="w-full max-w-[1720px] mx-auto p-3 lg:p-6 flex-1 flex flex-col justify-center">
-      <div class="grid grid-cols-1 lg:grid-cols-12 border border-hm-border-s bg-hm-panel rounded-[6px] relative overflow-hidden">
+    <div class="w-full max-w-[1720px] mx-auto p-2 lg:p-4 flex-1 min-h-0 flex flex-col justify-center">
+      <div class="grid grid-cols-1 lg:grid-cols-12 border border-hm-border-s bg-hm-panel rounded-[6px] relative overflow-hidden flex-1 min-h-0">
         
         <!-- GIANT BACKGROUND LOT WATERMARK -->
-        <div class="absolute -right-8 -bottom-16 select-none pointer-events-none opacity-[0.04] font-display text-[26rem] leading-none text-hm-text" id="bg-lot-watermark">
-          047
+        <div class="absolute -right-8 -bottom-16 select-none pointer-events-none opacity-[0.03] font-display text-[26rem] leading-none text-hm-text" id="bg-lot-watermark">
+          —
         </div>
 
         <!-- LEFT: ATHLETE VISUAL STAGE -->
-        <div class="lg:col-span-5 p-6 lg:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-hm-border-s relative bg-hm-charcoal/50">
+        <div class="lg:col-span-5 p-3 sm:p-4 lg:p-5 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-hm-border-s relative bg-hm-charcoal/50 min-h-0">
           
           <!-- Dossier Top Header -->
-          <div class="flex items-center justify-between pb-3 border-b border-hm-border">
+          <div class="flex items-center justify-between pb-2 border-b border-hm-border shrink-0">
             <div class="flex items-center gap-2 font-mono text-xs font-bold text-hm-text">
               <span class="w-2 h-2 bg-hm-vermilion inline-block rounded-[2px]"></span>
-              <span id="dossier-lot-label">LOT #047</span>
+              <span id="dossier-lot-label">LOT #---</span>
             </div>
             <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest" id="athlete-cap-label">
-              IPL CAP NO. 284
+              OFFICIAL IPL LOT
             </span>
           </div>
 
           <!-- Player Photography Canvas -->
-          <div class="relative my-4 border border-hm-border p-1 bg-hm-ink rounded-[4px]">
-            <div class="relative overflow-hidden aspect-[4/5] sm:aspect-square w-full bg-hm-charcoal border border-hm-border rounded-[3px] flex items-center justify-center">
+          <div class="relative my-2 border border-hm-border p-1 bg-hm-ink rounded-[4px] flex-1 min-h-[160px] max-h-[32vh] sm:max-h-[36vh] flex items-center justify-center overflow-hidden">
+            <div class="relative overflow-hidden w-full h-full bg-hm-charcoal border border-hm-border rounded-[3px] flex items-center justify-center">
               
               <!-- Subtle Skeleton Shimmer -->
               <div id="athlete-skeleton" class="absolute inset-0 skeleton-shimmer z-10 hidden"></div>
@@ -155,121 +134,140 @@
               <img alt="Player portrait" class="w-full h-full object-contain object-bottom select-none hidden transition-opacity duration-300 opacity-0" id="athlete-image" src=""/>
               
               <!-- Fallback Visual -->
-              <div id="athlete-fallback" class="absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-6 text-center select-none">
-                <span class="material-symbols-outlined text-[80px] text-hm-faint" id="athlete-fallback-icon">sports_cricket</span>
-                <span class="font-display text-5xl text-hm-text mt-2" id="athlete-fallback-initials">HAMMER</span>
-                <span class="font-mono text-[10px] text-hm-faint uppercase tracking-[0.2em] mt-1">OFFICIAL DOSSIER</span>
+              <div id="athlete-fallback" class="absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-4 text-center select-none">
+                <span class="material-symbols-outlined text-[64px] text-hm-faint" id="athlete-fallback-icon">sports_cricket</span>
+                <span class="font-display text-4xl text-hm-text mt-1" id="athlete-fallback-initials">HAMMER</span>
+                <span class="font-mono text-[9px] text-hm-faint uppercase tracking-[0.2em] mt-1">OFFICIAL DOSSIER</span>
               </div>
 
               <!-- CINEMATIC VERDICT STAMP (SOLD / UNSOLD) -->
-              <div class="hidden absolute inset-0 bg-hm-ink/95 flex flex-col items-center justify-center p-6 text-center border-2 border-hm-vermilion z-30 m-3 rounded-[4px]" id="verdict-overlay">
-                <span class="font-display text-7xl lg:text-8xl uppercase tracking-wide text-hm-vermilion leading-none" id="verdict-stamp-title">
+              <div class="hidden absolute inset-0 bg-hm-ink/95 flex flex-col items-center justify-center p-4 text-center border-2 border-hm-vermilion z-30 m-2 rounded-[4px]" id="verdict-overlay">
+                <span class="font-display text-6xl sm:text-7xl lg:text-8xl uppercase tracking-wide text-hm-vermilion leading-none" id="verdict-stamp-title">
                   SOLD
                 </span>
-                <p class="font-mono text-sm uppercase tracking-widest text-hm-text font-bold mt-4" id="verdict-stamp-details">
-                  SOLD // ₹7.40 CR // RCB
+                <p class="font-mono text-xs sm:text-sm uppercase tracking-widest text-hm-text font-bold mt-2" id="verdict-stamp-details">
+                  SOLD // ₹0.00 // —
                 </p>
               </div>
             </div>
           </div>
 
           <!-- Athlete Identification Tag -->
-          <div class="bg-hm-elevated p-4 border border-hm-border rounded-[4px]">
-            <span class="font-mono text-[9px] text-hm-vermilion uppercase tracking-[0.25em] font-bold block mb-1">
-              REGISTERED ATHLETE
-            </span>
-            <h1 id="athlete-name" class="font-display text-4xl sm:text-5xl text-hm-text uppercase tracking-wide leading-none">
+          <div class="bg-hm-elevated p-3 border border-hm-border rounded-[4px] shrink-0">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-mono text-[9px] text-hm-vermilion uppercase tracking-[0.25em] font-bold block">
+                REGISTERED ATHLETE
+              </span>
+              <span class="font-mono text-[10px] text-hm-faint" id="athlete-base-price">BASE: —</span>
+            </div>
+            <h1 id="athlete-name" class="font-display text-3xl sm:text-4xl lg:text-5xl text-hm-text uppercase tracking-wide leading-none truncate">
               AWAITING LOT
             </h1>
-            <p id="athlete-subtitle" class="font-mono text-xs text-hm-muted uppercase tracking-wider mt-1.5">
+            <p id="athlete-subtitle" class="font-mono text-xs text-hm-muted uppercase tracking-wider mt-1 truncate">
               CRICKET AUCTION DOSSIER
             </p>
           </div>
         </div>
 
         <!-- RIGHT: LIVE BIDDING BROADCAST ENGINE -->
-        <div class="lg:col-span-7 p-6 lg:p-8 flex flex-col justify-between bg-hm-panel">
+        <div class="lg:col-span-7 p-3 sm:p-4 lg:p-5 flex flex-col justify-between bg-hm-panel min-h-0">
           
           <!-- Top Telemetry Row -->
-          <div class="flex flex-wrap items-center justify-between pb-4 border-b border-hm-border gap-2">
+          <div class="flex flex-wrap items-center justify-between pb-2 border-b border-hm-border gap-2 shrink-0">
             <div>
               <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest block">AUCTION POOL</span>
-              <span class="font-mono text-xs font-bold text-hm-text uppercase tracking-wider">
-                MARQUEE SET // M1
+              <span class="font-mono text-xs font-bold text-hm-text uppercase tracking-wider" id="pool-set-label">
+                GENERAL LOT
               </span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="px-2 py-1 bg-hm-elevated border border-hm-border-s font-mono text-[10px] text-hm-muted uppercase rounded-[4px]">
+              <span class="px-2 py-0.5 bg-hm-elevated border border-hm-border-s font-mono text-[10px] text-hm-muted uppercase rounded-[4px]">
                 MIN ADVANCE: <span class="text-hm-text font-bold" id="bid-advance">+₹20.0 L</span>
               </span>
             </div>
           </div>
 
           <!-- GIANT LIVE BID VALUE DISPLAY -->
-          <div class="my-6 p-6 sm:p-8 bg-hm-charcoal border border-hm-border-s relative rounded-[6px]">
-            <span class="font-mono text-[10px] text-hm-faint uppercase tracking-[0.25em] block mb-3 font-bold">
+          <div class="my-2 p-3 sm:p-5 bg-hm-charcoal border border-hm-border-s relative rounded-[6px]">
+            <span class="font-mono text-[10px] text-hm-faint uppercase tracking-[0.25em] block mb-2 font-bold">
               CURRENT BID
             </span>
 
             <div class="flex items-baseline gap-4 flex-wrap">
-              <div class="font-display text-7xl sm:text-8xl lg:text-[7rem] text-hm-vermilion tracking-wide leading-none tabular-nums" id="current-bid-display">
-                ₹7.40 CR
+              <div class="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-hm-vermilion tracking-wide leading-none tabular-nums" id="current-bid-display">
+                —
               </div>
             </div>
 
-            <!-- Leading Franchise -->
-            <div class="mt-6 pt-4 border-t border-hm-border flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <span class="block font-mono text-[9px] text-hm-faint tracking-widest uppercase">HIGH BIDDER</span>
-                <span class="font-display text-2xl sm:text-3xl text-hm-text uppercase tracking-wide" id="leading-franchise-name">
-                  ROYAL CHALLENGERS BENGALURU
-                </span>
+            <!-- Leading Franchise (Dynamic Team Colors & Logo) -->
+            <div id="leading-franchise-container" class="mt-3 pt-3 border-t border-hm-border flex flex-wrap items-center justify-between gap-3 p-2 bg-hm-panel/60 rounded-[4px] border border-hm-border transition-all">
+              <div class="flex items-center gap-3">
+                <div id="leading-team-logo-wrap" class="w-11 h-11 flex items-center justify-center bg-hm-charcoal border border-hm-border rounded-[4px] p-1 overflow-hidden shrink-0">
+                  <span id="leading-team-logo-fallback" class="font-display text-xl text-hm-muted">—</span>
+                </div>
+                <div>
+                  <span class="block font-mono text-[9px] text-hm-faint tracking-widest uppercase">CURRENT HIGH BIDDER</span>
+                  <span class="font-display text-2xl sm:text-3xl text-hm-text uppercase tracking-wide" id="leading-franchise-name">
+                    AWAITING BID
+                  </span>
+                </div>
               </div>
               <div class="flex items-center gap-2">
-                <span class="px-4 py-1.5 bg-hm-vermilion/10 text-hm-vermilion border border-hm-vermilion font-display text-3xl tracking-wider uppercase rounded-[4px]" id="leading-team-tag">
-                  RCB
+                <span class="px-3.5 py-1 bg-hm-charcoal text-hm-muted border border-hm-border font-display text-2xl sm:text-3xl tracking-wider uppercase rounded-[4px] transition-all" id="leading-team-tag">
+                  —
                 </span>
               </div>
             </div>
           </div>
 
           <!-- COUNTDOWN & GAVEL STAGE -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-stretch">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-stretch shrink-0">
             
             <!-- Chrono Clock -->
-            <div class="md:col-span-4 bg-hm-charcoal border border-hm-border-s p-4 flex flex-col justify-center items-center text-center rounded-[6px]" id="clock-container">
-              <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase mb-1">HAMMER CLOCK</span>
-              <div class="font-display text-5xl tracking-wider text-hm-text tabular-nums leading-none" id="seconds-counter">
-                00:10
+            <div class="md:col-span-4 bg-hm-charcoal border border-hm-border-s p-2.5 flex flex-col justify-center items-center text-center rounded-[6px]" id="clock-container">
+              <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase mb-0.5">HAMMER CLOCK</span>
+              <div class="font-display text-4xl sm:text-5xl tracking-wider text-hm-text tabular-nums leading-none" id="seconds-counter">
+                00:00
               </div>
-              <span class="font-mono text-[8px] text-hm-faint uppercase tracking-widest mt-1">SECONDS REMAINING</span>
+              <span class="font-mono text-[8px] text-hm-faint uppercase tracking-widest mt-0.5">SECONDS REMAINING</span>
             </div>
 
             <!-- 3-Call Gavel Stage -->
-            <div class="md:col-span-8 bg-hm-charcoal border border-hm-border-s p-4 flex flex-col justify-between rounded-[6px]">
-              <div class="flex justify-between items-center font-mono text-[10px] tracking-widest uppercase">
+            <div class="md:col-span-8 bg-hm-charcoal border border-hm-border-s p-2.5 flex flex-col justify-between rounded-[6px]">
+              <div class="flex justify-between items-center font-mono text-[10px] tracking-widest uppercase mb-1">
                 <span class="text-hm-faint">AUCTIONEER CADENCE</span>
                 <span class="text-hm-vermilion font-bold" id="gavel-stage-label">AWAITING FIRST BID</span>
               </div>
 
-              <div class="grid grid-cols-3 gap-2 my-2">
-                <div class="border border-hm-border bg-hm-elevated p-2 text-center transition-colors rounded-[4px]" id="call-step-1">
+              <div class="grid grid-cols-3 gap-2 my-1">
+                <div class="border border-hm-border bg-hm-elevated p-1.5 text-center transition-colors rounded-[4px]" id="call-step-1">
                   <span class="font-mono text-[10px] tracking-wider uppercase text-hm-faint">1ST CALL</span>
                 </div>
-                <div class="border border-hm-border bg-hm-elevated p-2 text-center transition-colors rounded-[4px]" id="call-step-2">
+                <div class="border border-hm-border bg-hm-elevated p-1.5 text-center transition-colors rounded-[4px]" id="call-step-2">
                   <span class="font-mono text-[10px] tracking-wider uppercase text-hm-faint" id="call-step-2-text">2ND CALL</span>
                 </div>
-                <div class="border border-hm-border bg-hm-elevated p-2 text-center transition-colors rounded-[4px]" id="call-step-3">
+                <div class="border border-hm-border bg-hm-elevated p-1.5 text-center transition-colors rounded-[4px]" id="call-step-3">
                   <span class="font-mono text-[10px] tracking-wider uppercase text-hm-faint">FINAL CALL</span>
                 </div>
               </div>
 
-              <div class="pt-1.5 border-t border-hm-border flex justify-between items-center font-mono text-[9px] text-hm-faint uppercase">
-                <span>TIERED RULE: +10L / +20L / +50L</span>
-                <span>DESK: SERVER-AUTHORITATIVE</span>
+              <div class="pt-1 border-t border-hm-border flex justify-between items-center font-mono text-[9px] text-hm-faint uppercase">
+                <span>TIERED ADVANCE RULE</span>
+                <span>SERVER-AUTHORITATIVE DESK</span>
               </div>
             </div>
 
+          </div>
+
+          <!-- CONTAINED RECENT BIDS PANEL (SCROLLS INTERNALLY - ZERO PAGE SCROLL) -->
+          <div class="mt-2 p-2 bg-hm-charcoal border border-hm-border rounded-[4px] shrink-0">
+            <div class="flex items-center justify-between pb-1 mb-1 border-b border-hm-border text-[9px] font-mono uppercase tracking-widest">
+              <span class="text-hm-faint">RECENT BID ACTIVITY</span>
+              <span class="text-hm-muted" id="recent-bids-count">AUTHORITATIVE FEED</span>
+            </div>
+            <div id="recent-bids-feed" class="max-h-14 overflow-y-auto space-y-1 font-mono text-xs pr-1">
+              <div class="text-hm-faint text-[10px] uppercase text-center py-1">AWAITING BIDS ON ACTIVE LOT</div>
+            </div>
           </div>
 
         </div>
@@ -277,48 +275,74 @@
       </div>
     </div>
 
-    <!-- SIMULATION CONTROLS -->
-    <div class="w-full max-w-[1720px] mx-auto px-3 lg:px-6 my-2">
-      <div class="bg-hm-panel border border-hm-border-s p-2.5 flex flex-col md:flex-row items-center justify-between gap-2 font-mono text-[11px] rounded-[6px]">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-hm-faint text-[16px]">tune</span>
+    <!-- SLIM SIMULATION CONTROLS -->
+    <div class="w-full max-w-[1720px] mx-auto px-2 lg:px-4 mb-1 shrink-0">
+      <div class="bg-hm-panel border border-hm-border-s px-3 py-1 flex flex-col md:flex-row items-center justify-between gap-1 font-mono text-[10px] rounded-[4px]">
+        <div class="flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-hm-faint text-[14px]">tune</span>
           <span class="text-hm-faint uppercase tracking-wider">STAGE EMULATION:</span>
         </div>
-        <div class="flex flex-wrap items-center gap-1.5 w-full md:w-auto">
-          <button id="btn-trigger-bid" type="button" class="btn-paper-physical px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
-            SIMULATE +₹20L BID
+        <div class="flex flex-wrap items-center gap-1 w-full md:w-auto">
+          <button id="btn-trigger-bid" type="button" class="btn-paper-physical px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
+            SIMULATE BID
           </button>
-          <button id="btn-render-sold" type="button" class="btn-paper-physical text-hm-vermilion px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+          <button id="btn-render-sold" type="button" class="btn-paper-physical text-hm-vermilion px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
             SIMULATE SOLD
           </button>
-          <button id="btn-render-unsold" type="button" class="btn-paper-physical text-hm-muted px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+          <button id="btn-render-unsold" type="button" class="btn-paper-physical text-hm-muted px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
             SIMULATE UNSOLD
           </button>
-          <button id="btn-reset-lot" type="button" class="btn-paper-physical px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider">
+          <button id="btn-reset-lot" type="button" class="btn-paper-physical px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
             RESET LOT
           </button>
         </div>
       </div>
     </div>
 
-    <!-- 10 FRANCHISES PURSE RIBBON -->
-    <div class="w-full bg-hm-charcoal border-t border-hm-border mt-auto">
-      <div class="max-w-[1720px] mx-auto px-4 py-1.5 flex items-center justify-between font-mono text-[10px] border-b border-hm-border uppercase">
-        <span class="text-hm-faint tracking-widest">FRANCHISE PURSE STATUS</span>
-        <span class="text-hm-text font-bold">10 FRANCHISES // ₹125 CR BASE</span>
-      </div>
+    <!-- 10 FRANCHISES PURSE RIBBON (WITH OFFICIAL TEAM LOGOS & DYNAMIC HIGHLIGHTS) -->
+    <div class="w-full bg-hm-charcoal border-t border-hm-border shrink-0">
       <div class="w-full overflow-x-auto">
-        <div class="grid grid-cols-10 min-w-[1100px] divide-x divide-hm-border text-center py-2 px-2">
-          <div class="px-1.5 py-1" id="purse-card-MI"><div class="font-mono text-[11px] font-bold text-hm-muted">MI</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-CSK"><div class="font-mono text-[11px] font-bold text-hm-muted">CSK</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-RCB"><div class="font-mono text-[11px] font-bold text-hm-muted">RCB</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-DC"><div class="font-mono text-[11px] font-bold text-hm-muted">DC</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-GT"><div class="font-mono text-[11px] font-bold text-hm-muted">GT</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-KKR"><div class="font-mono text-[11px] font-bold text-hm-muted">KKR</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-LSG"><div class="font-mono text-[11px] font-bold text-hm-muted">LSG</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-PBKS"><div class="font-mono text-[11px] font-bold text-hm-muted">PBKS</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-RR"><div class="font-mono text-[11px] font-bold text-hm-muted">RR</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
-          <div class="px-1.5 py-1" id="purse-card-SRH"><div class="font-mono text-[11px] font-bold text-hm-muted">SRH</div><div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div></div>
+        <div class="grid grid-cols-10 min-w-[1000px] divide-x divide-hm-border text-center py-1 px-1">
+          <div class="px-1 py-0.5 transition-all" id="purse-card-CSK">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/csk.svg" class="w-3.5 h-3.5 object-contain" alt="CSK"/>CSK</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-DC">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/dc.svg" class="w-3.5 h-3.5 object-contain" alt="DC"/>DC</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-GT">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/gt.svg" class="w-3.5 h-3.5 object-contain" alt="GT"/>GT</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-KKR">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/kkr.svg" class="w-3.5 h-3.5 object-contain" alt="KKR"/>KKR</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-LSG">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/lsg.svg" class="w-3.5 h-3.5 object-contain" alt="LSG"/>LSG</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-MI">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/mi.svg" class="w-3.5 h-3.5 object-contain" alt="MI"/>MI</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-PBKS">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/pbks.svg" class="w-3.5 h-3.5 object-contain" alt="PBKS"/>PBKS</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-RR">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/rr.svg" class="w-3.5 h-3.5 object-contain" alt="RR"/>RR</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-RCB">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/rcb.svg" class="w-3.5 h-3.5 object-contain" alt="RCB"/>RCB</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
+          <div class="px-1 py-0.5 transition-all" id="purse-card-SRH">
+            <div class="flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-hm-muted"><img src="/logos/srh.svg" class="w-3.5 h-3.5 object-contain" alt="SRH"/>SRH</div>
+            <div class="font-mono text-[11px] font-semibold text-hm-text mt-0.5">₹125.0 CR</div>
+          </div>
         </div>
       </div>
     </div>
@@ -329,6 +353,7 @@
   <script src="/js/supabase-config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/player-images.js"></script>
+  <script src="/js/team-themes.js"></script>
   <script src="/js/hammer-ux.js"></script>
   <script src="/js/hammer.js"></script>
 
@@ -340,10 +365,13 @@
     const bidDisplay = document.getElementById('current-bid-display');
     const leadingTeamTag = document.getElementById('leading-team-tag');
     const leadingFranchiseName = document.getElementById('leading-franchise-name');
+    const leadingTeamLogoWrap = document.getElementById('leading-team-logo-wrap');
+    const leadingFranchiseContainer = document.getElementById('leading-franchise-container');
     const verdictOverlay = document.getElementById('verdict-overlay');
     const verdictTitle = document.getElementById('verdict-stamp-title');
     const verdictDetails = document.getElementById('verdict-stamp-details');
     const athleteImage = document.getElementById('athlete-image');
+    const athleteBasePrice = document.getElementById('athlete-base-price');
     const hammerBadge = document.getElementById('hammer-status-badge');
     const secondsCounter = document.getElementById('seconds-counter');
     const gavelStageLabel = document.getElementById('gavel-stage-label');
@@ -357,14 +385,42 @@
     const btnReset = document.getElementById('btn-reset-lot');
     const bgLotWatermark = document.getElementById('bg-lot-watermark');
     const dossierLotLabel = document.getElementById('dossier-lot-label');
+    const poolSetLabel = document.getElementById('pool-set-label');
     const clockContainer = document.getElementById('clock-container');
+    const recentBidsFeed = document.getElementById('recent-bids-feed');
+
+    let currentLotNumber = null;
+    const bidHistoryStream = [];
+
+    function addRecentBidEntry(teamShortName, teamId, amount) {
+      if (!recentBidsFeed) return;
+      const theme = window.getTeamTheme ? window.getTeamTheme(teamId) : null;
+      const badgeHtml = window.renderTeamBadge ? window.renderTeamBadge(teamId, { size: 'sm' }) : `<span class="font-bold text-hm-text">${teamShortName}</span>`;
+      
+      const entry = document.createElement('div');
+      entry.className = 'flex items-center justify-between p-1 bg-hm-elevated/70 border border-hm-border rounded-[3px] animate-bid-flash';
+      entry.innerHTML = `
+        <div class="flex items-center gap-1.5">
+          ${badgeHtml}
+          <span class="text-[10px] text-hm-faint">ADVANCE</span>
+        </div>
+        <span class="font-mono font-bold text-hm-vermilion text-[11px]">${Hammer.formatCurrency(amount)}</span>
+      `;
+      if (recentBidsFeed.querySelector('.text-hm-faint.text-center')) {
+        recentBidsFeed.innerHTML = '';
+      }
+      recentBidsFeed.insertBefore(entry, recentBidsFeed.firstChild);
+      while (recentBidsFeed.children.length > 5) {
+        recentBidsFeed.removeChild(recentBidsFeed.lastChild);
+      }
+    }
 
     // ─── RENDER FULL STATE ─────────────────────────────────
     function renderState(state) {
       if (!state) return;
       const { currentPlayer, leadingTeam, teams } = state;
 
-      // Update purse ribbon with real team data
+      // Update purse ribbon with real team data and dynamic colors
       if (teams) {
         teams.forEach(team => {
           const card = document.getElementById('purse-card-' + team.id);
@@ -372,19 +428,35 @@
           const nameEl = card.querySelector('div:first-child');
           const purseEl = card.querySelector('div:last-child');
           const isLeader = state.leadingTeamId === team.id;
+          const theme = window.getTeamTheme ? window.getTeamTheme(team.id) : null;
 
-          if (isLeader) {
-            card.className = 'px-1.5 py-1 bg-hm-elevated border-2 border-hm-vermilion transition-all rounded-[4px]';
-            nameEl.textContent = team.shortName + ' ★';
-            nameEl.className = 'font-mono text-[11px] text-hm-vermilion font-bold tracking-wider';
-            purseEl.className = 'font-mono text-[11px] text-hm-vermilion font-bold mt-0.5';
+          if (isLeader && theme) {
+            card.className = 'px-1 py-0.5 bg-hm-elevated border-2 transition-all rounded-[4px]';
+            card.style.borderColor = theme.primary;
+            card.style.backgroundColor = theme.primary + '18';
+            if (nameEl) {
+              nameEl.innerHTML = `<img src="${theme.logo}" class="w-3.5 h-3.5 object-contain" alt="${theme.shortName}"/><span style="color: ${theme.primary}; font-weight: bold;">${theme.shortName} ★</span>`;
+            }
+            if (purseEl) {
+              purseEl.className = 'font-mono text-[11px] font-bold mt-0.5';
+              purseEl.style.color = theme.primary;
+            }
           } else {
-            card.className = 'px-1.5 py-1 transition-all';
-            nameEl.textContent = team.shortName;
-            nameEl.className = 'font-mono text-[11px] text-hm-muted font-bold';
-            purseEl.className = 'font-mono text-[11px] text-hm-text font-semibold mt-0.5';
+            card.className = 'px-1 py-0.5 transition-all';
+            card.style.borderColor = '';
+            card.style.backgroundColor = '';
+            const tLogo = theme ? theme.logo : `/logos/${team.id.toLowerCase()}.svg`;
+            if (nameEl) {
+              nameEl.innerHTML = `<img src="${tLogo}" class="w-3.5 h-3.5 object-contain" alt="${team.shortName}"/><span class="font-mono text-[11px] font-bold text-hm-muted">${team.shortName}</span>`;
+            }
+            if (purseEl) {
+              purseEl.className = 'font-mono text-[11px] text-hm-text font-semibold mt-0.5';
+              purseEl.style.color = '';
+            }
           }
-          purseEl.textContent = Hammer.formatCurrency(team.remaining);
+          if (purseEl) {
+            purseEl.textContent = Hammer.formatCurrency(team.remaining);
+          }
         });
       }
 
@@ -392,28 +464,54 @@
       if (state.status === 'idle' || !currentPlayer) {
         bidDisplay.textContent = '—';
         leadingTeamTag.textContent = '—';
+        leadingTeamTag.style.borderColor = '';
+        leadingTeamTag.style.backgroundColor = '';
+        leadingTeamTag.style.color = '';
         leadingFranchiseName.textContent = 'AWAITING NEXT LOT';
-        hammerBadge.textContent = 'IDLE';
-        hammerBadge.className = 'px-2 py-0.5 bg-hm-panel text-hm-faint border border-hm-border-s font-mono text-[10px] uppercase tracking-widest font-bold rounded-[4px]';
+        leadingFranchiseName.style.color = '';
+        leadingTeamLogoWrap.innerHTML = '<span id="leading-team-logo-fallback" class="font-display text-xl text-hm-muted">—</span>';
+        leadingTeamLogoWrap.style.borderColor = '';
+        leadingTeamLogoWrap.style.backgroundColor = '';
+        leadingFranchiseContainer.style.borderColor = '';
+        leadingFranchiseContainer.style.backgroundColor = '';
+
+        hammerBadge.textContent = 'AWAITING LOT';
+        hammerBadge.className = 'px-2 py-0.5 bg-hm-panel text-hm-faint border border-hm-border-s font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
         secondsCounter.textContent = '00:00';
         gavelStageLabel.textContent = 'AWAITING LOT SELECTION';
         verdictOverlay.classList.add('hidden');
         resetGavelSteps(-1);
         const nameEl = document.getElementById('athlete-name');
-        if (nameEl) nameEl.textContent = 'AWAITING PLAYER';
+        if (nameEl) nameEl.textContent = 'AWAITING LOT';
+        const subEl = document.getElementById('athlete-subtitle');
+        if (subEl) subEl.textContent = 'CRICKET AUCTION DOSSIER';
+        if (athleteBasePrice) athleteBasePrice.textContent = 'BASE: —';
+        const sessionLabel = document.getElementById('stage-session-label');
+        if (sessionLabel) sessionLabel.textContent = 'AWAITING COMMENCEMENT';
         return;
       }
 
       // Active auction — update player info
       const p = currentPlayer;
+      if (currentLotNumber !== p.lotNumber) {
+        currentLotNumber = p.lotNumber;
+        if (recentBidsFeed) {
+          recentBidsFeed.innerHTML = '<div class="text-hm-faint text-[10px] uppercase text-center py-1">AWAITING BIDS ON ACTIVE LOT</div>';
+        }
+      }
+
       const nameEl = document.getElementById('athlete-name');
       const subEl = document.getElementById('athlete-subtitle');
       if (nameEl) nameEl.textContent = p.name;
       if (subEl) subEl.textContent = (p.nationality || 'IND').toUpperCase() + ' • ' + (p.roleLabel || (p.role || '').toUpperCase());
+      if (athleteBasePrice) athleteBasePrice.textContent = 'BASE: ' + Hammer.formatCurrency(p.basePrice);
 
-      // Update background watermark number
+      // Update background watermark number & labels
       if (bgLotWatermark) bgLotWatermark.textContent = String(p.lotNumber).padStart(3, '0');
       if (dossierLotLabel) dossierLotLabel.textContent = 'LOT #' + String(p.lotNumber).padStart(3, '0');
+      if (poolSetLabel) poolSetLabel.textContent = (p.set || 'GENERAL LOT').toUpperCase();
+      const sessionLabel = document.getElementById('stage-session-label');
+      if (sessionLabel) sessionLabel.textContent = `LOT #${String(p.lotNumber).padStart(3, '0')} // ${(p.set || 'GENERAL LOT').toUpperCase()}`;
 
       // Player image & fallback
       const athleteFallback = document.getElementById('athlete-fallback');
@@ -421,7 +519,7 @@
       const fallbackIcon = document.getElementById('athlete-fallback-icon');
       const capLabel = document.getElementById('athlete-cap-label');
       const skeleton = document.getElementById('athlete-skeleton');
-      if (capLabel) capLabel.textContent = `LOT #${String(p.lotNumber).padStart(3, '0')}`;
+      if (capLabel) capLabel.textContent = `OFFICIAL IPL LOT #${String(p.lotNumber).padStart(3, '0')}`;
 
       function showAthleteFallback() {
         if (skeleton) skeleton.classList.add('hidden');
@@ -465,13 +563,40 @@
       // Animated current bid number
       HammerUX.animateCurrencyNumber(bidDisplay, state.currentBid);
 
-      // Leading team
-      if (leadingTeam) {
-        leadingTeamTag.textContent = leadingTeam.shortName;
-        leadingFranchiseName.textContent = leadingTeam.name;
+      // Leading team with dynamic Team Identity System
+      const leaderId = state.leadingTeamId || (leadingTeam ? leadingTeam.id : null);
+      const theme = leaderId && window.getTeamTheme ? window.getTeamTheme(leaderId) : null;
+
+      if (theme) {
+        leadingTeamTag.textContent = theme.shortName;
+        leadingTeamTag.style.borderColor = theme.primary;
+        leadingTeamTag.style.backgroundColor = theme.primary + '20';
+        leadingTeamTag.style.color = theme.primary;
+
+        leadingFranchiseName.textContent = theme.fullName || leadingTeam.name;
+        leadingFranchiseName.style.color = '#FFFFFF';
+
+        leadingTeamLogoWrap.innerHTML = `<img src="${theme.logo}" class="w-9 h-9 object-contain" alt="${theme.shortName}" onerror="this.outerHTML='<span class=\\'font-display text-xl\\'>${theme.shortName}</span>'"/>`;
+        leadingTeamLogoWrap.style.borderColor = theme.primary;
+        leadingTeamLogoWrap.style.backgroundColor = theme.primary + '18';
+
+        leadingFranchiseContainer.style.borderColor = theme.primary;
+        leadingFranchiseContainer.style.backgroundColor = theme.primary + '12';
       } else {
         leadingTeamTag.textContent = '—';
-        leadingFranchiseName.textContent = 'NO BIDS YET';
+        leadingTeamTag.style.borderColor = '';
+        leadingTeamTag.style.backgroundColor = '';
+        leadingTeamTag.style.color = '';
+
+        leadingFranchiseName.textContent = state.status === 'live' ? 'NO BIDS YET' : 'AWAITING NEXT LOT';
+        leadingFranchiseName.style.color = '';
+
+        leadingTeamLogoWrap.innerHTML = '<span id="leading-team-logo-fallback" class="font-display text-xl text-hm-muted">—</span>';
+        leadingTeamLogoWrap.style.borderColor = '';
+        leadingTeamLogoWrap.style.backgroundColor = '';
+
+        leadingFranchiseContainer.style.borderColor = '';
+        leadingFranchiseContainer.style.backgroundColor = '';
       }
 
       // Timer & gavel
@@ -479,46 +604,26 @@
       gavelStageLabel.textContent = Hammer.getGavelLabel(state.gavelStage);
       resetGavelSteps(state.gavelStage);
 
-      // Status badge
+      // Status badge (no live-pulse animation)
       if (state.status === 'live') {
         hammerBadge.textContent = 'ON HAMMER';
-        hammerBadge.className = 'px-2 py-0.5 bg-hm-vermilion/10 text-hm-vermilion border border-hm-vermilion font-mono text-[10px] uppercase tracking-widest font-bold live-pulse rounded-[4px]';
+        hammerBadge.className = 'px-2 py-0.5 bg-hm-vermilion/10 text-hm-vermilion border border-hm-vermilion font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
         verdictOverlay.classList.add('hidden');
       } else if (state.status === 'paused') {
         hammerBadge.textContent = 'PAUSED';
-        hammerBadge.className = 'px-2 py-0.5 bg-hm-panel text-hm-faint border border-hm-border-s font-mono text-[10px] uppercase tracking-widest font-bold rounded-[4px]';
+        hammerBadge.className = 'px-2 py-0.5 bg-hm-panel text-hm-faint border border-hm-border-s font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
       }
 
       // Bid increment label
       const bidAdvance = document.getElementById('bid-advance');
       const inc = state.bidIncrement || Hammer.getBidIncrement(state.currentBid);
       if (bidAdvance) bidAdvance.textContent = '+₹' + inc + 'L';
-
-      // Update dynamic hero strip
-      const heroDot = document.getElementById('hero-status-dot');
-      const heroTag = document.getElementById('hero-tagline');
-      const heroStatus = document.getElementById('hero-dynamic-status');
-      if (heroDot && heroTag && heroStatus) {
-        if (state.status === 'live') {
-          heroDot.className = 'w-2 h-2 rounded-full bg-hm-vermilion live-pulse';
-          heroTag.textContent = 'LIVE ON HAMMER';
-          heroStatus.textContent = `LOT #${state.currentPlayer?.lotNumber || state.lotIndex || '—'} // ${state.currentPlayer?.name || 'CRICKETER'} • CURRENT: ${Hammer.formatCurrency(state.currentBid || state.basePrice)} (${state.leadingTeam ? state.leadingTeam.shortName : 'BASE'}) • TIMER: ${state.timer}s`;
-        } else if (state.status === 'completed') {
-          heroDot.className = 'w-2 h-2 rounded-full bg-hm-amber';
-          heroTag.textContent = 'AUCTION COMPLETE';
-          heroStatus.textContent = 'ALL LOTS CONCLUDED • 10 FRANCHISES RATIFIED • VIEW FINAL SQUADS & EXPORTS';
-        } else {
-          heroDot.className = 'w-2 h-2 rounded-full bg-hm-emerald';
-          heroTag.textContent = 'STAGE READY';
-          heroStatus.textContent = '10 FRANCHISES • 73 REGISTERED CRICKETERS • OFFICIAL MEGA AUCTION';
-        }
-      }
     }
 
     function resetGavelSteps(stage) {
-      const inactive = 'border border-hm-border bg-hm-elevated p-2 text-center transition-colors rounded-[4px]';
+      const inactive = 'border border-hm-border bg-hm-elevated p-1.5 text-center transition-colors rounded-[4px]';
       const inactiveSpan = 'font-mono text-[10px] tracking-wider uppercase text-hm-faint';
-      const active = 'border-2 border-hm-vermilion bg-hm-elevated p-2 text-center transition-colors rounded-[4px]';
+      const active = 'border-2 border-hm-vermilion bg-hm-elevated p-1.5 text-center transition-colors rounded-[4px]';
       const activeSpan = 'font-mono text-[10px] tracking-wider uppercase font-bold text-hm-vermilion';
 
       callStep1.className = stage >= 1 ? active : inactive;
@@ -544,6 +649,7 @@
     Hammer.on('auction:bid', (data) => {
       HammerUX.playBidClick();
       renderState(data.state);
+      addRecentBidEntry(data.teamShortName, data.teamId, data.amount);
       Hammer.showToast(`${data.teamShortName} BID ${Hammer.formatCurrency(data.amount)}`, 'bid');
     });
 
@@ -563,11 +669,11 @@
     Hammer.on('auction:sold', (data) => {
       HammerUX.playGavelStrike();
       verdictTitle.textContent = 'SOLD';
-      verdictTitle.className = 'font-display text-7xl lg:text-8xl uppercase tracking-wide text-hm-vermilion leading-none animate-sold-slam';
+      verdictTitle.className = 'font-display text-6xl sm:text-7xl lg:text-8xl uppercase tracking-wide text-hm-vermilion leading-none animate-sold-slam';
       verdictDetails.textContent = 'SOLD // ' + Hammer.formatCurrency(data.price) + ' // ' + data.team.shortName;
       verdictOverlay.classList.remove('hidden');
       hammerBadge.textContent = 'HAMMER FALL: SOLD';
-      hammerBadge.className = 'px-2 py-0.5 bg-hm-vermilion text-hm-text border border-hm-vermilion font-mono text-[10px] uppercase tracking-widest font-bold rounded-[4px]';
+      hammerBadge.className = 'px-2 py-0.5 bg-hm-vermilion text-hm-text border border-hm-vermilion font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
       secondsCounter.textContent = '00:00';
       gavelStageLabel.textContent = 'HAMMER DOWN // RECORDED';
       resetGavelSteps(3);
@@ -577,11 +683,11 @@
 
     Hammer.on('auction:unsold', (data) => {
       verdictTitle.textContent = 'UNSOLD';
-      verdictTitle.className = 'font-display text-7xl lg:text-8xl uppercase tracking-wide text-hm-faint leading-none animate-sold-slam';
+      verdictTitle.className = 'font-display text-6xl sm:text-7xl lg:text-8xl uppercase tracking-wide text-hm-faint leading-none animate-sold-slam';
       verdictDetails.textContent = 'RESERVE NOT MET // LOT PASSES TO ACCELERATED POOL';
       verdictOverlay.classList.remove('hidden');
       hammerBadge.textContent = 'UNSOLD // PASSED';
-      hammerBadge.className = 'px-2 py-0.5 bg-hm-panel text-hm-faint border border-hm-border-s font-mono text-[10px] uppercase tracking-widest font-bold rounded-[4px]';
+      hammerBadge.className = 'px-2 py-0.5 bg-hm-panel text-hm-faint border border-hm-border-s font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
       secondsCounter.textContent = '00:00';
       gavelStageLabel.textContent = 'HAMMER DOWN // NO BID ACCEPTED';
       renderState(data.state);

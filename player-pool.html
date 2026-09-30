@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="/js/team-themes.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -69,7 +70,7 @@
 
       <div class="flex items-center space-x-3">
         <div class="hidden md:flex items-center bg-hm-charcoal border border-hm-border px-3 py-1.5 space-x-2 rounded-[4px]">
-          <span class="w-2 h-2 rounded-full bg-hm-vermilion live-pulse"></span>
+          <span class="w-2 h-2 rounded-full bg-hm-vermilion"></span>
           <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase">2026 MEGA AUCTION</span>
         </div>
         <a href="login.html" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
@@ -93,9 +94,6 @@
           <h1 class="font-display text-6xl lg:text-7xl text-hm-text uppercase tracking-wide leading-none">
             PLAYER POOL
           </h1>
-          <p class="font-mono text-xs text-hm-muted mt-2 tracking-widest uppercase">
-            73 REGISTERED CRICKETERS // COLLECTIBLE CARDS // 3D FLIP ON HOVER
-          </p>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-hm-charcoal border border-hm-border-s p-2 font-mono text-[11px] rounded-[6px]">
@@ -105,7 +103,7 @@
           </div>
           <div class="bg-hm-panel p-2 border border-hm-border rounded-[4px]">
             <span class="text-hm-faint block text-[9px] uppercase tracking-widest">WITH PHOTOS</span>
-            <span class="font-bold text-hm-amber text-base">40</span>
+            <span class="font-bold text-hm-amber text-base" id="stat-with-photos">--</span>
           </div>
           <div class="bg-hm-panel p-2 border border-hm-border rounded-[4px]">
             <span class="text-hm-faint block text-[9px] uppercase tracking-widest">OVERSEAS</span>
@@ -195,12 +193,14 @@
       const statusBadge = isSold
         ? `<span class="font-mono text-[10px] uppercase bg-hm-vermilion text-hm-text border border-hm-vermilion px-2 py-0.5 font-bold tracking-wider flex items-center gap-1 rounded-[3px]"><span class="material-symbols-outlined text-[11px]">gavel</span>SOLD</span>`
         : isOnHammer
-        ? `<span class="font-mono text-[10px] uppercase bg-hm-vermilion/10 text-hm-vermilion border border-hm-vermilion px-2 py-0.5 font-bold tracking-wider live-pulse rounded-[3px]">ON HAMMER</span>`
+        ? `<span class="font-mono text-[10px] uppercase bg-hm-vermilion/10 text-hm-vermilion border border-hm-vermilion px-2 py-0.5 font-bold tracking-wider rounded-[3px]">ON HAMMER</span>`
         : isUnsold
         ? `<span class="font-mono text-[10px] uppercase bg-hm-elevated text-hm-faint border border-hm-border-s px-2 py-0.5 font-bold tracking-wider rounded-[3px]">UNSOLD</span>`
         : `<span class="font-mono text-[10px] uppercase bg-hm-elevated text-hm-text border border-hm-border-s px-2 py-0.5 font-bold tracking-wider rounded-[3px]">AVAILABLE</span>`;
 
-      const priceLabel = isSold ? `SOLD TO ${p.soldTo}` : `BASE RESERVE`;
+      const priceLabel = isSold && p.soldTo
+        ? `SOLD TO ${typeof renderTeamBadge === 'function' ? renderTeamBadge(p.soldTo, { size: 'sm' }) : p.soldTo}`
+        : `BASE RESERVE`;
       const priceVal = isSold ? Hammer.formatCurrency(p.soldPrice) : Hammer.formatCurrency(p.basePrice);
 
       const initials = (p.displayName || p.name).split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
@@ -383,6 +383,11 @@
         const list = res.players || [];
         const total = res.total || list.length;
         const totalPages = Math.max(1, Math.ceil(total / LIMIT));
+
+        const statPhotos = document.getElementById('stat-with-photos');
+        if (statPhotos && window.HAMMER_PLAYER_IMAGES) {
+          statPhotos.textContent = Object.keys(window.HAMMER_PLAYER_IMAGES).length;
+        }
 
         document.getElementById('page-indicator').textContent = `PAGE ${String(currentPage).padStart(2, '0')} OF ${String(totalPages).padStart(2, '0')}`;
         document.getElementById('btn-prev').disabled = currentPage <= 1;

@@ -1019,5 +1019,240 @@
     },
     "timestamp": 1790799780863,
     "created_at": "2026-09-30T20:23:00.863Z"
+  },
+  {
+    "id": "eaffa76f-1d02-4cc1-812f-c1fde628605b",
+    "auction_id": 1,
+    "lot_id": 52,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "LOT_OPENED",
+    "actor_user_id": null,
+    "actor_team_id": null,
+    "actor_team_name": null,
+    "actor_role": "auctioneer",
+    "amount_lakh": 30,
+    "previous_amount_lakh": 0,
+    "event_sequence": 49,
+    "metadata": {
+      "role": "allrounder",
+      "nationality": "India",
+      "basePrice": 30,
+      "capped": false
+    },
+    "timestamp": 1790804330734,
+    "created_at": "2026-09-30T21:38:50.734Z"
+  },
+  {
+    "id": "e4c56c86-eac5-4326-bb32-0e893be291b2",
+    "auction_id": 1,
+    "lot_id": 2,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "BID_PLACED",
+    "actor_user_id": null,
+    "actor_team_id": "MI",
+    "actor_team_name": "MUMBAI INDIANS",
+    "actor_role": "team_owner",
+    "amount_lakh": 30,
+    "previous_amount_lakh": 30,
+    "event_sequence": 50,
+    "metadata": {
+      "teamShortName": "MI",
+      "bidCount": 1
+    },
+    "timestamp": 1790804330736,
+    "created_at": "2026-09-30T21:38:50.736Z"
+  },
+  {
+    "id": "5a62872f-7e5b-46ed-90d3-79e65a7f17f0",
+    "auction_id": 1,
+    "lot_id": 2,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "BID_PLACED",
+    "actor_user_id": null,
+    "actor_team_id": "CSK",
+    "actor_team_name": "CHENNAI SUPER KINGS",
+    "actor_role": "team_owner",
+    "amount_lakh": 40,
+    "previous_amount_lakh": 30,
+    "event_sequence": 51,
+    "metadata": {
+      "teamShortName": "CSK",
+      "bidCount": 2
+    },
+    "timestamp": 1790804330738,
+    "created_at": "2026-09-30T21:38:50.738Z"
+  },
+  {
+    "id": "7dd82384-5540-4f2f-a6fd-076fb6e139f6",
+    "auction_id": 1,
+    "lot_id": 2,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "BID_PLACED",
+    "actor_user_id": null,
+    "actor_team_id": "MI",
+    "actor_team_name": "MUMBAI INDIANS",
+    "actor_role": "team_owner",
+    "amount_lakh": 50,
+    "previous_amount_lakh": 40,
+    "event_sequence": 52,
+    "metadata": {
+      "teamShortName": "MI",
+      "bidCount": 3
+    },
+    "timestamp": 1790804330740,
+    "created_at": "2026-09-30T21:38:50.740Z"
+  },
+  {
+    "id": "30082f5c-f10a-4a51-a1bf-d05a51439ad7",
+    "auction_id": 1,
+    "lot_id": 52,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "LOT_SOLD",
+    "actor_user_id": null,
+    "actor_team_id": "MI",
+    "actor_team_name": "MUMBAI INDIANS",
+    "actor_role": "auctioneer",
+    "amount_lakh": 50,
+    "previous_amount_lakh": 30,
+    "event_sequence": 53,
+    "metadata": {
+      "soldTo": "MI",
+      "bidsCount": 3
+    },
+    "timestamp": 1790804330744,
+    "created_at": "2026-09-30T21:38:50.744Z"
+  },
+  {
+    "id": "458e48a4-11a6-4d05-9b6f-087c440fe0fa",
+    "auction_id": 1,
+    "lot_id": 52,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "TEAM_SQUAD_UPDATED",
+    "actor_user_id": null,
+    "actor_team_id": "MI",
+    "actor_team_name": "MUMBAI INDIANS",
+    "actor_role": "auctioneer",
+    "amount_lakh": 50,
+    "previous_amount_lakh": 0,
+    "event_sequence": 54,
+    "metadata": {
+      "teamRemaining": 12230,
+      "filledSlots": 2
+    },
+    "timestamp": 1790804330744,
+    "created_at": "2026-09-30T21:38:50.744Z"
+  },
+  {
+    "id": "991ff9c5-b183-4dee-9641-f7e86eea4935",
+    "auction_id": 1,
+    "lot_id": 1,
+    "player_id": 1,
+    "player_name": "VIRAT KOHLI",
+    "event_type": "LOT_OPENED",
+    "actor_user_id": null,
+    "actor_team_id": null,
+    "actor_team_name": null,
+    "actor_role": "auctioneer",
+    "amount_lakh": 200,
+    "previous_amount_lakh": 0,
+    "event_sequence": 55,
+    "metadata": {
+      "role": "batter",
+      "nationality": "India",
+      "basePrice": 200,
+      "capped": true
+    },
+    "timestamp": 1790804334227,
+    "created_at": "2026-09-30T21:38:54.227Z"
+  },
+  {
+    "id": "ec17c52a-e801-4848-9df7-c35a6f92f315",
+    "auction_id": 1,
+    "lot_id": 1,
+    "player_id": 1,
+    "player_name": "VIRAT KOHLI",
+    "event_type": "BID_PLACED",
+    "actor_user_id": null,
+    "actor_team_id": "CSK",
+    "actor_team_name": "CHENNAI SUPER KINGS",
+    "actor_role": "team_owner",
+    "amount_lakh": 200,
+    "previous_amount_lakh": 200,
+    "event_sequence": 56,
+    "metadata": {
+      "teamShortName": "CSK",
+      "bidCount": 1
+    },
+    "timestamp": 1790804334228,
+    "created_at": "2026-09-30T21:38:54.228Z"
+  },
+  {
+    "id": "a0edcab2-eb86-416c-ae67-be45276e0614",
+    "auction_id": 1,
+    "lot_id": 1,
+    "player_id": 1,
+    "player_name": "VIRAT KOHLI",
+    "event_type": "BID_PLACED",
+    "actor_user_id": null,
+    "actor_team_id": "RCB",
+    "actor_team_name": "ROYAL CHALLENGERS BENGALURU",
+    "actor_role": "team_owner",
+    "amount_lakh": 220,
+    "previous_amount_lakh": 200,
+    "event_sequence": 57,
+    "metadata": {
+      "teamShortName": "RCB",
+      "bidCount": 2
+    },
+    "timestamp": 1790804334231,
+    "created_at": "2026-09-30T21:38:54.231Z"
+  },
+  {
+    "id": "2e580ae1-213e-4455-b425-d996bef9121d",
+    "auction_id": 1,
+    "lot_id": 1,
+    "player_id": 1,
+    "player_name": "VIRAT KOHLI",
+    "event_type": "LOT_SOLD",
+    "actor_user_id": null,
+    "actor_team_id": "RCB",
+    "actor_team_name": "ROYAL CHALLENGERS BENGALURU",
+    "actor_role": "auctioneer",
+    "amount_lakh": 220,
+    "previous_amount_lakh": 200,
+    "event_sequence": 58,
+    "metadata": {
+      "soldTo": "RCB",
+      "bidsCount": 2
+    },
+    "timestamp": 1790804334233,
+    "created_at": "2026-09-30T21:38:54.233Z"
+  },
+  {
+    "id": "e8f3e67c-4a85-424b-a55f-a0799073248f",
+    "auction_id": 1,
+    "lot_id": 1,
+    "player_id": 1,
+    "player_name": "VIRAT KOHLI",
+    "event_type": "TEAM_SQUAD_UPDATED",
+    "actor_user_id": null,
+    "actor_team_id": "RCB",
+    "actor_team_name": "ROYAL CHALLENGERS BENGALURU",
+    "actor_role": "auctioneer",
+    "amount_lakh": 220,
+    "previous_amount_lakh": 0,
+    "event_sequence": 59,
+    "metadata": {
+      "teamRemaining": 12280,
+      "filledSlots": 1
+    },
+    "timestamp": 1790804334233,
+    "created_at": "2026-09-30T21:38:54.233Z"
   }
 ]

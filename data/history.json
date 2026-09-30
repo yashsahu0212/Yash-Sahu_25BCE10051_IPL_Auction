@@ -8,9 +8,9 @@
     },
     "result": "sold",
     "soldTo": {
-      "id": "MI",
-      "name": "MUMBAI INDIANS",
-      "shortName": "MI"
+      "id": "RCB",
+      "name": "ROYAL CHALLENGERS BENGALURU",
+      "shortName": "RCB"
     },
     "soldPrice": 220,
     "basePrice": 200,
@@ -21,16 +21,16 @@
         "teamName": "CHENNAI SUPER KINGS",
         "teamShortName": "CSK",
         "amount": 200,
-        "timestamp": 1790799780856
+        "timestamp": 1790804334228
       },
       {
-        "teamId": "MI",
-        "teamName": "MUMBAI INDIANS",
-        "teamShortName": "MI",
+        "teamId": "RCB",
+        "teamName": "ROYAL CHALLENGERS BENGALURU",
+        "teamShortName": "RCB",
         "amount": 220,
-        "timestamp": 1790799780860
+        "timestamp": 1790804334231
       }
     ],
-    "timestamp": 1790799780863
+    "timestamp": 1790804334232
   }
 ]

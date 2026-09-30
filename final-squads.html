@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+  <script src="/js/team-themes.js"></script>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -84,16 +85,13 @@
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-4 border-b border-hm-border-s">
         <div>
           <div class="flex items-center gap-2 mb-1">
-            <span class="font-mono text-[10px] text-hm-vermilion uppercase font-bold tracking-[0.25em]">2026 TOURNAMENT RATIFICATION</span>
+            <span class="font-mono text-[10px] text-hm-vermilion uppercase font-bold tracking-[0.25em]">IPL 2026</span>
             <span class="text-hm-dim">/</span>
             <span class="font-mono text-[10px] text-hm-muted uppercase tracking-wider">OFFICIAL FRANCHISE ROSTERS</span>
           </div>
           <h1 class="font-display text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
             FINAL SQUADS & SOLD PLAYERS
           </h1>
-          <p class="font-mono text-xs text-hm-faint uppercase tracking-widest mt-1">
-            RATIFIED IPL FRANCHISE COMPOSITION & ADJUDICATED CRICKETERS
-          </p>
         </div>
 
         <!-- AUTHORITATIVE EXPORTS -->
@@ -335,13 +333,16 @@
           </tr>
         `;
 
+        const theme = typeof getTeamTheme === 'function' ? getTeamTheme(t.id) : { primary: t.color || '#C74632', logo: t.logo, shortName: t.shortName, badgeBg: 'rgba(199,70,50,0.1)' };
+
         return `
           <div class="bg-hm-panel border border-hm-border-s rounded-[6px] overflow-hidden">
             <!-- FRANCHISE HEADER -->
-            <div class="p-5 border-b border-hm-border-s flex flex-col lg:flex-row lg:items-center justify-between gap-4" style="border-left: 4px solid ${t.color || '#C74632'}">
+            <div class="p-5 border-b border-hm-border-s flex flex-col lg:flex-row lg:items-center justify-between gap-4" style="border-left: 4px solid ${theme.primary}; background: linear-gradient(90deg, ${theme.badgeBg} 0%, transparent 40%);">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-hm-charcoal border border-hm-border rounded-[4px] flex items-center justify-center font-display text-2xl" style="color: ${t.color || '#C74632'}">
-                  ${t.shortName}
+                <div class="w-12 h-12 bg-hm-charcoal border border-hm-border rounded-[4px] p-1.5 flex items-center justify-center shrink-0">
+                  <img src="${theme.logo}" alt="${theme.shortName}" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"/>
+                  <span class="font-display text-2xl hidden" style="color: ${theme.contrastText || theme.primary}">${t.shortName}</span>
                 </div>
                 <div>
                   <div class="flex items-center gap-2">
@@ -445,7 +446,7 @@
             <td class="px-4 py-3 font-bold text-hm-text">${p.name}</td>
             <td class="px-4 py-3 text-hm-muted font-mono uppercase text-[10px]">${p.roleLabel || Hammer.getRoleLabel(p.role)}</td>
             <td class="px-4 py-3">
-              <span class="px-2 py-0.5 bg-hm-elevated border border-hm-border-s font-bold text-hm-text rounded-[3px]">${teamName}</span>
+              ${typeof renderTeamBadge === 'function' ? renderTeamBadge(p.soldTo, { size: 'sm' }) : `<span class="px-2 py-0.5 bg-hm-elevated border border-hm-border-s font-bold text-hm-text rounded-[3px]">${teamName}</span>`}
             </td>
             <td class="px-4 py-3 text-hm-faint font-mono text-[10px]">
               ${p.nationality || 'India'} ${p.overseas ? '<span class="text-hm-amber font-bold">(INTL)</span>' : ''}

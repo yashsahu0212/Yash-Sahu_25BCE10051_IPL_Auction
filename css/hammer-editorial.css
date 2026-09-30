@@ -235,14 +235,9 @@ html, body {
   animation: bidFlash 0.4s ease-out;
 }
 
-/* ── Live Pulse Dot ── */
-@keyframes livePulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
+/* ── Live Pulse Dot (Neutralized per user requirements) ── */
 .live-pulse {
-  animation: livePulse 1.8s ease-in-out infinite;
+  animation: none !important;
 }
 
 /* ── Scrollbar Styling ── */

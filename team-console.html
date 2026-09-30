@@ -69,7 +69,7 @@
 
       <div class="flex items-center space-x-3">
         <div class="hidden sm:flex items-center bg-hm-charcoal border border-hm-border px-2.5 py-1 space-x-2 rounded-[4px]">
-          <span class="w-2 h-2 rounded-full bg-hm-vermilion live-pulse" id="conn-indicator"></span>
+          <span class="w-2 h-2 rounded-full bg-hm-emerald" id="conn-indicator"></span>
           <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase" id="conn-status">CONNECTED</span>
         </div>
         <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase" id="clock-tick"></span>
@@ -85,9 +85,9 @@
     <div class="max-w-[1720px] mx-auto px-4 lg:px-6 py-6">
 
       <!-- FRANCHISE IDENTITY HEADER -->
-      <div class="bg-hm-panel border border-hm-border-s p-5 mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-[6px]">
+      <div id="franchise-header-card" class="bg-hm-panel border border-hm-border-s p-5 mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-[6px] transition-all">
         <div class="flex items-center gap-4">
-          <div class="w-16 h-16 bg-hm-charcoal border-2 border-hm-border-strong flex items-center justify-center font-display text-3xl text-hm-text rounded-[6px]" id="team-logo-badge">
+          <div class="w-16 h-16 bg-hm-charcoal border-2 border-hm-border-strong flex items-center justify-center font-display text-3xl text-hm-text rounded-[6px] overflow-hidden p-1.5" id="team-logo-badge">
             —
           </div>
           <div>
@@ -128,10 +128,9 @@
           <div class="bg-hm-panel border border-hm-border-s p-5 lg:p-6 rounded-[6px]">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-hm-border">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 bg-hm-vermilion rounded-full live-pulse"></span>
                 <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">STAGE // LIVE HAMMER</span>
               </div>
-              <span class="px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]" id="tc-auction-badge">IDLE</span>
+              <span class="px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]" id="tc-auction-badge">AWAITING LOT</span>
             </div>
 
             <!-- Idle State -->
@@ -287,6 +286,7 @@
   <script src="/js/supabase-config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/player-images.js"></script>
+  <script src="/js/team-themes.js"></script>
   <script src="/js/hammer-ux.js"></script>
   <script src="/js/hammer.js?v=2.1.0"></script>
 
@@ -371,8 +371,23 @@
         myTeamData = allTeams.find(t => t.id === myTeamId) || null;
         if (!myTeamData) return;
 
-        teamLogoBadge.textContent = myTeamData.shortName.slice(0, 3);
-        teamCodeBadge.textContent = myTeamData.code || myTeamData.id;
+        const theme = window.getTeamTheme ? window.getTeamTheme(myTeamId) : null;
+        if (theme) {
+          teamLogoBadge.innerHTML = `<img src="${theme.logo}" class="w-12 h-12 object-contain" alt="${theme.shortName}" onerror="this.outerHTML='${myTeamData.shortName.slice(0, 3)}'"/>`;
+          teamLogoBadge.style.borderColor = theme.primary;
+          teamLogoBadge.style.backgroundColor = theme.primary + '15';
+          teamCodeBadge.textContent = theme.shortName;
+          teamCodeBadge.style.borderColor = theme.primary;
+          teamCodeBadge.style.color = theme.primary;
+          teamCodeBadge.style.backgroundColor = theme.primary + '18';
+          const headerCard = document.getElementById('franchise-header-card');
+          if (headerCard) {
+            headerCard.style.borderLeft = `4px solid ${theme.primary}`;
+          }
+        } else {
+          teamLogoBadge.textContent = myTeamData.shortName.slice(0, 3);
+          teamCodeBadge.textContent = myTeamData.code || myTeamData.id;
+        }
         teamFullName.textContent = myTeamData.name;
 
         tcPurseTotal.textContent = Hammer.formatCurrency(myTeamData.purse);
@@ -446,15 +461,17 @@
       tcAllTeams.innerHTML = teams.map(t => {
         const isMe = t.id === myTeamId;
         const isLeader = currentAuctionState && currentAuctionState.leadingTeamId === t.id;
+        const theme = window.getTeamTheme ? window.getTeamTheme(t.id) : null;
+        const badgeHtml = window.renderTeamBadge ? window.renderTeamBadge(t.id, { size: 'sm', showFullName: false }) : `<span class="font-mono text-xs font-bold text-hm-muted">${t.shortName}</span>`;
         return `
-          <div class="flex items-center justify-between px-3 py-1.5 ${isLeader ? 'bg-hm-elevated border border-hm-vermilion font-bold' : isMe ? 'bg-hm-elevated border border-hm-border-strong' : 'bg-hm-charcoal/60 border border-hm-border'} rounded-[4px]">
+          <div class="flex items-center justify-between px-3 py-1.5 ${isLeader ? 'bg-hm-elevated border-2 font-bold' : isMe ? 'bg-hm-elevated border border-hm-border-strong' : 'bg-hm-charcoal/60 border border-hm-border'} rounded-[4px]" style="${isLeader && theme ? `border-color: ${theme.primary}; background-color: ${theme.primary}12;` : ''}">
             <div class="flex items-center gap-2">
-              <span class="font-mono text-xs ${isLeader ? 'text-hm-vermilion font-bold' : isMe ? 'text-hm-text font-bold' : 'text-hm-muted'}">
-                ${t.shortName}${isMe ? ' (YOU)' : ''}${isLeader ? ' ★' : ''}
-              </span>
+              ${badgeHtml}
+              ${isMe ? '<span class="font-mono text-[9px] px-1 bg-hm-surface border border-hm-border text-hm-muted rounded-[2px]">(YOU)</span>' : ''}
+              ${isLeader ? '<span class="font-mono text-xs text-hm-amber">★</span>' : ''}
               <span class="font-mono text-[9px] text-hm-faint">${t.filledSlots}/${t.maxSlots}</span>
             </div>
-            <span class="font-mono text-xs ${isLeader ? 'text-hm-vermilion font-bold' : 'text-hm-text font-bold'}">
+            <span class="font-mono text-xs ${isLeader ? 'text-hm-amber font-bold' : 'text-hm-text font-bold'}">
               ${Hammer.formatCurrency(t.remaining)}
             </span>
           </div>
@@ -529,7 +546,7 @@
       if (state.status === 'idle' || !state.currentPlayer) {
         tcIdle.classList.remove('hidden');
         tcLive.classList.add('hidden');
-        tcAuctionBadge.textContent = 'IDLE';
+        tcAuctionBadge.textContent = 'AWAITING LOT';
         tcAuctionBadge.className = 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]';
         renderBiddingButton(state);
         return;
@@ -539,7 +556,7 @@
       tcLive.classList.remove('hidden');
       tcAuctionBadge.textContent = state.status === 'live' ? 'LIVE ON HAMMER' : 'PAUSED';
       tcAuctionBadge.className = state.status === 'live'
-        ? 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-vermilion text-hm-vermilion bg-hm-vermilion/10 live-pulse rounded-[4px]'
+        ? 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-vermilion text-hm-vermilion bg-hm-vermilion/10 rounded-[4px]'
         : 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s text-hm-faint bg-hm-elevated rounded-[4px]';
 
       const p = state.currentPlayer;
@@ -589,7 +606,11 @@
       }
 
       tcCurrentBid.textContent = Hammer.formatCurrency(state.currentBid);
-      tcLeadingFranchise.textContent = state.leadingTeam ? state.leadingTeam.shortName : 'NONE (AWAITING BID)';
+      if (state.leadingTeamId && window.renderTeamBadge) {
+        tcLeadingFranchise.innerHTML = window.renderTeamBadge(state.leadingTeamId, { size: 'sm', showFullName: false });
+      } else {
+        tcLeadingFranchise.textContent = state.leadingTeam ? state.leadingTeam.shortName : 'NONE (AWAITING BID)';
+      }
       tcTimer.textContent = Hammer.formatTimer(state.timer);
       tcGavelLabel.textContent = Hammer.getGavelLabel(state.gavelStage);
 

@@ -1158,21 +1158,7 @@
   }
 
   function renderBackendBadge() {
-    // Subtle backend telemetry indicator
-    const headerRight = document.querySelector('header .flex.items-center.space-x-3');
-    if (headerRight && !document.getElementById('hammer-backend-pill')) {
-      const pill = document.createElement('div');
-      pill.id = 'hammer-backend-pill';
-      pill.className = 'hidden sm:flex items-center px-2 py-1 border border-paper-rule bg-paper-card font-mono text-[9px] tracking-widest uppercase cursor-pointer hover:bg-paper-dim transition-colors';
-      pill.title = 'Click to view backend architecture & connection settings';
-      const isSb = isSupabaseMode();
-      pill.innerHTML = `
-        <span class="w-1.5 h-1.5 rounded-none ${isSb ? 'bg-[#3ECF8E]' : 'bg-auction-red'} mr-1.5"></span>
-        <span class="text-ink-secondary">${isSb ? 'SUPABASE' : 'STANDBY'}</span>
-      `;
-      pill.addEventListener('click', showBackendSettingsModal);
-      headerRight.insertBefore(pill, headerRight.firstChild);
-    }
+    // Decorative STANDBY badge removed per user requirements
   }
 
   function showBackendSettingsModal() {

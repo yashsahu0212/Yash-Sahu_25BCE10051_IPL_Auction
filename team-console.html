@@ -42,27 +42,8 @@
       }
     };
   </script>
-  <script>
-    (function() {
-      try {
-        var token = localStorage.getItem('hammer_token');
-        var user = localStorage.getItem('hammer_user');
-        if (!token) {
-          window.location.replace('/login.html?redirect=/team-console.html');
-          return;
-        }
-        if (user) {
-          var u = JSON.parse(user);
-          if (!u.teamId && u.role !== 'team_owner') {
-            window.location.replace('/login.html?redirect=/team-console.html');
-            return;
-          }
-        }
-      } catch (e) {}
-    })();
-  </script>
 </head>
-<body id="team-console-body" style="opacity: 0; transition: opacity 0.2s ease;" class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
+<body id="team-console-body" class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
   <div class="paper-grain-overlay"></div>
 
   <!-- NAVIGATION HEADER -->
@@ -305,22 +286,27 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/player-images.js"></script>
   <script src="/js/hammer-ux.js"></script>
-  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer.js?v=2.1.0"></script>
 
   <script>
   (async function() {
-    await Hammer.init();
+    try {
+      await Hammer.init();
+    } catch (e) {
+      console.warn('Hammer.init warning:', e);
+    }
 
-    const session = Hammer.getSession();
-    if (!session || !session.teamId) {
+    const user = Hammer.getUser();
+    if (!user || user.role !== 'team_owner' || !user.teamId) {
+      if (user && user.role === 'auctioneer') {
+        window.location.replace('/auction-desk.html');
+        return;
+      }
       window.location.replace('/login.html?redirect=/team-console.html');
       return;
     }
 
-    const consoleBody = document.getElementById('team-console-body');
-    if (consoleBody) consoleBody.style.opacity = '1';
-
-    const myTeamId = session.teamId;
+    const myTeamId = user.teamId;
     let myTeamData = null;
     let currentAuctionState = null;
     let isSubmitting = false;

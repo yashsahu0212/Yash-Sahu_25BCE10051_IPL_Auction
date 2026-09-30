@@ -126,7 +126,10 @@
           <div class="relative my-4 border border-hm-border p-1 bg-hm-ink rounded-[4px]">
             <div class="relative overflow-hidden aspect-[4/5] sm:aspect-square w-full bg-hm-charcoal border border-hm-border rounded-[3px] flex items-center justify-center">
               
-              <img alt="Player portrait" class="w-full h-full object-contain object-bottom select-none hidden" id="athlete-image" src=""/>
+              <!-- Subtle Skeleton Shimmer -->
+              <div id="athlete-skeleton" class="absolute inset-0 skeleton-shimmer z-10 hidden"></div>
+
+              <img alt="Player portrait" class="w-full h-full object-contain object-bottom select-none hidden transition-opacity duration-300 opacity-0" id="athlete-image" src=""/>
               
               <!-- Fallback Visual -->
               <div id="athlete-fallback" class="absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-6 text-center select-none">
@@ -303,8 +306,8 @@
   <script src="/js/supabase-config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/player-images.js"></script>
-  <script src="/js/hammer.js"></script>
   <script src="/js/hammer-ux.js"></script>
+  <script src="/js/hammer.js"></script>
 
   <script>
   (async function () {
@@ -394,10 +397,14 @@
       const fallbackInitials = document.getElementById('athlete-fallback-initials');
       const fallbackIcon = document.getElementById('athlete-fallback-icon');
       const capLabel = document.getElementById('athlete-cap-label');
+      const skeleton = document.getElementById('athlete-skeleton');
       if (capLabel) capLabel.textContent = `LOT #${String(p.lotNumber).padStart(3, '0')}`;
 
       function showAthleteFallback() {
+        if (skeleton) skeleton.classList.add('hidden');
         athleteImage.classList.add('hidden');
+        athleteImage.classList.remove('opacity-100');
+        athleteImage.classList.add('opacity-0');
         if (athleteFallback) {
           athleteFallback.classList.remove('hidden');
           if (fallbackInitials) {
@@ -408,12 +415,26 @@
         }
       }
 
+      function revealAthleteImage() {
+        if (skeleton) skeleton.classList.add('hidden');
+        athleteImage.classList.remove('opacity-0');
+        athleteImage.classList.add('opacity-100');
+      }
+
       if (p.image) {
+        if (skeleton) skeleton.classList.remove('hidden');
+        athleteImage.classList.add('opacity-0');
+        athleteImage.classList.remove('hidden', 'opacity-100');
+        if (athleteFallback) athleteFallback.classList.add('hidden');
+        
+        athleteImage.onload = revealAthleteImage;
+        athleteImage.onerror = showAthleteFallback;
         athleteImage.src = p.image;
         athleteImage.alt = p.name + ' portrait';
-        athleteImage.classList.remove('hidden');
-        if (athleteFallback) athleteFallback.classList.add('hidden');
-        athleteImage.onerror = showAthleteFallback;
+
+        if (athleteImage.complete && athleteImage.naturalWidth > 0) {
+          revealAthleteImage();
+        }
       } else {
         showAthleteFallback();
       }

@@ -140,17 +140,25 @@ function decodeSupabaseJwt(token) {
   return null;
 }
 
-function getSession(req) {
-  const checkToken = (token) => {
-    if (!token || revokedTokens.has(token)) return null;
-    if (sessions.has(token)) return sessions.get(token);
-    const signed = verifySignedSession(token);
-    if (signed) return signed;
-    const decoded = decodeSupabaseJwt(token);
-    if (decoded) return decoded;
-    return null;
-  };
+function checkToken(token) {
+  if (!token || revokedTokens.has(token)) return null;
+  const cleanToken = typeof token === 'string' ? token.trim().replace(/^["']|["']$/g, '') : null;
+  if (!cleanToken || cleanToken === 'null' || cleanToken === 'undefined') return null;
+  if (sessions.has(cleanToken)) return sessions.get(cleanToken);
+  const signed = verifySignedSession(cleanToken);
+  if (signed) {
+    sessions.set(cleanToken, signed);
+    return signed;
+  }
+  const decoded = decodeSupabaseJwt(cleanToken);
+  if (decoded) {
+    sessions.set(cleanToken, decoded);
+    return decoded;
+  }
+  return null;
+}
 
+function getSession(req) {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const s = checkToken(authHeader.slice(7));
@@ -788,17 +796,18 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
 io.on('connection', (socket) => {
   // Authenticate socket connection
   const token = socket.handshake.auth?.token;
-  const session = token ? sessions.get(token) : null;
+  const session = checkToken(token);
   socket.session = session;
 
   // Handle explicit auth message from client
   socket.on('auth', (data, ack) => {
-    if (data?.token && sessions.has(data.token)) {
-      socket.session = sessions.get(data.token);
-    } else if (data?.user) {
-      socket.session = data.user;
+    const s = checkToken(data?.token);
+    if (s) {
+      socket.session = s;
+      if (typeof ack === 'function') ack({ success: true, session: s });
+    } else {
+      if (typeof ack === 'function') ack({ success: false, error: 'Invalid or missing authentication token' });
     }
-    if (typeof ack === 'function') ack({ success: true, session: socket.session });
   });
 
   // Send current state immediately
@@ -880,6 +889,9 @@ const teamConsoleGuard = (req, res) => {
   if (!session) {
     return res.redirect('/login.html?redirect=/team-console.html');
   }
+  if (session.role !== 'team_owner' || !session.teamId) {
+    return res.status(403).sendFile(path.join(__dirname, 'unauthorized.html'));
+  }
   return res.sendFile(path.join(__dirname, 'team-console.html'));
 };
 app.get(['/team-console', '/team-console.html'], teamConsoleGuard);
@@ -901,18 +913,20 @@ const profileHandler = (req, res) => {
 app.get(['/profile', '/profile.html', '/avatar'], profileHandler);
 
 // ─── STATIC ASSET SERVING ───────────────────────────────────
-app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
+// Root directories take priority — they contain the latest, canonical implementations.
+// public/ dirs serve as fallback only. Do NOT reverse this order.
 app.use('/css', express.static(path.join(__dirname, 'css')));
-app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
+app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
-app.use('/players', express.static(path.join(__dirname, 'public', 'players')));
+app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
 app.use('/players', express.static(path.join(__dirname, 'players')));
+app.use('/players', express.static(path.join(__dirname, 'public', 'players')));
 app.use('/screens', express.static(path.join(__dirname, 'screens')));
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname, {
   extensions: ['html'],
   index: false
 }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── 404 HANDLERS (SEPARATED API VS FRONTEND) ───────────────
 // Unknown API requests -> return JSON 404

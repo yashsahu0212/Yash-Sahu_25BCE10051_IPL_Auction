@@ -42,27 +42,8 @@
       }
     };
   </script>
-  <script>
-    (function() {
-      try {
-        var token = localStorage.getItem('hammer_token');
-        var user = localStorage.getItem('hammer_user');
-        if (!token) {
-          window.location.replace('/login.html?redirect=/auction-desk.html');
-          return;
-        }
-        if (user) {
-          var u = JSON.parse(user);
-          if (u.role !== 'auctioneer') {
-            window.location.replace('/unauthorized.html');
-            return;
-          }
-        }
-      } catch (e) {}
-    })();
-  </script>
 </head>
-<body id="auction-desk-body" style="opacity: 0; transition: opacity 0.2s ease;" class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
+<body id="auction-desk-body" class="bg-hm-ink text-hm-text antialiased min-h-screen flex flex-col font-ui selection:bg-hm-vermilion selection:text-hm-text">
   <div class="paper-grain-overlay"></div>
 
   <!-- NAVIGATION -->
@@ -156,20 +137,27 @@
             </div>
 
             <!-- Empty placeholder -->
-            <div id="lot-empty" class="text-center py-16 bg-hm-charcoal/50 border border-hm-border p-6 rounded-[4px]">
+            <div id="lot-empty" class="text-center py-12 bg-hm-charcoal/50 border border-hm-border p-6 rounded-[4px]">
               <span class="material-symbols-outlined text-[48px] text-hm-faint">gavel</span>
               <p class="font-display text-2xl text-hm-text uppercase tracking-wide mt-2">SELECT A PLAYER FROM QUEUE</p>
-              <p class="font-mono text-[10px] text-hm-faint uppercase tracking-widest mt-1">CLICK ANY LOT IN THE LEFT PANEL TO BEGIN BIDDING</p>
+              <p class="font-mono text-[10px] text-hm-faint uppercase tracking-widest mt-1 mb-4">CLICK ANY LOT IN THE LEFT PANEL OR PUT NEXT AVAILABLE PLAYER ON BID</p>
+              <button id="desk-btn-put-next" type="button" class="btn-hammer-physical font-mono text-xs uppercase tracking-wider font-bold px-5 py-2.5 inline-flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                <span id="desk-btn-put-next-text">PUT NEXT PLAYER ON BID</span>
+              </button>
             </div>
 
             <!-- Active Lot -->
             <div id="lot-active" class="hidden">
               <div class="flex items-start gap-4 mb-4 p-3 bg-hm-charcoal border border-hm-border rounded-[4px]">
                 <div class="w-24 h-28 bg-hm-panel border border-hm-border flex items-center justify-center overflow-hidden flex-shrink-0 relative select-none rounded-[4px]">
-                  <img id="desk-player-img" class="w-full h-full object-contain object-bottom" src="" alt=""/>
-                  <div id="desk-player-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-2 text-center bg-hm-charcoal">
+                  <div id="desk-img-skeleton" class="absolute inset-0 skeleton-shimmer z-0 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[32px] text-hm-dim opacity-40 animate-pulse">sports_cricket</span>
+                  </div>
+                  <img id="desk-player-img" class="w-full h-full object-contain object-bottom opacity-0 transition-opacity duration-300 z-10" src="" alt=""/>
+                  <div id="desk-player-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-2 text-center bg-hm-charcoal z-10">
                     <span id="desk-player-icon" class="material-symbols-outlined text-[36px] text-hm-faint">sports_cricket</span>
-                    <span class="font-display text-sm text-hm-text mt-1" id="desk-player-initials">VK</span>
+                    <span class="font-display text-sm text-hm-text mt-1" id="desk-player-initials">HM</span>
                   </div>
                 </div>
                 <div class="flex-1 min-w-0">
@@ -193,9 +181,9 @@
               </div>
 
               <!-- Countdown -->
-              <div class="bg-hm-charcoal border border-hm-border-s p-3 text-center mb-3 rounded-[6px]">
+              <div class="bg-hm-charcoal border border-hm-border-s p-3 text-center mb-3 rounded-[6px]" id="desk-clock-container">
                 <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase">COUNTDOWN</span>
-                <div class="font-display text-4xl tracking-wider text-hm-text tabular-nums" id="desk-timer">00:10</div>
+                <div class="font-display text-4xl tracking-wider text-hm-text tabular-nums" id="desk-timer">00:15</div>
                 <span class="font-mono text-[10px] text-hm-faint uppercase" id="desk-gavel-label">—</span>
               </div>
 
@@ -209,7 +197,7 @@
                   </button>
                   <button id="desk-btn-reset-timer" type="button" class="btn-paper-physical px-2 py-1.5 font-mono text-[10px] font-bold text-hm-text uppercase tracking-wider flex items-center justify-center gap-1">
                     <span class="material-symbols-outlined text-[13px]">replay</span>
-                    <span>RESET 10s</span>
+                    <span id="desk-btn-reset-text">RESET LOT CLOCK</span>
                   </button>
                 </div>
                 <div class="grid grid-cols-3 gap-1">
@@ -255,12 +243,75 @@
 
         </div>
 
-        <!-- RIGHT: FRANCHISE PURSE AUDIT -->
-        <div class="lg:col-span-3 bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
-          <div class="flex items-center justify-between pb-3 mb-3 border-b border-hm-border">
-            <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">FRANCHISE PURSE</span>
+        <!-- RIGHT: SETTINGS & FRANCHISE PURSE AUDIT -->
+        <div class="lg:col-span-3 flex flex-col gap-5">
+
+          <!-- AUCTION SETTINGS -->
+          <div class="bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-hm-border">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-hm-vermilion rounded-[2px]"></span>
+                <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">AUCTION SETTINGS</span>
+              </div>
+              <span class="font-mono text-[9px] text-hm-muted uppercase">AUTHORITY</span>
+            </div>
+
+            <!-- LOT TIMER SETTING -->
+            <div class="mb-5 pb-4 border-b border-hm-border">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">LOT TIMER</span>
+                <span class="font-mono text-[9px] text-hm-vermilion uppercase font-bold" id="timer-sync-badge">AUTHORITATIVE</span>
+              </div>
+              <div class="flex items-center justify-between bg-hm-charcoal border border-hm-border px-3 py-2 rounded-[4px] mb-2.5">
+                <button id="setting-timer-minus" type="button" class="btn-paper-physical w-8 h-8 flex items-center justify-center font-mono text-base font-bold text-hm-text hover:text-hm-vermilion transition-colors" title="Decrease timer">−</button>
+                <div class="text-center">
+                  <span class="font-display text-3xl text-hm-text tracking-wider leading-none" id="setting-timer-val">15</span>
+                  <span class="font-mono text-[10px] text-hm-faint tracking-widest uppercase block mt-0.5">SECONDS</span>
+                </div>
+                <button id="setting-timer-plus" type="button" class="btn-paper-physical w-8 h-8 flex items-center justify-center font-mono text-base font-bold text-hm-text hover:text-hm-vermilion transition-colors" title="Increase timer">+</button>
+              </div>
+              <!-- Quick preset chips -->
+              <div class="grid grid-cols-4 gap-1 font-mono text-[9px]">
+                <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="5">5s</button>
+                <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="10">10s</button>
+                <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="15">15s</button>
+                <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="30">30s</button>
+              </div>
+            </div>
+
+            <!-- AUCTION SOUNDS SETTING -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">AUCTION SOUNDS</span>
+                <button id="audio-master-toggle" type="button" class="font-mono text-[9px] px-2 py-0.5 bg-hm-elevated border border-hm-border text-hm-text uppercase font-bold hover:bg-hm-surface transition-colors rounded-[3px]">AUDIO: ON</button>
+              </div>
+              <div class="space-y-2 font-mono text-[11px]">
+                <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border rounded-[4px]">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[14px] text-hm-vermilion">gavel</span>
+                    <span class="text-hm-text uppercase font-bold">HAMMER STRIKE</span>
+                  </div>
+                  <button id="sound-hammer-toggle" type="button" class="px-2.5 py-1 bg-hm-vermilion text-hm-text text-[10px] font-bold uppercase rounded-[3px]">ON</button>
+                </div>
+                <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border rounded-[4px]">
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[14px] text-hm-amber">timer</span>
+                    <span class="text-hm-text uppercase font-bold">COUNTDOWN (5s)</span>
+                  </div>
+                  <button id="sound-countdown-toggle" type="button" class="px-2.5 py-1 bg-hm-vermilion text-hm-text text-[10px] font-bold uppercase rounded-[3px]">ON</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="space-y-1.5" id="purse-list"></div>
+
+          <!-- FRANCHISE PURSE AUDIT -->
+          <div class="bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-hm-border">
+              <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">FRANCHISE PURSE</span>
+            </div>
+            <div class="space-y-1.5" id="purse-list"></div>
+          </div>
+
         </div>
 
       </div>
@@ -272,34 +323,37 @@
   <script src="/js/supabase-config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/player-images.js"></script>
-  <script src="/js/hammer.js"></script>
   <script src="/js/hammer-ux.js"></script>
+  <script src="/js/hammer.js?v=2.1.0"></script>
 
   <script>
   (async function() {
-    await Hammer.init();
+    try {
+      await Hammer.init();
+    } catch (e) {
+      console.warn('Hammer.init warning:', e);
+    }
 
-    const session = Hammer.getSession();
-    if (!session) {
+    const user = Hammer.getUser();
+    if (!user || user.role !== 'auctioneer') {
+      if (user && user.role === 'team_owner') {
+        window.location.replace('/team-console.html');
+        return;
+      }
       window.location.replace('/login.html?redirect=/auction-desk.html');
       return;
     }
-    if (session.role !== 'auctioneer') {
-      window.location.replace('/unauthorized.html');
-      return;
-    }
-
-    const deskBody = document.getElementById('auction-desk-body');
-    if (deskBody) deskBody.style.opacity = '1';
 
     let allPlayers = [];
     let currentFilter = 'all';
     let currentSearch = '';
+    let configuredTimerDuration = 15;
 
     const deskStatus = document.getElementById('desk-status');
     const lotEmpty = document.getElementById('lot-empty');
     const lotActive = document.getElementById('lot-active');
     const lotBadge = document.getElementById('lot-status-badge');
+    const settingTimerVal = document.getElementById('setting-timer-val');
 
     async function loadPlayers() {
       try {
@@ -360,18 +414,55 @@
       }).join('');
     }
 
+    let _startingAuction = false; // Idempotency guard: prevents duplicate auction-start requests
+
     window.selectPlayerForAuction = async function(playerId) {
+      // Guard: prevent duplicate simultaneous requests
+      if (_startingAuction) {
+        Hammer.showToast('STARTING AUCTION...', 'info');
+        return;
+      }
+
+      // Guard: don't start if an auction is already live with a different player
+      const currentState = Hammer.getState();
+      if (currentState && currentState.status === 'live' && currentState.currentPlayer?.id !== playerId) {
+        Hammer.showToast('ANOTHER LOT IS CURRENTLY LIVE', 'error');
+        return;
+      }
+
+      _startingAuction = true;
+
+      // Visual feedback: immediately show loading state on clicked item
+      const clickedEl = document.querySelector(`[onclick="selectPlayerForAuction(${playerId})"]`);
+      if (clickedEl) {
+        clickedEl.style.opacity = '0.5';
+        clickedEl.style.pointerEvents = 'none';
+        const badge = clickedEl.querySelector('span[class*="font-mono text-[9px]"]');
+        if (badge) badge.textContent = 'STARTING...';
+      }
+
       try {
         const result = await Hammer.startAuction(playerId);
-        HammerUX.playGavelStrike();
         Hammer.showToast('LOT BROUGHT TO HAMMER', 'success');
       } catch (err) {
         Hammer.showToast(err.message || 'Failed to start lot', 'error');
+        // Restore visual state on error
+        if (clickedEl) {
+          clickedEl.style.opacity = '1';
+          clickedEl.style.pointerEvents = '';
+        }
+      } finally {
+        _startingAuction = false;
       }
     };
 
     function renderAuctionState(state) {
       if (!state) return;
+
+      if (state.maxTimer) {
+        configuredTimerDuration = state.maxTimer;
+        if (settingTimerVal) settingTimerVal.textContent = state.maxTimer;
+      }
 
       if (state.status === 'idle' || !state.currentPlayer) {
         deskStatus.textContent = 'IDLE';
@@ -398,8 +489,9 @@
       document.getElementById('desk-player-name').textContent = p.name;
       document.getElementById('desk-player-meta').textContent = `${Hammer.getRoleLabel(p.role)} • ${p.nationality}${p.overseas ? ' (OVERSEAS)' : ''} • BASE ${Hammer.formatCurrency(p.basePrice)}`;
 
-      // Player Image
+      // Player Image with Skeleton
       const img = document.getElementById('desk-player-img');
+      const skeleton = document.getElementById('desk-img-skeleton');
       const fallback = document.getElementById('desk-player-fallback');
       const initialsEl = document.getElementById('desk-player-initials');
       const iconEl = document.getElementById('desk-player-icon');
@@ -409,16 +501,27 @@
       if (iconEl) iconEl.textContent = Hammer.getRoleIcon(p.role);
 
       function showDeskFallback() {
+        if (skeleton) skeleton.classList.add('hidden');
         img.classList.add('hidden');
         if (fallback) fallback.classList.remove('hidden');
       }
 
       if (p.image) {
+        if (skeleton) skeleton.classList.remove('hidden');
+        img.classList.remove('hidden');
+        img.style.opacity = '0';
+        if (fallback) fallback.classList.add('hidden');
         img.src = p.image;
         img.alt = p.name;
-        img.classList.remove('hidden');
-        if (fallback) fallback.classList.add('hidden');
+        img.onload = () => {
+          img.style.opacity = '1';
+          if (skeleton) skeleton.classList.add('hidden');
+        };
         img.onerror = showDeskFallback;
+        if (img.complete && img.naturalHeight > 0) {
+          img.style.opacity = '1';
+          if (skeleton) skeleton.classList.add('hidden');
+        }
       } else {
         showDeskFallback();
       }
@@ -518,7 +621,6 @@
       document.getElementById(id).addEventListener('click', async () => {
         try {
           await Hammer.setGavelStage(idx + 1);
-          HammerUX.playGavelStrike();
         } catch (e) {
           Hammer.showToast(e.message || 'Gavel call failed', 'error');
         }
@@ -529,51 +631,199 @@
       try { await Hammer.addTimer(10); Hammer.showToast('+10s added to clock', 'info'); } catch (e) {}
     });
     document.getElementById('desk-btn-reset-timer').addEventListener('click', async () => {
-      try { await Hammer.resetTimer(10); Hammer.showToast('Timer reset to 10s', 'info'); } catch (e) {}
+      try { await Hammer.resetTimer(); Hammer.showToast('Timer reset', 'info'); } catch (e) {}
     });
 
+    const putNextBtn = document.getElementById('desk-btn-put-next');
+    if (putNextBtn) {
+      putNextBtn.addEventListener('click', async () => {
+        if (_actionInFlight) return;
+        const nextPlayer = allPlayers.find(p => p.status === 'upcoming' || p.status === 'available');
+        if (!nextPlayer) {
+          Hammer.showToast('NO MORE AVAILABLE PLAYERS IN POOL', 'info');
+          return;
+        }
+        _actionInFlight = true;
+        putNextBtn.disabled = true;
+        const textSpan = document.getElementById('desk-btn-put-next-text');
+        if (textSpan) textSpan.textContent = 'PUTTING ON BID...';
+        try {
+          await Hammer.startAuction(nextPlayer.id);
+          Hammer.showToast(`LOT #${String(nextPlayer.lotNumber).padStart(3, '0')} ${nextPlayer.name} BROUGHT TO HAMMER`, 'success');
+        } catch (e) {
+          Hammer.showToast(e.message || 'Failed to start lot', 'error');
+        } finally {
+          _actionInFlight = false;
+          putNextBtn.disabled = false;
+          if (textSpan) textSpan.textContent = 'PUT NEXT PLAYER ON BID';
+        }
+      });
+    }
+
+    let _actionInFlight = false; // Prevents double-clicks on any auction action
+
     document.getElementById('desk-btn-sold').addEventListener('click', async () => {
+      if (_actionInFlight) return;
+      _actionInFlight = true;
+      const btn = document.getElementById('desk-btn-sold');
+      btn.disabled = true;
+      btn.querySelector('span:last-child').textContent = 'CONFIRMING SOLD...';
       try {
         await Hammer.sellPlayer();
-        HammerUX.playGavelStrike();
         Hammer.showToast('HAMMER FELL: LOT SOLD!', 'success');
       } catch (e) {
         Hammer.showToast(e.message || 'Sold failed', 'error');
+      } finally {
+        _actionInFlight = false;
+        btn.disabled = false;
       }
     });
 
     document.getElementById('desk-btn-unsold').addEventListener('click', async () => {
+      if (_actionInFlight) return;
+      _actionInFlight = true;
+      const btn = document.getElementById('desk-btn-unsold');
+      btn.disabled = true;
+      btn.querySelector('span:last-child').textContent = 'MARKING UNSOLD...';
       try {
         await Hammer.unsoldPlayer();
         Hammer.showToast('LOT MARKED UNSOLD', 'info');
       } catch (e) {
         Hammer.showToast(e.message || 'Unsold failed', 'error');
+      } finally {
+        _actionInFlight = false;
+        btn.disabled = false;
+        btn.querySelector('span:last-child').textContent = 'MARK UNSOLD';
       }
     });
 
     document.getElementById('desk-btn-pause').addEventListener('click', async () => {
+      if (_actionInFlight) return;
+      _actionInFlight = true;
+      const btn = document.getElementById('desk-btn-pause');
+      btn.disabled = true;
       const state = Hammer.getState();
       try {
         if (state && state.status === 'paused') {
+          btn.querySelector('span:last-child').textContent = 'RESUMING...';
           await Hammer.resumeAuction();
           Hammer.showToast('AUCTION RESUMED', 'info');
         } else {
+          btn.querySelector('span:last-child').textContent = 'PAUSING...';
           await Hammer.pauseAuction();
           Hammer.showToast('AUCTION PAUSED', 'info');
         }
       } catch (e) {
         Hammer.showToast(e.message || 'Action failed', 'error');
+      } finally {
+        _actionInFlight = false;
+        btn.disabled = false;
       }
     });
 
     document.getElementById('desk-btn-reset').addEventListener('click', async () => {
+      if (_actionInFlight) return;
+      _actionInFlight = true;
+      const btn = document.getElementById('desk-btn-reset');
+      btn.disabled = true;
+      btn.querySelector('span:last-child').textContent = 'RESETTING...';
       try {
         await Hammer.resetAuction();
         Hammer.showToast('CURRENT LOT RESET', 'info');
       } catch (e) {
         Hammer.showToast(e.message || 'Reset failed', 'error');
+      } finally {
+        _actionInFlight = false;
+        btn.disabled = false;
+        btn.querySelector('span:last-child').textContent = 'RESET LOT';
       }
     });
+
+    // ─── AUCTION SETTINGS HANDLERS ─────────────────────────
+    async function updateTimerDuration(newDuration) {
+      if (newDuration < 5 || newDuration > 120) return;
+      try {
+        await Hammer.setTimerDuration(newDuration);
+        configuredTimerDuration = newDuration;
+        if (settingTimerVal) settingTimerVal.textContent = newDuration;
+        Hammer.showToast(`Auction timer set to ${newDuration}s`, 'success');
+      } catch (e) {
+        Hammer.showToast(e.message || 'Failed to update timer', 'error');
+      }
+    }
+
+    document.getElementById('setting-timer-minus').addEventListener('click', () => {
+      const cur = configuredTimerDuration || 15;
+      const next = Math.max(5, cur - 5);
+      updateTimerDuration(next);
+    });
+
+    document.getElementById('setting-timer-plus').addEventListener('click', () => {
+      const cur = configuredTimerDuration || 15;
+      const next = Math.min(120, cur + 5);
+      updateTimerDuration(next);
+    });
+
+    document.querySelectorAll('.timer-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sec = parseInt(btn.dataset.sec);
+        if (sec) updateTimerDuration(sec);
+      });
+    });
+
+    // ─── AUDIO SETTINGS TOGGLES ───────────────────────────
+    function renderAudioSettings() {
+      if (!window.HammerUX) return;
+      const settings = HammerUX.getAudioSettings();
+
+      const masterBtn = document.getElementById('audio-master-toggle');
+      if (masterBtn) {
+        masterBtn.textContent = settings.master ? 'AUDIO: ON' : 'AUDIO: OFF';
+        masterBtn.className = settings.master
+          ? 'font-mono text-[9px] px-2 py-0.5 bg-hm-vermilion/20 border border-hm-vermilion text-hm-vermilion uppercase font-bold rounded-[3px]'
+          : 'font-mono text-[9px] px-2 py-0.5 bg-hm-elevated border border-hm-border text-hm-faint uppercase font-bold rounded-[3px]';
+      }
+
+      const hammerBtn = document.getElementById('sound-hammer-toggle');
+      if (hammerBtn) {
+        hammerBtn.textContent = settings.hammer ? 'ON' : 'OFF';
+        hammerBtn.className = settings.hammer && settings.master
+          ? 'px-2.5 py-1 bg-hm-vermilion text-hm-text text-[10px] font-bold uppercase rounded-[3px]'
+          : 'px-2.5 py-1 bg-hm-elevated text-hm-faint text-[10px] font-bold uppercase rounded-[3px]';
+      }
+
+      const countdownBtn = document.getElementById('sound-countdown-toggle');
+      if (countdownBtn) {
+        countdownBtn.textContent = settings.countdown ? 'ON' : 'OFF';
+        countdownBtn.className = settings.countdown && settings.master
+          ? 'px-2.5 py-1 bg-hm-vermilion text-hm-text text-[10px] font-bold uppercase rounded-[3px]'
+          : 'px-2.5 py-1 bg-hm-elevated text-hm-faint text-[10px] font-bold uppercase rounded-[3px]';
+      }
+    }
+
+    document.getElementById('audio-master-toggle').addEventListener('click', () => {
+      if (!window.HammerUX) return;
+      const cur = HammerUX.AudioSettings.master;
+      HammerUX.setAudioSetting('master', !cur);
+      renderAudioSettings();
+      Hammer.showToast(`Auction sound ${!cur ? 'ENABLED' : 'DISABLED'}`, 'info');
+    });
+
+    document.getElementById('sound-hammer-toggle').addEventListener('click', () => {
+      if (!window.HammerUX) return;
+      const cur = HammerUX.AudioSettings.hammer;
+      HammerUX.setAudioSetting('hammer', !cur);
+      renderAudioSettings();
+    });
+
+    document.getElementById('sound-countdown-toggle').addEventListener('click', () => {
+      if (!window.HammerUX) return;
+      const cur = HammerUX.AudioSettings.countdown;
+      HammerUX.setAudioSetting('countdown', !cur);
+      renderAudioSettings();
+    });
+
+    renderAudioSettings();
 
     // Filters
     document.querySelectorAll('.desk-filter').forEach(btn => {
@@ -592,13 +842,19 @@
       renderQueue();
     });
 
-    // Realtime
+    // Realtime listeners
     Hammer.on('auction:state', (s) => { renderAuctionState(s); renderQueue(); });
     Hammer.on('auction:started', (s) => { renderAuctionState(s); renderQueue(); });
     Hammer.on('auction:bid', (d) => { renderAuctionState(d.state); });
     Hammer.on('auction:timer', (d) => {
       document.getElementById('desk-timer').textContent = Hammer.formatTimer(d.timer);
       document.getElementById('desk-gavel-label').textContent = Hammer.getGavelLabel(d.gavelStage);
+    });
+    Hammer.on('auction:timer_settings', (d) => {
+      if (d.maxTimer) {
+        configuredTimerDuration = d.maxTimer;
+        if (settingTimerVal) settingTimerVal.textContent = d.maxTimer;
+      }
     });
     Hammer.on('auction:sold', (d) => { renderAuctionState(d.state); renderQueue(); loadPurseOverview(); });
     Hammer.on('auction:unsold', (d) => { renderAuctionState(d.state); renderQueue(); });

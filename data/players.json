@@ -27,8 +27,8 @@
     },
     "tacticalProfile": "IPL all-time highest run-scorer. Supreme anchor and pacing index through the middle overs with elite boundary conversion against high-pace.",
     "status": "sold",
-    "soldTo": "CSK",
-    "soldPrice": 260,
+    "soldTo": "MI",
+    "soldPrice": 220,
     "imageUrl": null,
     "image_url": null
   },
@@ -659,7 +659,7 @@
       "debutYear": 2014
     },
     "tacticalProfile": "World Cup winning captain. Hard-length enforcer through middle overs and explosive counter-attacking lower order batter (14-ball 50).",
-    "status": "unsold",
+    "status": "available",
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": null,

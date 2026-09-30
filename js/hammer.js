@@ -11,12 +11,44 @@
 
   // ─── STATE & REFERENCES ──────────────────────────────────
   const API_BASE = '';
-  let _token = localStorage.getItem('hammer_token') || null;
+
+  function getCookie(name) {
+    if (typeof document === 'undefined' || !document.cookie) return null;
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  function setCookie(name, val, maxAge = 86400) {
+    if (typeof document === 'undefined') return;
+    document.cookie = `${name}=${encodeURIComponent(val)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  }
+
+  function clearCookie(name) {
+    if (typeof document === 'undefined') return;
+    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+  }
+
+  let _token = null;
+
+  function getToken() {
+    if (_token) return _token;
+    const ls = localStorage.getItem('hammer_token');
+    if (ls && ls !== 'null' && ls !== 'undefined') return ls;
+    const ck = getCookie('hammer_token');
+    if (ck && ck !== 'null' && ck !== 'undefined') return ck;
+    return null;
+  }
+
+  _token = getToken();
   let _user = null;
   try {
     const savedUser = localStorage.getItem('hammer_user');
     if (savedUser) _user = JSON.parse(savedUser);
   } catch (e) {}
+
+  let _authState = _user ? 'AUTHENTICATED' : 'AUTH_LOADING'; // 'AUTH_LOADING' | 'AUTHENTICATED' | 'UNAUTHENTICATED'
+  let _authPromise = null;
+  let _initPromise = null;
   let _lastAuctionState = null;
   let _socket = null;
   let _supabaseChannel = null;
@@ -435,7 +467,7 @@
   // ─── LOCAL NODE / REST API (FALLBACK) ───────────────────
   const LocalAPI = {
     async _fetch(method, url, body) {
-      const activeToken = _token || localStorage.getItem('hammer_token');
+      const activeToken = getToken();
       const opts = {
         method,
         credentials: 'same-origin',
@@ -445,7 +477,11 @@
       if (body) opts.body = JSON.stringify(body);
       const res = await fetch(API_BASE + url, opts);
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Request failed');
+      if (!res.ok) {
+        const err = new Error(data.error || 'Request failed');
+        err.status = res.status;
+        throw err;
+      }
       return data;
     },
 
@@ -590,9 +626,18 @@
 
   function connectSocketIO() {
     if (typeof io === 'undefined') return;
-    if (_socket && _socket.connected) return;
+    const token = getToken();
 
-    _socket = io({ auth: { token: _token } });
+    if (_socket) {
+      if (_socket.connected) {
+        if (token) _socket.emit('auth', { token });
+        return;
+      }
+      _socket.connect();
+      return;
+    }
+
+    _socket = io({ auth: { token } });
 
     const events = [
       'auction:state', 'auction:started', 'auction:bid', 'auction:sold',
@@ -604,7 +649,10 @@
       _socket.on(event, (data) => emit(event, data));
     });
 
-    _socket.on('connect', () => emit('connected'));
+    _socket.on('connect', () => {
+      if (token) _socket.emit('auth', { token });
+      emit('connected');
+    });
     _socket.on('disconnect', () => emit('disconnected'));
   }
 
@@ -685,13 +733,20 @@
   async function login(username, password) {
     const result = await API.login(username, password);
     _token = result.token;
-    _user = result.user;
+    _user = {
+      id: result.user.userId || result.user.id,
+      userId: result.user.userId || result.user.id,
+      username: result.user.username,
+      role: result.user.role,
+      teamId: result.user.teamId,
+      team: result.team || (result.user.teamId ? { id: result.user.teamId } : null)
+    };
+    _authState = 'AUTHENTICATED';
     localStorage.setItem('hammer_token', _token);
     localStorage.setItem('hammer_user', JSON.stringify(_user));
-    if (_token) {
-      document.cookie = `hammer_token=${_token}; path=/; max-age=86400; SameSite=Lax`;
-    }
+    setCookie('hammer_token', _token);
     connectRealtime();
+    emit('auth:change', { state: _authState, user: _user });
     return result;
   }
 
@@ -699,70 +754,124 @@
     try { await API.logout(); } catch (e) { /* ignore */ }
     _token = null;
     _user = null;
+    _authState = 'UNAUTHENTICATED';
     localStorage.removeItem('hammer_token');
     localStorage.removeItem('hammer_user');
-    document.cookie = 'hammer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
-    if (_socket) _socket.disconnect();
+    clearCookie('hammer_token');
+    if (_socket) {
+      _socket.disconnect();
+      _socket = null;
+    }
     if (_supabaseChannel) {
       _supabaseChannel.unsubscribe();
       _supabaseChannel = null;
     }
+    emit('auth:change', { state: _authState, user: null });
     window.location.href = '/login.html';
   }
 
-  async function checkAuth() {
-    _token = _token || localStorage.getItem('hammer_token');
+  async function checkAuth(forceRefresh = false) {
+    if (_authPromise && !forceRefresh) {
+      return _authPromise;
+    }
 
-    if (isSupabaseMode()) {
-      try {
-        const result = await SupabaseAPI.me();
-        if (result && result.user) {
-          _user = result.user;
-          _token = result.token || _token;
-          localStorage.setItem('hammer_user', JSON.stringify(_user));
-          if (_token) {
-            document.cookie = `hammer_token=${_token}; path=/; max-age=86400; SameSite=Lax`;
+    _authPromise = (async () => {
+      const activeToken = getToken();
+
+      if (isSupabaseMode()) {
+        try {
+          const result = await SupabaseAPI.me();
+          if (result && result.user) {
+            _user = result.user;
+            _token = result.token || activeToken;
+            _authState = 'AUTHENTICATED';
+            localStorage.setItem('hammer_user', JSON.stringify(_user));
+            if (_token) {
+              localStorage.setItem('hammer_token', _token);
+              setCookie('hammer_token', _token);
+            }
+            emit('auth:change', { state: _authState, user: _user });
+            return result;
           }
-        } else {
-          _user = null;
-          _token = null;
-          localStorage.removeItem('hammer_user');
-          localStorage.removeItem('hammer_token');
-          document.cookie = 'hammer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        } catch (e) {
+          console.warn('Supabase auth check error:', e);
         }
-        return result;
-      } catch (e) {
+        _user = null;
+        _token = null;
+        _authState = 'UNAUTHENTICATED';
+        localStorage.removeItem('hammer_user');
+        localStorage.removeItem('hammer_token');
+        clearCookie('hammer_token');
+        emit('auth:change', { state: _authState, user: null });
         return null;
       }
-    }
 
-    if (!_token) {
-      _user = null;
-      localStorage.removeItem('hammer_user');
-      localStorage.removeItem('hammer_token');
-      document.cookie = 'hammer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
-      return null;
-    }
+      if (!activeToken) {
+        _user = null;
+        _token = null;
+        _authState = 'UNAUTHENTICATED';
+        localStorage.removeItem('hammer_user');
+        localStorage.removeItem('hammer_token');
+        clearCookie('hammer_token');
+        emit('auth:change', { state: _authState, user: null });
+        return null;
+      }
 
-    try {
-      const result = await LocalAPI.me();
-      _user = result.user;
-      localStorage.setItem('hammer_user', JSON.stringify(_user));
-      document.cookie = `hammer_token=${_token}; path=/; max-age=86400; SameSite=Lax`;
-      return result;
-    } catch (e) {
-      _token = null;
-      _user = null;
-      localStorage.removeItem('hammer_token');
-      localStorage.removeItem('hammer_user');
-      document.cookie = 'hammer_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
-      return null;
-    }
+      _token = activeToken;
+      localStorage.setItem('hammer_token', _token);
+      setCookie('hammer_token', _token);
+
+      try {
+        const result = await LocalAPI.me();
+        if (result && result.user) {
+          _user = {
+            id: result.user.userId || result.user.id,
+            userId: result.user.userId || result.user.id,
+            username: result.user.username,
+            role: result.user.role,
+            teamId: result.user.teamId,
+            team: result.team || (result.user.teamId ? { id: result.user.teamId } : null)
+          };
+          _authState = 'AUTHENTICATED';
+          localStorage.setItem('hammer_user', JSON.stringify(_user));
+          setCookie('hammer_token', _token);
+          emit('auth:change', { state: _authState, user: _user });
+          return { user: _user, team: result.team };
+        } else {
+          throw new Error('Invalid user payload');
+        }
+      } catch (e) {
+        // ONLY invalidate session if server returned definitive 401 Unauthorized
+        if (e.status === 401 || (e.message && e.message.toLowerCase().includes('authenticated')) || (e.message && e.message.toLowerCase().includes('authentication required'))) {
+          _user = null;
+          _token = null;
+          _authState = 'UNAUTHENTICATED';
+          localStorage.removeItem('hammer_token');
+          localStorage.removeItem('hammer_user');
+          clearCookie('hammer_token');
+          emit('auth:change', { state: _authState, user: null });
+          return null;
+        }
+
+        // For network or transient server errors, preserve existing user credentials to prevent redirect loops
+        console.warn('Auth check transient issue (preserved session):', e.message);
+        if (_user) {
+          _authState = 'AUTHENTICATED';
+          return { user: _user, team: _user.team };
+        }
+        _authState = 'UNAUTHENTICATED';
+        return null;
+      }
+    })();
+
+    const res = await _authPromise;
+    _authPromise = null;
+    return res;
   }
 
   function getUser() { return _user; }
-  function getToken() { return _token || localStorage.getItem('hammer_token'); }
-  function isLoggedIn() { return !!_user; }
+  function getAuthState() { return _authState; }
+  function isLoggedIn() { return _authState === 'AUTHENTICATED' && !!_user; }
 
   // ─── UI UTILITIES ───────────────────────────────────────
   function formatCurrency(val) {
@@ -887,17 +996,18 @@
 
   // ─── INITIALIZATION ─────────────────────────────────────
   async function init() {
-    // Synchronize cookie with localStorage token so server guards accept the session
-    const savedToken = localStorage.getItem('hammer_token');
-    if (savedToken && (!document.cookie || !document.cookie.includes('hammer_token='))) {
-      document.cookie = `hammer_token=${savedToken}; path=/; max-age=86400; SameSite=Lax`;
-    }
-    startClock('clock-tick');
-    await checkAuth();
-    connectRealtime();
-    updatePersonIcon();
-    renderBackendBadge();
-    return { user: _user };
+    if (_initPromise) return _initPromise;
+
+    _initPromise = (async () => {
+      startClock('clock-tick');
+      await checkAuth();
+      connectRealtime();
+      updatePersonIcon();
+      renderBackendBadge();
+      return { user: _user, authState: _authState };
+    })();
+
+    return _initPromise;
   }
 
   function renderBackendBadge() {
@@ -1011,6 +1121,7 @@
     logout,
     checkAuth,
     getUser,
+    getAuthState,
     getSession: () => _user,
     getToken,
     isLoggedIn,

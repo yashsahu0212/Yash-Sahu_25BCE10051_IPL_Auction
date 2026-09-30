@@ -5,37 +5,15 @@
     "shortName": "CSK",
     "code": "CSK",
     "purse": 12500,
-    "spent": 260,
-    "remaining": 12240,
+    "spent": 0,
+    "remaining": 12500,
     "maxSlots": 25,
     "minSlots": 7,
-    "filledSlots": 1,
+    "filledSlots": 0,
     "color": "#F9CD05",
     "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
-    "squad": [
-      {
-        "id": 1,
-        "lotNumber": 1,
-        "name": "VIRAT KOHLI",
-        "role": "batter",
-        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
-        "price": 260,
-        "soldPrice": 260,
-        "overseas": false
-      }
-    ],
-    "players": [
-      {
-        "id": 1,
-        "lotNumber": 1,
-        "name": "VIRAT KOHLI",
-        "role": "batter",
-        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
-        "price": 260,
-        "soldPrice": 260,
-        "overseas": false
-      }
-    ]
+    "squad": [],
+    "players": []
   },
   {
     "id": "DC",
@@ -107,15 +85,37 @@
     "shortName": "MI",
     "code": "MI",
     "purse": 12500,
-    "spent": 0,
-    "remaining": 12500,
+    "spent": 220,
+    "remaining": 12280,
     "maxSlots": 25,
     "minSlots": 7,
-    "filledSlots": 0,
+    "filledSlots": 1,
     "color": "#004BA0",
     "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
-    "squad": [],
-    "players": []
+    "squad": [
+      {
+        "id": 1,
+        "lotNumber": 1,
+        "name": "VIRAT KOHLI",
+        "role": "batter",
+        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
+        "price": 220,
+        "soldPrice": 220,
+        "overseas": false
+      }
+    ],
+    "players": [
+      {
+        "id": 1,
+        "lotNumber": 1,
+        "name": "VIRAT KOHLI",
+        "role": "batter",
+        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
+        "price": 220,
+        "soldPrice": 220,
+        "overseas": false
+      }
+    ]
   },
   {
     "id": "PBKS",

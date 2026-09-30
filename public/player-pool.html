@@ -201,9 +201,35 @@
       const priceLabel = isSold ? `SOLD TO ${p.soldTo}` : `BASE RESERVE`;
       const priceVal = isSold ? Hammer.formatCurrency(p.soldPrice) : Hammer.formatCurrency(p.basePrice);
 
+      const initials = (p.displayName || p.name).split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+
       const imageContent = p.image
-        ? `<img alt="${p.name} Portrait" class="absolute inset-0 w-full h-full object-contain object-bottom transition-transform duration-700 group-hover:scale-105 select-none" loading="lazy" src="${p.image}" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"/><div class="hidden absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-6 text-center select-none"><span class="material-symbols-outlined text-[64px] text-hm-faint">${p.icon || 'sports_cricket'}</span><span class="font-display text-4xl text-hm-text mt-2">${(p.displayName || p.name).split(' ').map(n=>n[0]).join('').slice(0,2)}</span><span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest mt-1">OFFICIAL PROFILE</span></div>`
-        : `<div class="absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-6 text-center select-none"><span class="material-symbols-outlined text-[64px] text-hm-faint">${p.icon || 'sports_cricket'}</span><span class="font-display text-4xl text-hm-text mt-2">${(p.displayName || p.name).split(' ').map(n=>n[0]).join('').slice(0,2)}</span><span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest mt-1">OFFICIAL PROFILE</span></div>`;
+        ? `
+          <!-- Image Skeleton Placeholder -->
+          <div class="card-img-skeleton absolute inset-0 skeleton-shimmer z-0 flex items-center justify-center select-none">
+            <span class="material-symbols-outlined text-[54px] text-hm-dim opacity-40 animate-pulse">${p.icon || 'sports_cricket'}</span>
+          </div>
+          <!-- Actual Player Image -->
+          <img alt="${p.name} Portrait"
+               class="card-player-img absolute inset-0 w-full h-full object-contain object-bottom opacity-0 transition-opacity duration-500 ease-out z-10 select-none"
+               loading="lazy"
+               src="${p.image}"
+               onload="this.style.opacity='1'; const sk = this.previousElementSibling; if(sk) sk.classList.add('hidden');"
+               onerror="const sk = this.previousElementSibling; if(sk) sk.classList.add('hidden'); this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+          <!-- Clean Fallback if Genuine Load Failure -->
+          <div class="hidden absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-6 text-center select-none z-10">
+            <span class="material-symbols-outlined text-[64px] text-hm-faint">${p.icon || 'sports_cricket'}</span>
+            <span class="font-display text-4xl text-hm-text mt-2">${initials}</span>
+            <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest mt-1">OFFICIAL PROFILE</span>
+          </div>
+        `
+        : `
+          <div class="absolute inset-0 bg-hm-charcoal flex flex-col items-center justify-center p-6 text-center select-none z-10">
+            <span class="material-symbols-outlined text-[64px] text-hm-faint">${p.icon || 'sports_cricket'}</span>
+            <span class="font-display text-4xl text-hm-text mt-2">${initials}</span>
+            <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest mt-1">OFFICIAL PROFILE</span>
+          </div>
+        `;
 
       // Statistics for Back of Card
       const statsList = [];
@@ -238,15 +264,15 @@
               ${statusBadge}
             </div>
 
-            <!-- Central Portrait Canvas -->
+            <!-- Central Portrait Canvas (Guaranteed Fixed Dimensions) -->
             <div class="relative flex-1 w-full bg-hm-charcoal border border-hm-border my-3 overflow-hidden flex items-end rounded-[4px]">
               ${imageContent}
               
               <!-- Dark gradient overlay -->
-              <div class="absolute inset-0 bg-gradient-to-t from-hm-panel via-hm-panel/40 to-transparent pointer-events-none"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-hm-panel via-hm-panel/40 to-transparent pointer-events-none z-20"></div>
 
               <!-- Foreground Typography -->
-              <div class="relative p-3.5 w-full z-10 pointer-events-none">
+              <div class="relative p-3.5 w-full z-20 pointer-events-none">
                 <span class="font-mono text-[9px] text-hm-vermilion uppercase tracking-[0.2em] font-bold block mb-0.5">
                   ${p.set || 'AUCTION LOT'}
                 </span>
@@ -377,6 +403,15 @@
         }
 
         grid.innerHTML = list.map(renderCard).join('');
+
+        // Handle instantly loaded/cached images
+        grid.querySelectorAll('.card-player-img').forEach(img => {
+          if (img.complete && img.naturalHeight > 0) {
+            img.style.opacity = '1';
+            const sk = img.previousElementSibling;
+            if (sk) sk.classList.add('hidden');
+          }
+        });
       } catch (err) {
         console.error('[Hammer] Error loading players:', err);
         grid.innerHTML = `

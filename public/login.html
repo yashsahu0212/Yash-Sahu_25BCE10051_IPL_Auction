@@ -108,14 +108,20 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase-config.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/hammer.js"></script>
+  <script src="/js/hammer.js?v=2.1.0"></script>
   <script src="/js/hammer-ux.js"></script>
 
   <script>
     (async function() {
-      const auth = await Hammer.checkAuth();
-      if (auth) {
-        redirectByRole(auth.user.role);
+      try {
+        await Hammer.init();
+      } catch (e) {
+        console.warn('Hammer.init warning:', e);
+      }
+
+      const user = Hammer.getUser();
+      if (user && Hammer.isLoggedIn()) {
+        redirectByRole(user.role);
         return;
       }
 
@@ -155,7 +161,11 @@
         const target = params.get('redirect');
         if (target) {
           if (target.includes('auction-desk') && role !== 'auctioneer') {
-            window.location.href = '/unauthorized.html';
+            window.location.href = role === 'team_owner' ? '/team-console.html' : '/unauthorized.html';
+            return;
+          }
+          if (target.includes('team-console') && role !== 'team_owner') {
+            window.location.href = role === 'auctioneer' ? '/auction-desk.html' : '/unauthorized.html';
             return;
           }
           window.location.href = target;

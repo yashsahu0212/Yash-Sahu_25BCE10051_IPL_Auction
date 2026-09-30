@@ -76,6 +76,7 @@ html, body {
   -webkit-perspective: 1400px;
   cursor: pointer;
   position: relative;
+  contain: layout;
 }
 
 .flip-card-inner {
@@ -84,7 +85,8 @@ html, body {
   height: 100%;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -106,6 +108,7 @@ html, body {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
+  transform: rotateX(0deg); /* Prevents mobile webkit rasterization flicker */
 }
 
 .flip-card-front {
@@ -116,6 +119,18 @@ html, body {
 .flip-card-back {
   transform: rotateY(180deg);
   z-index: 1;
+}
+
+/* ── Player Image Skeleton Loading Shimmer ── */
+@keyframes subtleSkeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #181A1C 25%, #222528 50%, #181A1C 75%);
+  background-size: 200% 100%;
+  animation: subtleSkeletonShimmer 2.2s ease-in-out infinite;
 }
 
 /* ── Tactile Auction Buttons ── */

@@ -191,15 +191,221 @@ async function runTests() {
     res10.status === 400 || res10.status === 200,
     `Status ${res10.status}`);
 
-  // TEST 11: Logout revokes session
-  const res11 = await request({
+  // TEST 11: Timer Duration Settings - Rejects invalid duration values (0, negative, NaN, >120)
+  const resInvalidTimer1 = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/timer/settings',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  }, { duration: 0 });
+
+  const resInvalidTimer2 = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/timer/settings',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  }, { duration: -15 });
+
+  const resInvalidTimer3 = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/timer/settings',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  }, { duration: 'abc' });
+
+  const resInvalidTimer4 = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/timer/settings',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  }, { duration: 250 });
+
+  assert('Server rejects invalid timer durations (<=0, NaN, >120) with 400',
+    resInvalidTimer1.status === 400 && resInvalidTimer2.status === 400 && resInvalidTimer3.status === 400 && resInvalidTimer4.status === 400,
+    `Statuses: ${resInvalidTimer1.status}, ${resInvalidTimer2.status}, ${resInvalidTimer3.status}, ${resInvalidTimer4.status}`);
+
+  // TEST 12: Timer Duration Settings - Team cannot change timer duration (403)
+  const resTeamTimerChange = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/timer/settings',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${cskToken}`
+    }
+  }, { duration: 30 });
+  assert('Server rejects non-auctioneer changing timer setting with 403',
+    resTeamTimerChange.status === 403,
+    `Status ${resTeamTimerChange.status}`);
+
+  // TEST 13: Timer Duration Settings - Auctioneer successfully sets timer duration (200)
+  const resValidTimer = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/timer/settings',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  }, { duration: 20 });
+  const timerData = JSON.parse(resValidTimer.body || '{}');
+  assert('Auctioneer successfully configures authoritative timer duration (e.g. 20s)',
+    resValidTimer.status === 200 && timerData.duration === 20 && timerData.state?.maxTimer === 20,
+    `Status: ${resValidTimer.status}, duration: ${timerData.duration}, maxTimer: ${timerData.state?.maxTimer}`);
+
+  // TEST 14: Reset timer back to standard 15s
+  await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/timer/settings',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  }, { duration: 15 });
+
+  // TEST 15: Bid request without authentication header receives 401
+  const resUnauthBid = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/bid',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }, { expectedBid: 200 });
+  assert('Unauthenticated bid request receives 401 Authentication Required',
+    resUnauthBid.status === 401,
+    `Status: ${resUnauthBid.status}`);
+
+  // TEST 16: Multi-client bidding identity validation
+  // Log in as RCB
+  const loginRcb = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auth/login',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }, { username: 'rcb', password: 'rcb2026' });
+  const rcbToken = JSON.parse(loginRcb.body).token;
+
+  // Reset auction state for fresh reproducible test
+  await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/reset-all',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  });
+
+  // Start lot #1 as auctioneer
+  await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/start',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  }, { playerId: 1 });
+
+  // CSK places valid opening bid (₹200 L)
+  const resCskBid = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/bid',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${cskToken}`
+    }
+  }, { expectedBid: 200 });
+  const cskBidData = JSON.parse(resCskBid.body || '{}');
+
+  assert('Authenticated team (CSK) places valid bid -> accepted by server',
+    resCskBid.status === 200 && cskBidData.state?.leadingTeamId === 'CSK' && cskBidData.state?.currentBid === 200,
+    `Status: ${resCskBid.status}, leader: ${cskBidData.state?.leadingTeamId}, bid: ${cskBidData.state?.currentBid}`);
+
+  // CSK cannot bid again immediately when already leading
+  const resCskDoubleBid = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/bid',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${cskToken}`
+    }
+  }, { expectedBid: 220 });
+  assert('Leading team cannot bid against itself',
+    resCskDoubleBid.status === 400,
+    `Status: ${resCskDoubleBid.status}`);
+
+  // RCB places counter-bid (₹220 L)
+  const resRcbBid = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/bid',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${rcbToken}`
+    }
+  }, { expectedBid: 220 });
+  const rcbBidData = JSON.parse(resRcbBid.body || '{}');
+
+  assert('Competing team (RCB) places counter-bid -> server updates leader to RCB',
+    resRcbBid.status === 200 && rcbBidData.state?.leadingTeamId === 'RCB' && rcbBidData.state?.currentBid === 220,
+    `Status: ${resRcbBid.status}, leader: ${rcbBidData.state?.leadingTeamId}, bid: ${rcbBidData.state?.currentBid}`);
+
+  // Auctioneer marks player as SOLD
+  const resSold = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auction/sold',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${auctioneerToken}`
+    }
+  });
+  const soldData = JSON.parse(resSold.body || '{}');
+  assert('Authoritative SOLD transition sets status to sold and records winner',
+    resSold.status === 200 && soldData.success === true && soldData.team?.id === 'RCB',
+    `Status: ${resSold.status}, success: ${soldData.success}, winner: ${soldData.team?.id}`);
+
+  // TEST 17: Logout revokes session
+  const res17 = await request({
     hostname: 'localhost',
     port: 3000,
     path: '/api/auth/logout',
     method: 'POST',
     headers: { 'Authorization': `Bearer ${cskToken}` }
   });
-  const res11Check = await request({
+  const res17Check = await request({
     hostname: 'localhost',
     port: 3000,
     path: '/api/auth/me',
@@ -207,8 +413,8 @@ async function runTests() {
     headers: { 'Authorization': `Bearer ${cskToken}` }
   });
   assert('Logout successfully terminates session on server',
-    res11.status === 200 && res11Check.status === 401,
-    `Logout status ${res11.status}, Auth check status ${res11Check.status}`);
+    res17.status === 200 && res17Check.status === 401,
+    `Logout status ${res17.status}, Auth check status ${res17Check.status}`);
 
   console.log(`\n======================================================`);
   console.log(` RESULTS: ${passed}/${total} TESTS PASSED (${Math.round((passed/total)*100)}%)`);

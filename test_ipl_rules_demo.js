@@ -132,8 +132,8 @@ async function runTests() {
   assert(startRes.state.currentPlayer.name === virat.name, 'Wrong player started');
   assert(startRes.state.basePrice === 200, `Virat base price should be 200L, got ${startRes.state.basePrice}`);
   assert(startRes.state.currentBid === 0, 'Current bid should start at 0');
-  assert(startRes.state.timer === 10, `Lot timer should start at 10 seconds, got ${startRes.state.timer}`);
-  console.log('  ✓ Lot started: Virat Kohli on hammer at ₹200L base price with 10s timer.\n');
+  assert(startRes.state.timer === (startRes.state.maxTimer || 15), `Lot timer should start at ${startRes.state.maxTimer || 15} seconds, got ${startRes.state.timer}`);
+  console.log(`  ✓ Lot started: Virat Kohli on hammer at ₹200L base price with ${startRes.state.timer}s timer.\n`);
 
   // TEST 5: TEAM A (CSK) PLACES FIRST BID (₹200L)
   console.log('[TEST 5] Device 2: Team A (CSK) places opening bid of ₹200L...');
@@ -143,8 +143,8 @@ async function runTests() {
   assert(bid1.success, `CSK bid 1 failed: ${bid1.error}`);
   assert(bid1.amount === 200, `CSK bid should be 200L, got ${bid1.amount}`);
   assert(bid1.state.leadingTeamId === 'CSK', 'CSK should now be leading');
-  assert(bid1.state.timer === 10, 'Timer should have reset to 10s after bid');
-  console.log('  ✓ CSK opening bid ₹200L accepted. Timer reset to 10s.\n');
+  assert(bid1.state.timer === (bid1.state.maxTimer || 15), `Timer should have reset to ${bid1.state.maxTimer || 15}s after bid`);
+  console.log(`  ✓ CSK opening bid ₹200L accepted. Timer reset to ${bid1.state.timer}s.\n`);
 
   // TEST 6: RULE 7 — LEADING TEAM (CSK) CANNOT RE-BID ON SAME LOT
   console.log('[TEST 6] Rule 7: CSK attempts immediate re-bid (outbidding themselves)...');
@@ -163,8 +163,8 @@ async function runTests() {
   assert(bid3.success, `MI bid failed: ${bid3.error}`);
   assert(bid3.amount === 220, `Expected 220L, got ${bid3.amount}`);
   assert(bid3.state.leadingTeamId === 'MI', 'MI should now be leading');
-  assert(bid3.state.timer === 10, 'Timer should have reset to 10s');
-  console.log('  ✓ MI counter bid ₹220L accepted. Timer reset to 10s.\n');
+  assert(bid3.state.timer === (bid3.state.maxTimer || 15), `Timer should have reset to ${bid3.state.maxTimer || 15}s`);
+  console.log(`  ✓ MI counter bid ₹220L accepted. Timer reset to ${bid3.state.timer}s.\n`);
 
   // TEST 8: TEAM C (RCB) PLACES COUNTER BID (₹240L)
   console.log('[TEST 8] Device 4: Team C (RCB) counters at ₹240L...');
@@ -174,8 +174,8 @@ async function runTests() {
   assert(bid4.success, `RCB bid failed: ${bid4.error}`);
   assert(bid4.amount === 240, `Expected 240L, got ${bid4.amount}`);
   assert(bid4.state.leadingTeamId === 'RCB', 'RCB should now be leading');
-  assert(bid4.state.timer === 10, 'Timer should have reset to 10s');
-  console.log('  ✓ RCB counter bid ₹240L accepted. RCB is now leading.\n');
+  assert(bid4.state.timer === (bid4.state.maxTimer || 15), `Timer should have reset to ${bid4.state.maxTimer || 15}s`);
+  console.log(`  ✓ RCB counter bid ₹240L accepted. RCB is now leading.\n`);
 
   // TEST 9: RULE 7 CHECK AGAIN — RCB CANNOT IMMEDIATELY BID AGAIN
   console.log('[TEST 9] Rule 7: RCB attempts immediate re-bid...');

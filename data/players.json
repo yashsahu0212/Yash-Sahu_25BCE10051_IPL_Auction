@@ -1634,7 +1634,7 @@
     "overseas": false,
     "capped": false,
     "basePrice": 30,
-    "status": "available",
+    "status": "unsold",
     "set": "UNCAPPED-ALLROUNDERS",
     "icon": "sports_cricket",
     "image": "/players/gt/arshad-khan.png",

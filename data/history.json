@@ -32,5 +32,20 @@
       }
     ],
     "timestamp": 1790804334232
+  },
+  {
+    "player": {
+      "id": 52,
+      "name": "ARSHAD KHAN",
+      "role": "allrounder",
+      "lotNumber": 52
+    },
+    "result": "unsold",
+    "soldTo": null,
+    "soldPrice": null,
+    "basePrice": 30,
+    "bidCount": 0,
+    "bidHistory": [],
+    "timestamp": 1790830738309
   }
 ]

@@ -1254,5 +1254,71 @@
     },
     "timestamp": 1790804334233,
     "created_at": "2026-09-30T21:38:54.233Z"
+  },
+  {
+    "id": "d5b46d04-55f2-4254-b15e-ef69ee3a4bef",
+    "auction_id": 1,
+    "lot_id": 52,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "LOT_OPENED",
+    "actor_user_id": null,
+    "actor_team_id": null,
+    "actor_team_name": null,
+    "actor_role": "auctioneer",
+    "amount_lakh": 30,
+    "previous_amount_lakh": 0,
+    "event_sequence": 60,
+    "metadata": {
+      "role": "allrounder",
+      "nationality": "India",
+      "basePrice": 30,
+      "capped": false
+    },
+    "timestamp": 1790830532752,
+    "created_at": "2026-10-01T04:55:32.752Z"
+  },
+  {
+    "id": "9879af61-020c-4b98-a48f-8f37bc779b33",
+    "auction_id": 1,
+    "lot_id": 52,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "LOT_OPENED",
+    "actor_user_id": null,
+    "actor_team_id": null,
+    "actor_team_name": null,
+    "actor_role": "auctioneer",
+    "amount_lakh": 30,
+    "previous_amount_lakh": 0,
+    "event_sequence": 61,
+    "metadata": {
+      "role": "allrounder",
+      "nationality": "India",
+      "basePrice": 30,
+      "capped": false
+    },
+    "timestamp": 1790830723193,
+    "created_at": "2026-10-01T04:58:43.193Z"
+  },
+  {
+    "id": "05c79f78-6835-4652-b581-d50437c5d7b0",
+    "auction_id": 1,
+    "lot_id": 52,
+    "player_id": 52,
+    "player_name": "ARSHAD KHAN",
+    "event_type": "LOT_UNSOLD",
+    "actor_user_id": null,
+    "actor_team_id": null,
+    "actor_team_name": null,
+    "actor_role": "auctioneer",
+    "amount_lakh": 30,
+    "previous_amount_lakh": 0,
+    "event_sequence": 62,
+    "metadata": {
+      "bidsCount": 0
+    },
+    "timestamp": 1790830738311,
+    "created_at": "2026-10-01T04:58:58.311Z"
   }
 ]

@@ -356,7 +356,7 @@
 
     async function loadPlayers() {
       try {
-        const res = await Hammer.getPlayers({ limit: 100 });
+        const res = await Hammer.getPlayers({ limit: 500 });
         allPlayers = res.players || [];
         renderQueue();
       } catch (e) {
@@ -625,13 +625,6 @@
             <span class="font-mono text-xs font-bold text-hm-text">${Hammer.formatCurrency(t.remaining)}</span>
           </div>
         `).join('');
-            <div class="flex items-center gap-2">
-              <span class="font-mono text-xs font-bold text-hm-text">${t.shortName}</span>
-              <span class="font-mono text-[9px] text-hm-faint">${t.filledSlots || 0}/${t.maxSlots || 25}</span>
-            </div>
-            <span class="font-mono text-xs font-bold text-hm-text">${Hammer.formatCurrency(t.remaining)}</span>
-          </div>
-        `).join('');
       } catch (e) {
         console.error('Failed to load purse:', e);
       }
@@ -659,11 +652,16 @@
     if (putNextBtn) {
       putNextBtn.addEventListener('click', async () => {
         if (_actionInFlight) return;
+        const currentState = Hammer.getState();
+        if (currentState && currentState.status === 'live' && currentState.leadingTeamId) {
+          Hammer.showToast('CANNOT PUT NEXT PLAYER: CURRENT LOT HAS ACTIVE BIDS. SELL OR CLOSE LOT FIRST.', 'error');
+          return;
+        }
         let nextPlayer = allPlayers.find(p => p.status === 'upcoming' || p.status === 'available');
         if (!nextPlayer) {
           // If no available player found in cache, reload pool once
           try {
-            const res = await Hammer.getPlayers({ limit: 100 });
+            const res = await Hammer.getPlayers({ limit: 500 });
             allPlayers = res.players || [];
             renderQueue();
             nextPlayer = allPlayers.find(p => p.status === 'upcoming' || p.status === 'available');

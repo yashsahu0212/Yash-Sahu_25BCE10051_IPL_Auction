@@ -446,11 +446,14 @@
       renderCompetitorsList(teamsList);
       const me = teamsList.find(t => t.id === myTeamId);
       if (me) {
+        const squadLen = (me.filledSlots != null) ? me.filledSlots : (me.players ? me.players.length : (me.squad ? me.squad.length : 0));
         if (!myTeamData) {
-          myTeamData = { ...me, purse: 12500, spent: 12500 - me.remaining, squad: [] };
+          myTeamData = { ...me, purse: 12500, spent: 12500 - me.remaining, filledSlots: squadLen, squad: me.squad || me.players || [] };
         } else {
           myTeamData.remaining = me.remaining;
-          myTeamData.filledSlots = me.filledSlots;
+          myTeamData.spent = me.spent != null ? me.spent : (myTeamData.purse - me.remaining);
+          myTeamData.filledSlots = squadLen;
+          if (me.squad || me.players) myTeamData.squad = me.squad || me.players;
         }
         tcPurseRemaining.textContent = Hammer.formatCurrency(me.remaining);
       }
@@ -463,13 +466,15 @@
         const isLeader = currentAuctionState && currentAuctionState.leadingTeamId === t.id;
         const theme = window.getTeamTheme ? window.getTeamTheme(t.id) : null;
         const badgeHtml = window.renderTeamBadge ? window.renderTeamBadge(t.id, { size: 'sm', showFullName: false }) : `<span class="font-mono text-xs font-bold text-hm-muted">${t.shortName}</span>`;
+        const filled = (t.filledSlots != null) ? t.filledSlots : (t.players ? t.players.length : (t.squad ? t.squad.length : 0));
+        const max = t.maxSlots || 25;
         return `
           <div class="flex items-center justify-between px-3 py-1.5 ${isLeader ? 'bg-hm-elevated border-2 font-bold' : isMe ? 'bg-hm-elevated border border-hm-border-strong' : 'bg-hm-charcoal/60 border border-hm-border'} rounded-[4px]" style="${isLeader && theme ? `border-color: ${theme.primary}; background-color: ${theme.primary}12;` : ''}">
             <div class="flex items-center gap-2">
               ${badgeHtml}
               ${isMe ? '<span class="font-mono text-[9px] px-1 bg-hm-surface border border-hm-border text-hm-muted rounded-[2px]">(YOU)</span>' : ''}
               ${isLeader ? '<span class="font-mono text-xs text-hm-amber">★</span>' : ''}
-              <span class="font-mono text-[9px] text-hm-faint">${t.filledSlots}/${t.maxSlots}</span>
+              <span class="font-mono text-[9px] text-hm-faint">${filled}/${max}</span>
             </div>
             <span class="font-mono text-xs ${isLeader ? 'text-hm-amber font-bold' : 'text-hm-text font-bold'}">
               ${Hammer.formatCurrency(t.remaining)}
@@ -669,6 +674,12 @@
 
     Hammer.on('teams:update', (teams) => {
       syncTeamData(teams);
+      loadTeamData();
+    });
+
+    Hammer.on('auction:hammer_ready', () => {
+      tcTimer.textContent = '00:00';
+      tcGavelLabel.textContent = 'FINAL CALL';
     });
 
     Hammer.on('auction:sold', (data) => {

@@ -475,6 +475,11 @@
       }
     });
 
+    // Realtime history sync
+    Hammer.on('auction:sold', () => loadHistory());
+    Hammer.on('auction:unsold', () => loadHistory());
+    Hammer.on('auction:reset', () => loadHistory());
+
     await loadHistory();
   })();
   </script>

@@ -553,8 +553,15 @@
     },
     getPlayer(id) { return this._fetch('GET', `/api/players/${id}`).then(mapPlayer); },
 
-    getTeams() { return this._fetch('GET', '/api/teams'); },
-    getTeam(id) { return this._fetch('GET', `/api/teams/${id}`); },
+    async getTeams() {
+      const res = await this._fetch('GET', '/api/teams');
+      if (Array.isArray(res)) return res.map(t => mapTeam(t));
+      return res;
+    },
+    async getTeam(id) {
+      const res = await this._fetch('GET', `/api/teams/${id}`);
+      return mapTeam(res);
+    },
 
     async getAuctionState() {
       const state = await this._fetch('GET', '/api/auction/state');
@@ -743,9 +750,18 @@
       _connectionStatus = 'connected';
       if (token) _socket.emit('auth', { token });
       emit('connected', { mode: 'socket' });
-      // Immediately pull fresh state to guarantee zero desync across all clients
+      // Immediately pull fresh state & teams to guarantee zero desync across all clients
       API.getAuctionState().then(state => {
-        if (state) emit('auction:state', state);
+        if (state) {
+          _lastAuctionState = state;
+          emit('auction:state', state);
+          if (state.timer !== undefined) {
+            emit('auction:timer', { timer: state.timer, maxTimer: state.maxTimer || 15, gavelStage: state.gavelStage || 0 });
+          }
+        }
+      }).catch(() => {});
+      API.getTeams().then(teams => {
+        if (teams) emit('teams:update', teams);
       }).catch(() => {});
     });
 
@@ -754,7 +770,16 @@
       if (token) _socket.emit('auth', { token });
       emit('connected', { mode: 'socket' });
       API.getAuctionState().then(state => {
-        if (state) emit('auction:state', state);
+        if (state) {
+          _lastAuctionState = state;
+          emit('auction:state', state);
+          if (state.timer !== undefined) {
+            emit('auction:timer', { timer: state.timer, maxTimer: state.maxTimer || 15, gavelStage: state.gavelStage || 0 });
+          }
+        }
+      }).catch(() => {});
+      API.getTeams().then(teams => {
+        if (teams) emit('teams:update', teams);
       }).catch(() => {});
     });
 
@@ -777,6 +802,61 @@
       _connectionStatus = 'reconnecting';
       emit('reconnecting', { mode: 'socket' });
     });
+  }
+
+  function syncNow() {
+    if (_socket) {
+      if (!_socket.connected) {
+        _socket.connect();
+      } else {
+        const t = getToken();
+        if (t) _socket.emit('auth', { token: t });
+      }
+    }
+    API.getAuctionState().then(state => {
+      if (state) {
+        _lastAuctionState = state;
+        emit('auction:state', state);
+        if (state.timer !== undefined) {
+          emit('auction:timer', { timer: state.timer, maxTimer: state.maxTimer || 15, gavelStage: state.gavelStage || 0 });
+        }
+      }
+    }).catch(() => {});
+    API.getTeams().then(teams => {
+      if (teams) emit('teams:update', teams);
+    }).catch(() => {});
+  }
+
+  // Cross-device recovery: automatically resync on visibility change, window focus, and online
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        syncNow();
+      }
+    });
+    window.addEventListener('focus', () => {
+      syncNow();
+    });
+    window.addEventListener('online', () => {
+      syncNow();
+    });
+
+    // Auto-resync watchdog: keeps devices in lockstep every 3.5s without manual refresh
+    setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        if (_socket && !_socket.connected) {
+          _socket.connect();
+        }
+        if (_lastAuctionState && (_lastAuctionState.status === 'live' || _lastAuctionState.status === 'paused')) {
+          API.getAuctionState().then(s => {
+            if (s && (_lastAuctionState?.status !== s.status || _lastAuctionState?.currentBid !== s.currentBid || _lastAuctionState?.currentPlayer?.id !== s.currentPlayer?.id)) {
+              _lastAuctionState = s;
+              emit('auction:state', s);
+            }
+          }).catch(() => {});
+        }
+      }
+    }, 3500);
   }
 
   async function socketBid(expectedBid) {
@@ -1301,7 +1381,8 @@
     getStatusBadge,
     startClock,
     updateNav,
-    showToast
+    showToast,
+    syncNow
   };
 
 })(window);

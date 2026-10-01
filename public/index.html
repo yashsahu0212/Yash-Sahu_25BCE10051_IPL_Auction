@@ -694,6 +694,25 @@
       Hammer.showToast(`${data.player.name} — UNSOLD`, 'info');
     });
 
+    Hammer.on('teams:update', (updatedTeams) => {
+      if (Array.isArray(updatedTeams)) {
+        updatedTeams.forEach(team => {
+          const card = document.getElementById('purse-card-' + team.id);
+          if (!card) return;
+          const purseEl = card.querySelector('div:last-child');
+          if (purseEl) {
+            purseEl.textContent = Hammer.formatCurrency(team.remaining);
+          }
+        });
+      }
+    });
+
+    Hammer.on('auction:hammer_ready', () => {
+      secondsCounter.textContent = '00:00';
+      gavelStageLabel.textContent = 'FINAL CALL';
+      resetGavelSteps(3);
+    });
+
     // Operator override simulation buttons
     if (btnBid) {
       btnBid.addEventListener('click', async () => {

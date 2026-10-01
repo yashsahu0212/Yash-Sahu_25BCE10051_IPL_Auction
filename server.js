@@ -8,7 +8,11 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  pingInterval: 5000,
+  pingTimeout: 7000,
+  cors: { origin: '*' }
+});
 
 // ─── MIDDLEWARE ──────────────────────────────────────────────
 app.use(express.json());
@@ -35,8 +39,14 @@ app.use((req, res, next) => {
 let players = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'players.json'), 'utf-8'));
 let teams = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'teams.json'), 'utf-8'));
 
-// Compute remaining purse for each team
-teams.forEach(t => { t.remaining = parseFloat((t.purse - t.spent).toFixed(2)); });
+// Compute and normalize remaining purse and filled slots for each team
+teams.forEach(t => {
+  if (!t.players) t.players = [];
+  if (!t.squad) t.squad = t.players;
+  t.filledSlots = t.players.length;
+  t.spent = t.players.reduce((sum, p) => sum + (Number(p.soldPrice || p.price) || 0), t.spent || 0);
+  t.remaining = parseFloat((t.purse - t.spent).toFixed(2));
+});
 
 const sessions = new Map(); // token -> { userId, role, teamId, username }
 const revokedTokens = new Set();
@@ -158,7 +168,11 @@ function logAuctionEvent(eventType, payload = {}) {
 let timerInterval = null;
 
 // ─── HELPERS ────────────────────────────────────────────────
-function getTeam(id) { return teams.find(t => t.id === id); }
+function getTeam(id) {
+  if (!id) return null;
+  const clean = String(id).trim().toUpperCase();
+  return teams.find(t => (t.id && t.id.toUpperCase() === clean) || (t.code && t.code.toUpperCase() === clean) || (t.shortName && t.shortName.toUpperCase() === clean));
+}
 function getPlayer(id) { return players.find(p => p.id === id); }
 
 function decodeSupabaseJwt(token) {
@@ -256,7 +270,10 @@ function getPublicAuctionState() {
     leadingTeam,
     teams: teams.map(t => ({
       id: t.id, name: t.name, shortName: t.shortName,
-      remaining: t.remaining, filledSlots: t.filledSlots, maxSlots: t.maxSlots
+      remaining: t.remaining,
+      filledSlots: (t.players ? t.players.length : (t.filledSlots || 0)),
+      maxSlots: t.maxSlots || 25,
+      squad: t.players || t.squad || []
     }))
   };
 }
@@ -305,6 +322,16 @@ function startTimer() {
 
       if (auction.timer <= 0) {
         stopTimer();
+        auction.timer = 0;
+        auction.gavelStage = 3;
+        io.emit('auction:timer', {
+          timer: 0,
+          maxTimer: auction.maxTimer,
+          gavelStage: 3,
+          timestamp: Date.now()
+        });
+        io.emit('auction:state', getPublicAuctionState());
+
         // Auto-action when timer expires
         if (auction.leadingTeamId) {
           io.emit('auction:hammer_ready', {
@@ -536,7 +563,6 @@ function markSold() {
   // Update team (Integer Lakhs)
   team.spent = team.spent + auction.currentBid;
   team.remaining = team.purse - team.spent;
-  team.filledSlots++;
   const playerItem = {
     id: player.id,
     lotNumber: player.lotNumber,
@@ -551,6 +577,7 @@ function markSold() {
   team.players.push(playerItem);
   if (!team.squad) team.squad = [];
   team.squad.push(playerItem);
+  team.filledSlots = team.players.length;
 
   // Record history
   auctionHistory.push({
@@ -614,6 +641,9 @@ function markSold() {
   io.emit('auction:state', state);
   io.emit('teams:update', teams.map(t => ({
     ...t,
+    squad: t.players || t.squad || [],
+    players: t.players || t.squad || [],
+    filledSlots: (t.players ? t.players.length : 0),
     remaining: t.purse - t.spent
   })));
 
@@ -817,16 +847,29 @@ app.get('/api/players/:id', (req, res) => {
 
 // ─── TEAM ROUTES ────────────────────────────────────────────
 app.get('/api/teams', (req, res) => {
-  res.json(teams.map(t => ({
-    ...t,
-    remaining: parseFloat((t.purse - t.spent).toFixed(2))
-  })));
+  res.json(teams.map(t => {
+    const squad = t.players || t.squad || [];
+    return {
+      ...t,
+      squad,
+      players: squad,
+      filledSlots: squad.length,
+      remaining: parseFloat((t.purse - t.spent).toFixed(2))
+    };
+  }));
 });
 
 app.get('/api/teams/:id', (req, res) => {
-  const team = getTeam(req.params.id.toUpperCase());
+  const team = getTeam(req.params.id);
   if (!team) return res.status(404).json({ error: 'Team not found' });
-  res.json({ ...team, remaining: parseFloat((team.purse - team.spent).toFixed(2)) });
+  const squad = team.players || team.squad || [];
+  res.json({
+    ...team,
+    squad,
+    players: squad,
+    filledSlots: squad.length,
+    remaining: parseFloat((team.purse - team.spent).toFixed(2))
+  });
 });
 
 // ─── AUCTION ROUTES ─────────────────────────────────────────
@@ -1239,8 +1282,18 @@ io.on('connection', (socket) => {
 
   // Send current state immediately
   socket.emit('auction:state', getPublicAuctionState());
+  socket.emit('auction:timer', {
+    timer: auction.timer,
+    maxTimer: auction.maxTimer,
+    gavelStage: auction.gavelStage,
+    timestamp: Date.now()
+  });
   socket.emit('teams:update', teams.map(t => ({
-    ...t, remaining: t.purse - t.spent
+    ...t,
+    squad: t.players || t.squad || [],
+    players: t.players || t.squad || [],
+    filledSlots: t.players ? t.players.length : (t.filledSlots || 0),
+    remaining: t.purse - t.spent
   })));
 
   // Handle bid via socket (for instant low-latency bidding)

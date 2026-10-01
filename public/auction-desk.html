@@ -612,19 +612,27 @@
       `).join('');
     }
 
-    async function loadPurseOverview() {
+    async function loadPurseOverview(teamsList) {
       try {
-        const teams = await Hammer.API.getTeams();
+        const teams = (teamsList && Array.isArray(teamsList) && teamsList.length > 0)
+          ? teamsList
+          : await Hammer.API.getTeams();
         const container = document.getElementById('purse-list');
-        container.innerHTML = teams.map(t => `
-          <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border purse-row rounded-[4px]" data-team="${t.id}">
-            <div class="flex items-center gap-2">
-              ${typeof renderTeamBadge === 'function' ? renderTeamBadge(t.id, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${t.shortName}</span>`}
-              <span class="font-mono text-[9px] text-hm-faint">${t.filledSlots || 0}/${t.maxSlots || 25}</span>
+        if (!container || !Array.isArray(teams)) return;
+        container.innerHTML = teams.map(t => {
+          const filled = (t.filledSlots != null) ? t.filledSlots : (t.players ? t.players.length : (t.squad ? t.squad.length : 0));
+          const max = t.maxSlots || 25;
+          const remaining = t.remaining != null ? t.remaining : (t.purse - (t.spent || 0));
+          return `
+            <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border purse-row rounded-[4px]" data-team="${t.id}">
+              <div class="flex items-center gap-2">
+                ${typeof renderTeamBadge === 'function' ? renderTeamBadge(t.id, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${t.shortName}</span>`}
+                <span class="font-mono text-[9px] text-hm-faint">${filled}/${max}</span>
+              </div>
+              <span class="font-mono text-xs font-bold text-hm-text">${Hammer.formatCurrency(remaining)}</span>
             </div>
-            <span class="font-mono text-xs font-bold text-hm-text">${Hammer.formatCurrency(t.remaining)}</span>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       } catch (e) {
         console.error('Failed to load purse:', e);
       }
@@ -903,12 +911,16 @@
     });
 
     // Realtime listeners
+    Hammer.on('teams:update', (updatedTeams) => {
+      loadPurseOverview(updatedTeams);
+    });
     Hammer.on('auction:state', (s) => {
       renderAuctionState(s);
       if (s?.currentPlayer?.id) {
         const p = allPlayers.find(x => x.id === s.currentPlayer.id);
         if (p) p.status = 'on_hammer';
       }
+      if (s?.teams) loadPurseOverview(s.teams);
       renderQueue();
     });
     Hammer.on('auction:started', (s) => {
@@ -917,16 +929,26 @@
         const p = allPlayers.find(x => x.id === s.currentPlayer.id);
         if (p) p.status = 'on_hammer';
       }
+      if (s?.teams) loadPurseOverview(s.teams);
       renderQueue();
     });
     Hammer.on('auction:bid', (d) => {
-      if (d?.state) renderAuctionState(d.state);
+      if (d?.state) {
+        renderAuctionState(d.state);
+        if (d.state.teams) loadPurseOverview(d.state.teams);
+      }
     });
     Hammer.on('auction:timer', (d) => {
       const timerEl = document.getElementById('desk-timer');
       const gavelEl = document.getElementById('desk-gavel-label');
       if (timerEl) timerEl.textContent = Hammer.formatTimer(d.timer);
       if (gavelEl) gavelEl.textContent = Hammer.getGavelLabel(d.gavelStage);
+    });
+    Hammer.on('auction:hammer_ready', (d) => {
+      const timerEl = document.getElementById('desk-timer');
+      const gavelEl = document.getElementById('desk-gavel-label');
+      if (timerEl) timerEl.textContent = '00:00';
+      if (gavelEl) gavelEl.textContent = 'FINAL CALL';
     });
     Hammer.on('auction:timer_settings', (d) => {
       if (d.maxTimer) {
@@ -941,7 +963,11 @@
       }
       renderAuctionState(d.state);
       renderQueue();
-      loadPurseOverview();
+      if (d?.state?.teams) {
+        loadPurseOverview(d.state.teams);
+      } else {
+        loadPurseOverview();
+      }
     });
     Hammer.on('auction:unsold', (d) => {
       if (d?.player?.id) {
@@ -950,6 +976,11 @@
       }
       renderAuctionState(d.state);
       renderQueue();
+      if (d?.state?.teams) loadPurseOverview(d.state.teams);
+    });
+    Hammer.on('auction:reset', () => {
+      loadPurseOverview();
+      loadPlayers();
     });
 
     await loadPlayers();

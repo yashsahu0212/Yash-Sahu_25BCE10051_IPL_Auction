@@ -468,6 +468,12 @@
       currentPage++; loadPlayers(); window.scrollTo({ top: 120, behavior: 'smooth' });
     });
 
+    // Realtime pool sync
+    Hammer.on('auction:sold', () => loadPlayers());
+    Hammer.on('auction:unsold', () => loadPlayers());
+    Hammer.on('auction:started', () => loadPlayers());
+    Hammer.on('auction:reset', () => loadPlayers());
+
     await loadPlayers();
   })();
   </script>

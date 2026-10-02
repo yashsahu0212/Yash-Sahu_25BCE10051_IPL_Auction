@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Live Cricket Auction Broadcast Stage</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <title>HAMMER • Live Cricket Auction Broadcast Stage</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -54,10 +55,10 @@
   <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
     <div class="h-12 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-7 h-7 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-base tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="w-7 h-7 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px] transition-transform group-hover:scale-95"><span class="material-symbols-outlined text-[16px] leading-none">gavel</span></div>
         <div class="flex flex-col">
           <span class="font-display text-lg tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
-          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">LIVE AUCTION</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">VITB MUN Club</span>
         </div>
       </a>
 
@@ -94,7 +95,6 @@
     <!-- SUB-BAR STATUS (CLEAN, NO RED BLINK, NO FAKE ROUND TAGS) -->
     <div class="w-full bg-hm-charcoal border-b border-hm-border px-4 lg:px-8 py-1.5 flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-widest shrink-0">
       <div class="flex items-center gap-2">
-        <span class="w-1.5 h-1.5 bg-hm-vermilion rounded-[2px]"></span>
         <span class="text-hm-muted">ACTIVE LOT:</span>
         <span class="text-hm-text font-bold" id="stage-session-label">AWAITING COMMENCEMENT</span>
       </div>
@@ -119,7 +119,6 @@
           <!-- Dossier Top Header -->
           <div class="flex items-center justify-between pb-2 border-b border-hm-border shrink-0">
             <div class="flex items-center gap-2 font-mono text-xs font-bold text-hm-text">
-              <span class="w-2 h-2 bg-hm-vermilion inline-block rounded-[2px]"></span>
               <span id="dossier-lot-label">LOT #---</span>
             </div>
             <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest" id="athlete-cap-label">
@@ -149,7 +148,7 @@
                   SOLD
                 </span>
                 <p class="font-mono text-xs sm:text-sm uppercase tracking-widest text-hm-text font-bold mt-2" id="verdict-stamp-details">
-                  SOLD // ₹0.00 // —
+                  SOLD • ₹0.00 • —
                 </p>
               </div>
             </div>
@@ -324,8 +323,6 @@
   <script>
   (async function () {
     await Hammer.init();
-
-    // DOM Elements
     const bidDisplay = document.getElementById('current-bid-display');
     const leadingTeamTag = document.getElementById('leading-team-tag');
     const leadingFranchiseName = document.getElementById('leading-franchise-name');
@@ -378,8 +375,6 @@
         recentBidsFeed.removeChild(recentBidsFeed.lastChild);
       }
     }
-
-    // ─── RENDER DYNAMIC TEAM-COLORED PURSE RIBBON ─────────
     function renderPurseRibbon(teamsList, state = Hammer.getState()) {
       const container = document.getElementById('purse-ribbon-container');
       if (!container) return;
@@ -390,9 +385,11 @@
         const isLeader = state?.leadingTeamId === team.id;
         const theme = window.getTeamTheme ? window.getTeamTheme(team.id) : { primary: team.color || '#C74632', logo: team.logo, shortName: team.shortName };
         const primaryColor = theme.primary || team.color || '#C74632';
-        const logo = theme.logo || `/logos/${team.id.toLowerCase()}.svg`;
+        const logo = theme.logo || `/teams/${team.id.toLowerCase()}/logo.svg`;
         const filled = team.filledSlots != null ? team.filledSlots : (team.players ? team.players.length : (team.squad ? team.squad.length : 0));
         const max = team.maxSlots || 15;
+        const isYellow = team.id === 'CSK' || primaryColor === '#F9CD05';
+        const leadBadgeText = isYellow ? '#0B0C0D' : '#FFFFFF';
 
         // Team-colored light tint background (18% opacity) with prominent top bar and solid border accent
         const bgStyle = isLeader
@@ -405,15 +402,15 @@
             <div class="flex items-center justify-between gap-1 mb-0.5">
               <div class="flex items-center gap-1.5 min-w-0">
                 <img src="${logo}" class="w-4 h-4 object-contain shrink-0" alt="${team.shortName}" onerror="this.style.display='none'"/>
-                <span class="font-mono text-[11px] font-bold truncate" style="color: ${isLeader ? primaryColor : '#F2F0EA'};">${team.shortName}</span>
+                <span class="font-mono text-[11px] font-bold truncate" style="color: ${isLeader ? (isYellow ? '#FFD700' : primaryColor) : '#F2F0EA'};">${team.shortName}</span>
               </div>
               ${isLeader
-                ? `<span class="px-1 py-0.2 font-mono text-[8px] font-black uppercase rounded-[2px]" style="background: ${primaryColor}; color: #fff;">LEAD</span>`
+                ? `<span class="px-1.5 py-0.2 font-mono text-[8px] font-black uppercase rounded-[2px]" style="background: ${primaryColor}; color: ${leadBadgeText};">LEAD</span>`
                 : `<span class="font-mono text-[9px] text-hm-muted font-bold">${filled}/${max}</span>`
               }
             </div>
             <div class="flex items-baseline justify-between gap-1 mt-0.5">
-              <span class="font-mono text-xs font-bold leading-none tracking-tight" style="color: ${isLeader ? primaryColor : '#FFFFFF'};">
+              <span class="font-mono text-xs font-bold leading-none tracking-tight" style="color: ${isLeader ? (isYellow ? '#FFD700' : primaryColor) : '#FFFFFF'};">
                 ${Hammer.formatCurrency(team.remaining)}
               </span>
             </div>
@@ -421,8 +418,6 @@
         `;
       }).join('');
     }
-
-    // ─── RENDER FULL STATE ─────────────────────────────────
     function renderState(state) {
       if (!state) return;
       const { currentPlayer, leadingTeam, teams } = state;
@@ -483,7 +478,7 @@
       if (dossierLotLabel) dossierLotLabel.textContent = 'LOT #' + String(p.lotNumber).padStart(3, '0');
       if (poolSetLabel) poolSetLabel.textContent = (p.set || 'GENERAL LOT').toUpperCase();
       const sessionLabel = document.getElementById('stage-session-label');
-      if (sessionLabel) sessionLabel.textContent = `LOT #${String(p.lotNumber).padStart(3, '0')} // ${(p.set || 'GENERAL LOT').toUpperCase()}`;
+      if (sessionLabel) sessionLabel.textContent = `LOT #${String(p.lotNumber).padStart(3, '0')} • ${(p.set || 'GENERAL LOT').toUpperCase()}`;
 
       // Player image & fallback
       const athleteFallback = document.getElementById('athlete-fallback');
@@ -548,7 +543,10 @@
         leadingFranchiseName.textContent = theme.fullName || leadingTeam.name;
         leadingFranchiseName.style.color = '#FFFFFF';
 
-        leadingTeamLogoWrap.innerHTML = `<img src="${theme.logo}" class="w-9 h-9 object-contain" alt="${theme.shortName}" onerror="this.outerHTML='<span class=\\'font-display text-xl\\'>${theme.shortName}</span>'"/>`;
+        leadingTeamLogoWrap.innerHTML = `
+          <img src="${theme.logo}" class="w-9 h-9 object-contain" alt="${theme.shortName}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';"/>
+          <span class="font-display text-xl" style="display:none; color: ${theme.contrastText || theme.primary};">${theme.shortName}</span>
+        `;
         leadingTeamLogoWrap.style.borderColor = theme.primary;
         leadingTeamLogoWrap.style.backgroundColor = theme.primary + '18';
 
@@ -561,9 +559,9 @@
         leadingTeamTag.style.color = '';
 
         if (state.status === 'live') {
-          leadingFranchiseName.textContent = 'NO BIDS YET // OPENING AT BASE';
+          leadingFranchiseName.textContent = 'NO BIDS YET • OPENING AT BASE';
         } else if (state.status === 'paused') {
-          leadingFranchiseName.textContent = 'AUCTION PAUSED // ON HAMMER';
+          leadingFranchiseName.textContent = 'AUCTION PAUSED • ON HAMMER';
         } else {
           leadingFranchiseName.textContent = 'AWAITING NEXT LOT';
         }
@@ -619,8 +617,6 @@
       callStep3.querySelector('span').className = stage >= 3 ? activeSpan : inactiveSpan;
       callStep3.querySelector('span').textContent = stage >= 3 ? 'FINAL CALL ⚡' : 'FINAL CALL';
     }
-
-    // ─── SOCKET REALTIME EVENTS ───────────────────────────
     Hammer.on('auction:state', renderState);
     Hammer.on('auction:started', (state) => {
       HammerUX.playGavelStrike();
@@ -657,12 +653,12 @@
       HammerUX.playGavelStrike();
       verdictTitle.textContent = 'SOLD';
       verdictTitle.className = 'font-display text-6xl sm:text-7xl lg:text-8xl uppercase tracking-wide text-hm-vermilion leading-none animate-sold-slam';
-      verdictDetails.textContent = 'SOLD // ' + Hammer.formatCurrency(data.price) + ' // ' + data.team.shortName;
+      verdictDetails.textContent = 'SOLD • ' + Hammer.formatCurrency(data.price) + ' • ' + data.team.shortName;
       verdictOverlay.classList.remove('hidden');
       hammerBadge.textContent = 'HAMMER FALL: SOLD';
       hammerBadge.className = 'px-2 py-0.5 bg-hm-vermilion text-hm-text border border-hm-vermilion font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
       secondsCounter.textContent = '00:00';
-      gavelStageLabel.textContent = 'HAMMER DOWN // RECORDED';
+      gavelStageLabel.textContent = 'HAMMER DOWN • RECORDED';
       resetGavelSteps(3);
       renderState(data.state);
       Hammer.showToast(`${data.player.name} SOLD TO ${data.team.shortName} FOR ${Hammer.formatCurrency(data.price)}`, 'success');
@@ -671,12 +667,12 @@
     Hammer.on('auction:unsold', (data) => {
       verdictTitle.textContent = 'UNSOLD';
       verdictTitle.className = 'font-display text-6xl sm:text-7xl lg:text-8xl uppercase tracking-wide text-hm-faint leading-none animate-sold-slam';
-      verdictDetails.textContent = 'RESERVE NOT MET // LOT PASSES TO ACCELERATED POOL';
+      verdictDetails.textContent = 'RESERVE NOT MET • LOT PASSES TO ACCELERATED POOL';
       verdictOverlay.classList.remove('hidden');
-      hammerBadge.textContent = 'UNSOLD // PASSED';
+      hammerBadge.textContent = 'UNSOLD • PASSED';
       hammerBadge.className = 'px-2 py-0.5 bg-hm-panel text-hm-faint border border-hm-border-s font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
       secondsCounter.textContent = '00:00';
-      gavelStageLabel.textContent = 'HAMMER DOWN // NO BID ACCEPTED';
+      gavelStageLabel.textContent = 'HAMMER DOWN • NO BID ACCEPTED';
       renderState(data.state);
       Hammer.showToast(`${data.player.name} — UNSOLD`, 'info');
     });
@@ -692,8 +688,6 @@
       gavelStageLabel.textContent = 'FINAL CALL';
       resetGavelSteps(3);
     });
-
-    // Operator override simulation buttons
     if (btnBid) {
       btnBid.addEventListener('click', async () => {
         const state = Hammer.getState();
@@ -735,8 +729,6 @@
         }
       });
     }
-
-    // Initial state render
     const initial = await Hammer.getAuctionState();
     renderState(initial);
   })();

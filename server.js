@@ -14,7 +14,7 @@ const io = new Server(server, {
   cors: { origin: '*' }
 });
 
-// ─── MIDDLEWARE ──────────────────────────────────────────────
+// MIDDLEWARE
 app.use(express.json());
 app.use(cookieParser());
 
@@ -35,8 +35,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// ─── DATA STORE ─────────────────────────────────────────────
+// Data Store
 let players = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'players.json'), 'utf-8'));
+players.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0));
 let teams = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'teams.json'), 'utf-8'));
 
 // Compute and normalize remaining purse and filled slots for each team
@@ -95,7 +96,7 @@ const USERS = [
   { id: 'viewer', username: 'viewer', password: 'view2026', role: 'viewer', teamId: null }
 ];
 
-// ─── AUCTION STATE ──────────────────────────────────────────
+// AUCTION STATE
 let auction = {
   status: 'idle',          // idle | live | paused | completed
   currentPlayerId: null,
@@ -167,7 +168,7 @@ function logAuctionEvent(eventType, payload = {}) {
 
 let timerInterval = null;
 
-// ─── HELPERS ────────────────────────────────────────────────
+// HELPERS
 function getTeam(id) {
   if (!id) return null;
   const clean = String(id).trim().toUpperCase();
@@ -297,7 +298,7 @@ function getBidIncrement(currentBidLakhs) {
   return 50;
 }
 
-// ─── TIMER ENGINE ───────────────────────────────────────────
+// TIMER ENGINE
 function startTimer(resume = false) {
   stopTimer();
   if (!resume || !auction.timer || auction.timer <= 0) {
@@ -368,7 +369,7 @@ function resetTimer(seconds) {
   });
 }
 
-// ─── AUCTION ENGINE ─────────────────────────────────────────
+// AUCTION ENGINE
 function startAuctionForPlayer(playerId) {
   const player = getPlayer(playerId);
   if (!player) return { error: 'Player not found' };
@@ -787,7 +788,7 @@ function resumeAuction() {
   return { success: true, state };
 }
 
-// ─── AUTH ROUTES ────────────────────────────────────────────
+// AUTH ROUTES
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
   const user = USERS.find(u => u.username.toLowerCase() === (username || '').trim().toLowerCase() && u.password === password);
@@ -827,7 +828,7 @@ app.get('/api/auth/me', (req, res) => {
   res.json({ user: session, team });
 });
 
-// ─── PLAYER ROUTES ──────────────────────────────────────────
+// PLAYER ROUTES
 app.get('/api/players', (req, res) => {
   let result = [...players];
 
@@ -857,7 +858,9 @@ app.get('/api/players', (req, res) => {
     result = result.filter(p =>
       p.name.toLowerCase().includes(s) ||
       p.nationality.toLowerCase().includes(s) ||
-      p.role.toLowerCase().includes(s)
+      p.role.toLowerCase().includes(s) ||
+      (p.soldTo && String(p.soldTo).toLowerCase().includes(s)) ||
+      (p.team && String(p.team).toLowerCase().includes(s))
     );
   }
 
@@ -866,9 +869,9 @@ app.get('/api/players', (req, res) => {
   const sortDir = req.query.dir === 'asc' ? 1 : -1;
   result.sort((a, b) => {
     if (sortBy === 'name') return sortDir * a.name.localeCompare(b.name);
-    if (sortBy === 'basePrice') return sortDir * (b.basePrice - a.basePrice);
+    if (sortBy === 'basePrice') return sortDir === 1 ? ((a.basePrice || 0) - (b.basePrice || 0)) : ((b.basePrice || 0) - (a.basePrice || 0));
     if (sortBy === 'lotNumber') return sortDir * (a.lotNumber - b.lotNumber);
-    return 0;
+    return (b.basePrice || 0) - (a.basePrice || 0);
   });
 
   // Pagination
@@ -888,7 +891,7 @@ app.get('/api/players/:id', (req, res) => {
   res.json(player);
 });
 
-// ─── TEAM ROUTES ────────────────────────────────────────────
+// TEAM ROUTES
 app.get('/api/teams', (req, res) => {
   res.json(teams.map(t => {
     const squad = t.players || t.squad || [];
@@ -915,7 +918,7 @@ app.get('/api/teams/:id', (req, res) => {
   });
 });
 
-// ─── AUCTION ROUTES ─────────────────────────────────────────
+// AUCTION ROUTES
 app.get('/api/auction/state', (req, res) => {
   res.json(getPublicAuctionState());
 });
@@ -924,7 +927,7 @@ app.get('/api/auction/history', (req, res) => {
   res.json(auctionHistory);
 });
 
-// ─── ACTIVITY LOG ROUTE (Strictly Auctioneer Only) ───────────
+// ACTIVITY LOG ROUTE (Strictly Auctioneer Only)
 app.get('/api/auction/activity', requireAuth(['auctioneer']), (req, res) => {
   let result = [...auctionEvents];
   if (req.query.type && req.query.type !== 'all') {
@@ -964,7 +967,7 @@ app.get('/api/auction/activity', requireAuth(['auctioneer']), (req, res) => {
   res.json({ events, total, page, totalPages, limit, latestSequence: eventSequenceCounter });
 });
 
-// ─── AUTHORITATIVE EXPORT ENGINE ────────────────────────────
+// AUTHORITATIVE EXPORT ENGINE
 function toCSV(headers, rows) {
   const escapeCell = (v) => {
     if (v == null) return '""';
@@ -1429,7 +1432,7 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
   res.json({ success: true, state: getPublicAuctionState() });
 });
 
-// ─── SOCKET.IO ──────────────────────────────────────────────
+// SOCKET.IO
 io.on('connection', (socket) => {
   // Authenticate socket connection
   const token = socket.handshake.auth?.token;
@@ -1489,7 +1492,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// ─── FRONTEND PAGE ROUTES ───────────────────────────────────
+// FRONTEND PAGE ROUTES
 // Both clean URLs (/player-pool) and extension URLs (/player-pool.html) are explicitly supported.
 
 // 1. Live Auction (Broadcast Stage)
@@ -1577,7 +1580,7 @@ const profileHandler = (req, res) => {
 };
 app.get(['/profile', '/profile.html', '/avatar'], profileHandler);
 
-// ─── STATIC ASSET SERVING ───────────────────────────────────
+// STATIC ASSET SERVING
 // Root directories take priority — they contain the latest, canonical implementations.
 // public/ dirs serve as fallback only. Do NOT reverse this order.
 app.use('/css', express.static(path.join(__dirname, 'css')));
@@ -1593,7 +1596,7 @@ app.use(express.static(__dirname, {
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── 404 HANDLERS (SEPARATED API VS FRONTEND) ───────────────
+// 404 HANDLERS (SEPARATED API VS FRONTEND)
 // Unknown API requests -> return JSON 404
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found', path: req.path });
@@ -1636,7 +1639,7 @@ app.use((req, res) => {
 </html>`);
 });
 
-// ─── START SERVER ───────────────────────────────────────────
+// START SERVER
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`\n  ╔══════════════════════════════════════════════╗`);

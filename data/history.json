@@ -1,1 +1,185 @@
-[]
+[
+  {
+    "player": {
+      "id": 1,
+      "name": "VIRAT KOHLI",
+      "role": "batter",
+      "lotNumber": 1
+    },
+    "result": "sold",
+    "soldTo": {
+      "id": "CSK",
+      "name": "CHENNAI SUPER KINGS",
+      "shortName": "CSK"
+    },
+    "soldPrice": 260,
+    "basePrice": 200,
+    "bidCount": 4,
+    "bidHistory": [
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 200,
+        "timestamp": 1790941266442
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 220,
+        "timestamp": 1790941266448
+      },
+      {
+        "teamId": "RCB",
+        "teamName": "ROYAL CHALLENGERS BENGALURU",
+        "teamShortName": "RCB",
+        "amount": 240,
+        "timestamp": 1790941266451
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 260,
+        "timestamp": 1790941266459
+      }
+    ],
+    "timestamp": 1790941266465
+  },
+  {
+    "player": {
+      "id": 20,
+      "name": "PAT CUMMINS",
+      "role": "bowler",
+      "lotNumber": 20
+    },
+    "result": "unsold",
+    "soldTo": null,
+    "soldPrice": null,
+    "basePrice": 200,
+    "bidCount": 17,
+    "bidHistory": [
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 200,
+        "timestamp": 1790941266484
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 220,
+        "timestamp": 1790941266487
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 240,
+        "timestamp": 1790941266490
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 260,
+        "timestamp": 1790941266493
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 280,
+        "timestamp": 1790941266497
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 300,
+        "timestamp": 1790941266500
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 320,
+        "timestamp": 1790941266502
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 340,
+        "timestamp": 1790941266505
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 360,
+        "timestamp": 1790941266508
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 380,
+        "timestamp": 1790941266511
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 400,
+        "timestamp": 1790941266513
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 420,
+        "timestamp": 1790941266516
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 440,
+        "timestamp": 1790941266518
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 460,
+        "timestamp": 1790941266520
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 480,
+        "timestamp": 1790941266522
+      },
+      {
+        "teamId": "CSK",
+        "teamName": "CHENNAI SUPER KINGS",
+        "teamShortName": "CSK",
+        "amount": 500,
+        "timestamp": 1790941266524
+      },
+      {
+        "teamId": "MI",
+        "teamName": "MUMBAI INDIANS",
+        "teamShortName": "MI",
+        "amount": 550,
+        "timestamp": 1790941266528
+      }
+    ],
+    "timestamp": 1790941266533
+  }
+]

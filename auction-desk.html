@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Auctioneer Master Control Desk</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <title>HAMMER • Auctioneer Master Control Desk</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -51,10 +52,10 @@
   <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
     <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px] transition-transform group-hover:scale-95"><span class="material-symbols-outlined text-[18px] leading-none">gavel</span></div>
         <div class="flex flex-col">
           <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
-          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">AUCTIONEER DESK</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">VITB MUN Club</span>
         </div>
       </a>
 
@@ -99,7 +100,6 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]" id="desk-status">OFFLINE</span>
-          <button onclick="Hammer.logout()" class="px-3 py-1.5 bg-hm-elevated border border-hm-border-s font-mono text-[10px] uppercase tracking-wider hover:bg-hm-surface transition-colors rounded-[4px]">LOGOUT</button>
         </div>
       </div>
 
@@ -430,7 +430,7 @@
     async function loadPlayers() {
       try {
         const res = await Hammer.getPlayers({ limit: 500 });
-        allPlayers = res.players || [];
+        allPlayers = (res.players || []).sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0) || (a.lotNumber || 0) - (b.lotNumber || 0));
         renderQueue();
       } catch (e) {
         console.error('Failed to load players:', e);
@@ -439,7 +439,7 @@
 
     function renderQueue() {
       const container = document.getElementById('player-queue');
-      let filtered = allPlayers;
+      let filtered = [...allPlayers].sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0) || (a.lotNumber || 0) - (b.lotNumber || 0));
 
       if (currentFilter !== 'all') {
         filtered = filtered.filter(p => p.role === currentFilter);
@@ -486,16 +486,13 @@
       }).join('');
     }
 
-    let _startingAuction = false; // Idempotency guard: prevents duplicate auction-start requests
+    let _startingAuction = false;
 
     window.selectPlayerForAuction = async function(playerId) {
-      // Guard: prevent duplicate simultaneous requests
       if (_startingAuction) {
         Hammer.showToast('STARTING AUCTION...', 'info');
         return;
       }
-
-      // Guard: don't start if an auction is already live with a different player
       const currentState = Hammer.getState();
       if (currentState && currentState.status === 'live' && currentState.currentPlayer?.id !== playerId) {
         // If timer is at 0 and no bids, allow advancing
@@ -506,8 +503,6 @@
       }
 
       _startingAuction = true;
-
-      // Visual feedback: immediately show loading state on clicked item
       const clickedEl = document.querySelector(`[onclick="selectPlayerForAuction(${playerId})"]`);
       if (clickedEl) {
         clickedEl.style.opacity = '0.5';
@@ -527,7 +522,6 @@
         Hammer.showToast('LOT BROUGHT TO HAMMER', 'success');
       } catch (err) {
         Hammer.showToast(err.message || 'Failed to start lot', 'error');
-        // Restore visual state on error
         if (clickedEl) {
           clickedEl.style.opacity = '1';
           clickedEl.style.pointerEvents = '';
@@ -575,11 +569,9 @@
       lotBadge.className = 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold text-hm-vermilion bg-hm-vermilion/10 border border-hm-vermilion rounded-[4px]';
 
       const p = state.currentPlayer;
-      document.getElementById('desk-lot-num').textContent = 'LOT #' + String(p.lotNumber).padStart(3, '0') + ' // ' + (p.set || 'GENERAL');
+      document.getElementById('desk-lot-num').textContent = 'LOT #' + String(p.lotNumber).padStart(3, '0') + ' • ' + (p.set || 'GENERAL');
       document.getElementById('desk-player-name').textContent = p.name;
       document.getElementById('desk-player-meta').textContent = `${Hammer.getRoleLabel(p.role)} • ${p.nationality}${p.overseas ? ' (OVERSEAS)' : ''} • BASE ${Hammer.formatCurrency(p.basePrice)}`;
-
-      // Player Image with Skeleton
       const img = document.getElementById('desk-player-img');
       const skeleton = document.getElementById('desk-img-skeleton');
       const fallback = document.getElementById('desk-player-fallback');
@@ -628,8 +620,6 @@
       document.getElementById('desk-bid-status').textContent = state.leadingTeamId ? 'BID RECEIVED' : 'AWAITING FIRST BID';
       document.getElementById('desk-timer').textContent = Hammer.formatTimer(state.timer);
       document.getElementById('desk-gavel-label').textContent = Hammer.getGavelLabel(state.gavelStage);
-
-      // Gavel buttons
       ['desk-btn-call-1', 'desk-btn-call-2', 'desk-btn-call-3'].forEach((id, idx) => {
         const btn = document.getElementById(id);
         if (!btn) return;
@@ -638,8 +628,6 @@
           ? 'btn-hammer-physical px-1 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-center'
           : 'btn-paper-physical px-1 py-1 font-mono text-[9px] text-hm-muted uppercase tracking-wider text-center';
       });
-
-      // Sold button
       const soldBtn = document.getElementById('desk-btn-sold');
       if (state.leadingTeamId && state.leadingTeam) {
         soldBtn.disabled = false;
@@ -652,15 +640,19 @@
       }
 
       renderBidHistory(state.bidHistory);
-
-      // Purse highlights
       if (state.teams) {
         state.teams.forEach(t => {
           const row = document.querySelector(`.purse-row[data-team="${t.id}"]`);
           if (row) {
             const isLeader = state.leadingTeamId === t.id;
             row.className = `flex items-center justify-between px-3 py-2 purse-row ${isLeader ? 'bg-hm-elevated border border-hm-vermilion font-bold' : 'bg-hm-charcoal border border-hm-border'} rounded-[4px]`;
-            row.querySelector('span:last-child').textContent = Hammer.formatCurrency(t.remaining);
+            const amtEl = row.querySelector('.purse-amount-val');
+            if (amtEl) amtEl.textContent = Hammer.formatCurrency(t.remaining);
+            const slotsEl = row.querySelector('.purse-slots-val');
+            if (slotsEl) {
+              const filled = (t.filledSlots != null) ? t.filledSlots : (t.players ? t.players.length : (t.squad ? t.squad.length : 0));
+              slotsEl.textContent = `${filled}/${t.maxSlots || 15}`;
+            }
           }
         });
       }
@@ -709,9 +701,9 @@
             <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border purse-row rounded-[4px]" data-team="${t.id}">
               <div class="flex items-center gap-2">
                 ${typeof renderTeamBadge === 'function' ? renderTeamBadge(t.id, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${t.shortName}</span>`}
-                <span class="font-mono text-[9px] text-hm-faint">${filled}/${max}</span>
+                <span class="font-mono text-[9px] text-hm-faint purse-slots-val">${filled}/${max}</span>
               </div>
-              <span class="font-mono text-xs font-bold text-hm-text">${Hammer.formatCurrency(remaining)}</span>
+              <span class="font-mono text-xs font-bold text-hm-text purse-amount-val">${Hammer.formatCurrency(remaining)}</span>
             </div>
           `;
         }).join('');
@@ -720,8 +712,6 @@
         console.error('Failed to load purse:', e);
       }
     }
-
-    // Gavel calls
     ['desk-btn-call-1', 'desk-btn-call-2', 'desk-btn-call-3'].forEach((id, idx) => {
       document.getElementById(id).addEventListener('click', async () => {
         try {
@@ -889,8 +879,6 @@
         btn.querySelector('span:last-child').textContent = 'RESET LOT';
       }
     });
-
-    // ─── AUCTION SETTINGS HANDLERS ─────────────────────────
     async function updateTimerDuration(newDuration) {
       if (newDuration < 5 || newDuration > 120) return;
       try {
@@ -921,8 +909,6 @@
         if (sec) updateTimerDuration(sec);
       });
     });
-
-    // ─── COLLAPSIBLE SETTINGS TOGGLE ───────────────────────
     const toggleSettingsBtn = document.getElementById('toggle-settings-btn');
     const settingsContent = document.getElementById('settings-content');
     const settingsToggleIcon = document.getElementById('settings-toggle-icon');
@@ -942,8 +928,6 @@
         }
       });
     }
-
-    // ─── SQUAD SIZE LIMIT HANDLERS ─────────────────────────
     let configuredSquadLimit = 15;
     const settingSquadVal = document.getElementById('setting-squad-val');
     const settingSquadDesc = document.getElementById('setting-squad-desc');
@@ -979,8 +963,6 @@
         updateSquadLimit(Math.min(25, configuredSquadLimit + 1));
       });
     }
-
-    // ─── FRANCHISE EXPANSION HANDLERS (UP TO 15) ───────────
     const colorInput = document.getElementById('new-team-color');
     const colorHex = document.getElementById('new-team-color-hex');
     if (colorInput && colorHex) {
@@ -1041,8 +1023,6 @@
         }
       });
     }
-
-    // ─── AUDIO SETTINGS TOGGLES ───────────────────────────
     function renderAudioSettings() {
       if (!window.HammerUX) return;
       const settings = HammerUX.getAudioSettings();
@@ -1112,8 +1092,6 @@
       currentSearch = e.target.value.trim();
       renderQueue();
     });
-
-    // Realtime listeners
     Hammer.on('teams:update', (updatedTeams) => {
       loadPurseOverview(updatedTeams);
     });

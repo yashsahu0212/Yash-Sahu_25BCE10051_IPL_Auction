@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Live Auction Activity Log & Chronological Transcript</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <title>HAMMER • Live Auction Activity Log & Chronological Transcript</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -60,10 +61,10 @@
   <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
     <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px] transition-transform group-hover:scale-95"><span class="material-symbols-outlined text-[18px] leading-none">gavel</span></div>
         <div class="flex flex-col">
           <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
-          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">ACTIVITY LOG</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">VITB MUN Club</span>
         </div>
       </a>
 
@@ -175,7 +176,7 @@
 
   <footer class="w-full bg-hm-charcoal border-t border-hm-border py-4 mt-12">
     <div class="max-w-[1440px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between text-hm-faint gap-2 font-mono text-[10px] uppercase tracking-widest">
-      <span>HAMMER // 2026 OFFICIAL CRICKET AUCTION ENGINE</span>
+      <span>HAMMER • 2026 OFFICIAL CRICKET AUCTION ENGINE</span>
       <span class="text-hm-vermilion font-bold">AUTHORITATIVE REALTIME ADJUDICATION AUDIT</span>
     </div>
   </footer>
@@ -308,7 +309,7 @@
       } else if (ev.event_type === 'TEAM_SQUAD_UPDATED') {
         detailsHtml = `<span class="text-hm-faint font-mono text-xs">Purse & roster reconciled for ${ev.actor_team_id}.</span>`;
       } else {
-        detailsHtml = `<span class="text-hm-muted font-mono text-xs">${ev.event_type} // ${ev.actor_role || 'system'}</span>`;
+        detailsHtml = `<span class="text-hm-muted font-mono text-xs">${ev.event_type} • ${ev.actor_role || 'system'}</span>`;
       }
 
       const replayBtn = (ev.lot_id != null && (ev.event_type === 'LOT_SOLD' || ev.event_type === 'LOT_UNSOLD' || ev.event_type === 'BID_PLACED'))
@@ -372,8 +373,6 @@
       streamEl.classList.remove('hidden');
       streamEl.innerHTML = filtered.map(buildEventRow).join('');
     }
-
-    // Initial fetch
     try {
       const data = await Hammer.getActivityLog({ limit: 150 });
       allEvents = (data.events || []).sort((a, b) => (b.event_sequence || 0) - (a.event_sequence || 0));
@@ -382,8 +381,6 @@
     } catch (e) {
       console.error('Failed to load activity events:', e);
     }
-
-    // Realtime stream handler
     function handleIncomingEvent(event) {
       if (!event) return;
       if (allEvents.some(e => e.id === event.id || (event.event_sequence && e.event_sequence === event.event_sequence))) {

@@ -1350,37 +1350,36 @@
     const loggedIn = isLoggedIn();
     const user = getUser();
 
-    // Select all auth targets (login/logout buttons, links, or wrappers)
-    const targets = document.querySelectorAll(
-      '[data-nav="auth"], a[href*="login.html"], button[onclick*="Hammer.logout"], .auth-nav-btn'
-    );
+    // Select container elements designated for auth navigation
+    const containers = document.querySelectorAll('[data-nav="auth"]');
+    if (containers && containers.length > 0) {
+      containers.forEach(container => {
+        if (loggedIn) {
+          const isAuctioneer = user?.role === 'auctioneer';
+          const roleLabel = isAuctioneer ? 'AUCTIONEER' : (user?.teamId || user?.username?.toUpperCase() || 'FRANCHISE');
+          const badgeStyle = isAuctioneer
+            ? 'background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #10B981;'
+            : 'background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.4); color: #F59E0B;';
 
-    targets.forEach(el => {
-      if (loggedIn) {
-        // Authenticated: show "LOGOUT" text with clear logout button
-        const roleLabel = user?.role === 'auctioneer' ? 'AUCTIONEER' : (user?.teamId || user?.username?.toUpperCase() || 'USER');
-        const wrapper = document.createElement('div');
-        wrapper.className = 'auth-nav-btn flex items-center gap-2';
-        wrapper.innerHTML = `
-          <span class="hidden sm:inline-block font-mono text-[10px] text-hm-muted px-2 py-0.5 bg-hm-charcoal border border-hm-border rounded-[3px] font-bold">${roleLabel}</span>
-          <button onclick="Hammer.logout()" title="Sign Out of HAMMER" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
-            <span class="material-symbols-outlined text-[14px]">logout</span>
-            <span>LOGOUT</span>
-          </button>
-        `;
-        if (el.parentNode) el.parentNode.replaceChild(wrapper, el);
-      } else {
-        // Unauthenticated: show clear "LOGIN" text button
-        const link = document.createElement('a');
-        link.href = 'login.html';
-        link.className = 'auth-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold shadow-sm';
-        link.innerHTML = `
-          <span class="material-symbols-outlined text-[14px]">login</span>
-          <span>LOGIN</span>
-        `;
-        if (el.parentNode) el.parentNode.replaceChild(link, el);
-      }
-    });
+          container.innerHTML = `
+            <div class="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <span class="font-mono text-[10px] px-2 py-0.5 border rounded-[3px] font-bold" style="${badgeStyle}">${roleLabel}</span>
+              <button onclick="Hammer.logout()" title="Sign Out of HAMMER (${user?.username || ''})" class="inline-flex items-center gap-1 px-2.5 py-1 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s hover:border-hm-border text-hm-muted hover:text-hm-ruby transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
+                <span class="material-symbols-outlined text-[13px]">logout</span>
+                <span>LOGOUT</span>
+              </button>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <a href="login.html" class="inline-flex items-center gap-1.5 px-3 py-1 bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold shadow-sm whitespace-nowrap">
+              <span class="material-symbols-outlined text-[14px]">login</span>
+              <span>LOGIN</span>
+            </a>
+          `;
+        }
+      });
+    }
   }
 
   // ─── EXPOSE GLOBAL API ──────────────────────────────────

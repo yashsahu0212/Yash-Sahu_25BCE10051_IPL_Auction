@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Official Player Registry & Collectible Archive</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <title>HAMMER • Official Player Registry & Collectible Archive</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -51,10 +52,10 @@
   <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
     <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px] transition-transform group-hover:scale-95"><span class="material-symbols-outlined text-[18px] leading-none">gavel</span></div>
         <div class="flex flex-col">
           <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
-          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">PLAYER POOL</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">VITB MUN Club</span>
         </div>
       </a>
 
@@ -70,7 +71,6 @@
 
       <div class="flex items-center space-x-3">
         <div class="hidden md:flex items-center bg-hm-charcoal border border-hm-border px-3 py-1.5 space-x-2 rounded-[4px]">
-          <span class="w-2 h-2 rounded-full bg-hm-vermilion"></span>
           <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase">2026 MEGA AUCTION</span>
         </div>
         <div data-nav="auth">
@@ -91,7 +91,6 @@
       <div class="pb-6 mb-8 border-b border-hm-border-s flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
           <div class="flex items-center gap-2 mb-2 font-mono text-[10px] text-hm-vermilion tracking-[0.25em] uppercase font-bold">
-            <span class="inline-block w-2 h-2 bg-hm-vermilion rounded-[2px]"></span>
             <span>2026 OFFICIAL AUCTION CATALOGUE</span>
           </div>
           <h1 class="font-display text-6xl lg:text-7xl text-hm-text uppercase tracking-wide leading-none">
@@ -153,7 +152,6 @@
       <!-- PAGINATION -->
       <div class="mt-12 p-3 bg-hm-panel border border-hm-border-s flex flex-col sm:flex-row items-center justify-between gap-3 text-hm-muted font-mono text-xs rounded-[6px]">
         <div class="flex items-center gap-2">
-          <span class="w-2 h-2 bg-hm-vermilion rounded-[2px]"></span>
           <span class="uppercase tracking-widest text-hm-text font-bold">
             2026 IPL AUCTION REGULATIONS
           </span>
@@ -185,8 +183,6 @@
     let currentFilter = 'all';
     let currentSearch = '';
     const LIMIT = 12;
-
-    // ─── 3D AUTOMATIC HOVER FLIP CARD RENDERER ────────────
     function renderCard(p) {
       const roleFilter = p.role + (p.overseas ? ' overseas' : '') + (!p.capped ? ' uncapped' : '');
       const isSold = p.status === 'sold';
@@ -235,8 +231,6 @@
             <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest mt-1">OFFICIAL PROFILE</span>
           </div>
         `;
-
-      // Statistics for Back of Card
       const statsList = [];
       if (p.stats.matches != null) statsList.push({ label: 'MATCHES', val: p.stats.matches });
       if (p.stats.runs != null) statsList.push({ label: 'RUNS', val: p.stats.runs.toLocaleString() });
@@ -380,7 +374,9 @@
           page: currentPage,
           limit: LIMIT,
           role: currentFilter,
-          search: currentSearch
+          search: currentSearch,
+          sort: 'basePrice',
+          dir: 'desc'
         });
 
         const list = res.players || [];
@@ -413,8 +409,6 @@
         }
 
         grid.innerHTML = list.map(renderCard).join('');
-
-        // Handle instantly loaded/cached images
         grid.querySelectorAll('.card-player-img').forEach(img => {
           if (img.complete && img.naturalHeight > 0) {
             img.style.opacity = '1';
@@ -438,8 +432,6 @@
     }
 
     window.retryLoadPlayers = () => loadPlayers();
-
-    // Filter Buttons
     document.querySelectorAll('.filter-tab').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-tab').forEach(b => {
@@ -451,8 +443,6 @@
         loadPlayers();
       });
     });
-
-    // Search input
     let searchDebounce;
     document.getElementById('pool-search').addEventListener('input', (e) => {
       clearTimeout(searchDebounce);
@@ -462,16 +452,12 @@
         loadPlayers();
       }, 250);
     });
-
-    // Pagination
     document.getElementById('btn-prev').addEventListener('click', () => {
       if (currentPage > 1) { currentPage--; loadPlayers(); window.scrollTo({ top: 120, behavior: 'smooth' }); }
     });
     document.getElementById('btn-next').addEventListener('click', () => {
       currentPage++; loadPlayers(); window.scrollTo({ top: 120, behavior: 'smooth' });
     });
-
-    // Realtime pool sync
     Hammer.on('auction:sold', () => loadPlayers());
     Hammer.on('auction:unsold', () => loadPlayers());
     Hammer.on('auction:started', () => loadPlayers());

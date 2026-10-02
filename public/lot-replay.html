@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Historical Lot Replay & Settlement Archive</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <title>HAMMER • Historical Lot Replay & Settlement Archive</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -51,10 +52,10 @@
   <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
     <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px] transition-transform group-hover:scale-95"><span class="material-symbols-outlined text-[18px] leading-none">gavel</span></div>
         <div class="flex flex-col">
           <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
-          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">LOT REPLAY</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">VITB MUN Club</span>
         </div>
       </a>
 
@@ -106,7 +107,7 @@
             </span>
             <div>
               <h2 class="font-display text-4xl uppercase text-hm-text leading-none" id="theatre-player-name">Dewald Brevis</h2>
-              <span class="font-mono text-xs text-hm-muted uppercase" id="theatre-player-role">Batter // India</span>
+              <span class="font-mono text-xs text-hm-muted uppercase" id="theatre-player-role">Batter • India</span>
             </div>
           </div>
 
@@ -221,7 +222,7 @@
 
   <footer class="w-full bg-hm-charcoal border-t border-hm-border py-4">
     <div class="max-w-[1440px] mx-auto px-4 lg:px-8 flex flex-col md:flex-row items-center justify-between text-hm-faint gap-2 font-mono text-[10px] uppercase tracking-widest">
-      <span>HAMMER // 2026 OFFICIAL CRICKET AUCTION ENGINE</span>
+      <span>HAMMER • 2026 OFFICIAL CRICKET AUCTION ENGINE</span>
       <span class="text-hm-vermilion font-bold">ARCHIVAL AUDIT VERIFIED</span>
     </div>
   </footer>
@@ -346,8 +347,6 @@
           </div>
         `;
       }).join('');
-
-      // Wire Replay Theatre open buttons
       document.querySelectorAll('.btn-open-theatre').forEach(btn => {
         btn.addEventListener('click', () => {
           const lotId = btn.dataset.lot;
@@ -356,8 +355,6 @@
         });
       });
     }
-
-    // ─── INTERACTIVE LOT REPLAY THEATRE ─────────────────────────
     function openLotTheatre(lot) {
       activeTheatreLot = lot;
       replayStep = 0;
@@ -367,7 +364,7 @@
       document.getElementById('theatre-container').classList.remove('hidden');
       document.getElementById('theatre-lot-badge').textContent = `LOT #${String(lot.player.lotNumber || 1).padStart(3, '0')}`;
       document.getElementById('theatre-player-name').textContent = lot.player.name;
-      document.getElementById('theatre-player-role').textContent = `${Hammer.getRoleLabel(lot.player.role)} // Base: ${Hammer.formatCurrency(lot.basePrice)}`;
+      document.getElementById('theatre-player-role').textContent = `${Hammer.getRoleLabel(lot.player.role)} • Base: ${Hammer.formatCurrency(lot.basePrice)}`;
 
       document.getElementById('btn-export-lot-csv').href = `/api/export/lot/${lot.player.lotNumber || lot.player.id}?format=csv`;
 
@@ -396,7 +393,7 @@
           ? renderTeamBadge(currBid.teamId || currBid.teamShortName, { size: 'md', showFullName: true })
           : `${currBid.teamShortName || currBid.teamId} (${currBid.teamName || 'Franchise'})`;
         document.getElementById('theatre-status-label').textContent = replayStep === totalSteps
-          ? (activeTheatreLot.result === 'sold' ? 'LOT SOLD // HAMMER DOWN' : 'LOT PASSED // UNSOLD')
+          ? (activeTheatreLot.result === 'sold' ? 'LOT SOLD • HAMMER DOWN' : 'LOT PASSED • UNSOLD')
           : `BID #${replayStep} ACCEPTED`;
       }
 
@@ -477,8 +474,6 @@
         }, speed);
       }
     });
-
-    // Realtime history sync
     Hammer.on('auction:sold', () => loadHistory());
     Hammer.on('auction:unsold', () => loadHistory());
     Hammer.on('auction:reset', () => loadHistory());

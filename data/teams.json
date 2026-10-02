@@ -5,15 +5,37 @@
     "shortName": "CSK",
     "code": "CSK",
     "purse": 12500,
-    "spent": 0,
-    "remaining": 12500,
+    "spent": 260,
+    "remaining": 12240,
     "maxSlots": 15,
     "minSlots": 7,
-    "filledSlots": 0,
+    "filledSlots": 1,
     "color": "#F9CD05",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
-    "squad": [],
-    "players": []
+    "logo": "/teams/csk/logo.svg",
+    "squad": [
+      {
+        "id": 1,
+        "lotNumber": 1,
+        "name": "VIRAT KOHLI",
+        "role": "batter",
+        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
+        "price": 260,
+        "soldPrice": 260,
+        "overseas": false
+      }
+    ],
+    "players": [
+      {
+        "id": 1,
+        "lotNumber": 1,
+        "name": "VIRAT KOHLI",
+        "role": "batter",
+        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
+        "price": 260,
+        "soldPrice": 260,
+        "overseas": false
+      }
+    ]
   },
   {
     "id": "DC",
@@ -27,7 +49,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#004C97",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/dc/logo.svg",
     "squad": [],
     "players": []
   },
@@ -43,7 +65,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#1C2841",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/gt/logo.svg",
     "squad": [],
     "players": []
   },
@@ -59,7 +81,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#3A225D",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/kkr/logo.svg",
     "squad": [],
     "players": []
   },
@@ -75,7 +97,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#0057E7",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/lsg/logo.svg",
     "squad": [],
     "players": []
   },
@@ -91,7 +113,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#004BA0",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/mi/logo.svg",
     "squad": [],
     "players": []
   },
@@ -107,7 +129,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#ED1B24",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/pbks/logo.svg",
     "squad": [],
     "players": []
   },
@@ -123,7 +145,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#EA1A85",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/rr/logo.svg",
     "squad": [],
     "players": []
   },
@@ -139,7 +161,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#4A154B",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/rcb/logo.svg",
     "squad": [],
     "players": []
   },
@@ -155,7 +177,7 @@
     "minSlots": 7,
     "filledSlots": 0,
     "color": "#F26522",
-    "logo": "https://images.ctfassets.net/jot2qw8s50z1/68BTfjWpntEFEBXMhfs9Jf/27b791fb9dc3ee514ef5cddb5e6defb8/image.png",
+    "logo": "/teams/srh/logo.svg",
     "squad": [],
     "players": []
   }

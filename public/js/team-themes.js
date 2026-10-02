@@ -311,14 +311,14 @@
       logoSizeClass = 'w-8 h-8';
     }
 
-    const label = showFullName ? theme.fullName : theme.shortName;
+    const gapClass = size === 'sm' ? 'gap-1' : 'gap-2';
 
     return `
-      <span class="inline-flex items-center gap-2 border font-mono uppercase font-bold tracking-wider rounded-[4px] select-none transition-all ${heightClass} ${customClass}"
+      <span class="inline-flex items-center ${gapClass} border font-mono uppercase font-bold tracking-wider rounded-[4px] select-none transition-all whitespace-nowrap shrink-0 ${heightClass} ${customClass}"
             style="background-color: ${theme.badgeBg}; border-color: ${theme.badgeBorder}; color: ${theme.contrastText}; box-shadow: 0 0 12px ${theme.badgeBg};"
             title="${theme.fullName}">
         <img src="${theme.logo}" alt="${theme.shortName}" class="${logoSizeClass} object-contain shrink-0" onerror="this.style.display='none'"/>
-        <span>${label}</span>
+        <span class="badge-team-label shrink-0">${label}</span>
       </span>
     `.trim();
   }

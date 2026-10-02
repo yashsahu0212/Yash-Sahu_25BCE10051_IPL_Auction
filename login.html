@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Authentication Portal</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <title>HAMMER • Authentication Portal</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -50,8 +51,9 @@
     
     <!-- BRAND MASTHEAD -->
     <div class="text-center mb-8">
-      <div class="w-14 h-14 mx-auto bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-3xl tracking-wider rounded-[6px] mb-4">H</div>
+      <div class="w-14 h-14 mx-auto bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[6px] mb-4"><span class="material-symbols-outlined text-[32px] leading-none">gavel</span></div>
       <h1 class="font-display text-5xl tracking-[0.12em] text-hm-text uppercase">HAMMER</h1>
+      <div class="font-mono text-[9px] text-hm-faint uppercase tracking-[0.2em] mt-1">VITB MUN Club</div>
     </div>
 
     <!-- LOGIN FORM -->
@@ -137,8 +139,6 @@
       const form = document.getElementById('login-form');
       const errorEl = document.getElementById('login-error');
       const loginBtn = document.getElementById('login-btn');
-
-      // Quick login buttons
       document.querySelectorAll('.quick-login').forEach(btn => {
         btn.addEventListener('click', () => {
           document.getElementById('username').value = btn.dataset.user;

@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>HAMMER // Franchise Bidding Terminal</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <title>HAMMER • Franchise Bidding Terminal</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -50,10 +51,10 @@
   <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
     <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
       <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
-        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center font-display text-lg tracking-wider rounded-[4px] transition-transform group-hover:scale-95">H</div>
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px] transition-transform group-hover:scale-95"><span class="material-symbols-outlined text-[18px] leading-none">gavel</span></div>
         <div class="flex flex-col">
           <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
-          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">TEAM TERMINAL</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">VITB MUN Club</span>
         </div>
       </a>
 
@@ -131,7 +132,7 @@
           <div class="bg-hm-panel border border-hm-border-s p-5 lg:p-6 rounded-[6px]">
             <div class="flex items-center justify-between pb-3 mb-4 border-b border-hm-border">
               <div class="flex items-center gap-2">
-                <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">STAGE // LIVE HAMMER</span>
+                <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">STAGE • LIVE HAMMER</span>
               </div>
               <span class="px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]" id="tc-auction-badge">AWAITING LOT</span>
             </div>
@@ -315,8 +316,6 @@
     let myTeamData = null;
     let currentAuctionState = null;
     let isSubmitting = false;
-
-    // DOM Elements
     const teamLogoBadge = document.getElementById('team-logo-badge');
     const teamCodeBadge = document.getElementById('team-code-badge');
     const teamFullName = document.getElementById('team-full-name');
@@ -377,7 +376,10 @@
 
         const theme = window.getTeamTheme ? window.getTeamTheme(myTeamId) : null;
         if (theme) {
-          teamLogoBadge.innerHTML = `<img src="${theme.logo}" class="w-12 h-12 object-contain" alt="${theme.shortName}" onerror="this.outerHTML='${myTeamData.shortName.slice(0, 3)}'"/>`;
+          teamLogoBadge.innerHTML = `
+            <img src="${theme.logo}" class="w-12 h-12 object-contain shrink-0" alt="${theme.shortName}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';"/>
+            <span class="font-display text-2xl font-bold" style="display:none; color: ${theme.contrastText || theme.primary};">${theme.shortName}</span>
+          `;
           teamLogoBadge.style.borderColor = theme.primary;
           teamLogoBadge.style.backgroundColor = theme.primary + '15';
           teamCodeBadge.textContent = theme.shortName;
@@ -389,7 +391,7 @@
             headerCard.style.borderLeft = `4px solid ${theme.primary}`;
           }
         } else {
-          teamLogoBadge.textContent = myTeamData.shortName.slice(0, 3);
+          teamLogoBadge.textContent = myTeamData.shortName ? myTeamData.shortName.slice(0, 3) : 'TM';
           teamCodeBadge.textContent = myTeamData.code || myTeamData.id;
         }
         teamFullName.textContent = myTeamData.name;
@@ -399,13 +401,13 @@
         tcPurseRemaining.textContent = Hammer.formatCurrency(myTeamData.remaining);
 
         // Squad rendering
-        const squad = myTeamData.squad || myTeamData.players || [];
-        tcSquadCount.textContent = `${squad.length} / ${myTeamData.maxSlots} SLOTS`;
+        const squad = [...(myTeamData.squad || myTeamData.players || [])].sort((a, b) => (b.basePrice || b.price || 0) - (a.basePrice || a.price || 0));
+        tcSquadCount.textContent = `${squad.length} / ${myTeamData.maxSlots || 15} SLOTS`;
         tcSquadSpent.textContent = `COMMITTED: ${Hammer.formatCurrency(myTeamData.spent)}`;
 
         // Slot indicators
         let slotsHtml = '';
-        for (let i = 0; i < myTeamData.maxSlots; i++) {
+        for (let i = 0; i < (myTeamData.maxSlots || 15); i++) {
           const filled = i < squad.length;
           slotsHtml += `<div class="h-2 border border-hm-border ${filled ? 'bg-hm-vermilion' : 'bg-hm-charcoal'} rounded-[2px]"></div>`;
         }
@@ -471,7 +473,7 @@
         const theme = window.getTeamTheme ? window.getTeamTheme(t.id) : null;
         const badgeHtml = window.renderTeamBadge ? window.renderTeamBadge(t.id, { size: 'sm', showFullName: false }) : `<span class="font-mono text-xs font-bold text-hm-muted">${t.shortName}</span>`;
         const filled = (t.filledSlots != null) ? t.filledSlots : (t.players ? t.players.length : (t.squad ? t.squad.length : 0));
-        const max = t.maxSlots || 25;
+        const max = t.maxSlots || 15;
         return `
           <div class="flex items-center justify-between px-3 py-1.5 ${isLeader ? 'bg-hm-elevated border-2 font-bold' : isMe ? 'bg-hm-elevated border border-hm-border-strong' : 'bg-hm-charcoal/60 border border-hm-border'} rounded-[4px]" style="${isLeader && theme ? `border-color: ${theme.primary}; background-color: ${theme.primary}12;` : ''}">
             <div class="flex items-center gap-2">
@@ -487,8 +489,6 @@
         `;
       }).join('');
     }
-
-    // ─── RENDER BID BUTTON & STATES ─────────
     function renderBiddingButton(state) {
       if (!state || state.status !== 'live' || !state.currentPlayer) {
         tcBidBtn.disabled = true;
@@ -616,8 +616,6 @@
       if (stats.wickets != null) statParts.push(stats.wickets + ' WKTS');
       if (stats.strikeRate != null) statParts.push('SR ' + stats.strikeRate);
       tcStatsSummary.textContent = statParts.join(' • ') || 'OFFICIAL IPL RECORD';
-
-      // Player Image with Skeleton
       const initials = (p.name || '').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'HM';
       if (tcPlayerInitials) tcPlayerInitials.textContent = initials;
       if (tcPlayerIcon) tcPlayerIcon.textContent = Hammer.getRoleIcon(p.role);
@@ -663,8 +661,6 @@
 
       renderBiddingButton(state);
     }
-
-    // ─── BID EXECUTION ─────────────────────────────
     tcBidBtn.addEventListener('click', async () => {
       if (!currentAuctionState || isSubmitting) return;
       const nextBid = getNextValidBid(currentAuctionState);
@@ -684,8 +680,6 @@
         renderBiddingButton(currentAuctionState);
       }
     });
-
-    // ─── SOCKET HANDLERS ─────────────────────────
     Hammer.on('auction:state', (state) => {
       renderAuctionState(state);
       if (state?.teams) syncTeamData(state.teams);

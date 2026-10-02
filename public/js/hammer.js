@@ -598,7 +598,9 @@
     markUnsold() { return this._fetch('POST', '/api/auction/unsold'); },
     pauseAuction() { return this._fetch('POST', '/api/auction/pause'); },
     resumeAuction() { return this._fetch('POST', '/api/auction/resume'); },
-    resetAuction() { return this._fetch('POST', '/api/auction/reset'); }
+    resetAuction() { return this._fetch('POST', '/api/auction/reset'); },
+    setSquadLimit(maxSlots) { return this._fetch('POST', '/api/auction/squad-limit', { maxSlots }); },
+    createFranchise(data) { return this._fetch('POST', '/api/teams/create', data); }
   };
 
   // ─── UNIFIED API PROXY ──────────────────────────────────
@@ -849,7 +851,7 @@
         }
         if (_lastAuctionState && (_lastAuctionState.status === 'live' || _lastAuctionState.status === 'paused')) {
           API.getAuctionState().then(s => {
-            if (s && (_lastAuctionState?.status !== s.status || _lastAuctionState?.currentBid !== s.currentBid || _lastAuctionState?.currentPlayer?.id !== s.currentPlayer?.id)) {
+            if (s && !s.error && s.status && s.status !== 'idle' && s.currentPlayer && (_lastAuctionState?.status !== s.status || _lastAuctionState?.currentBid !== s.currentBid || _lastAuctionState?.currentPlayer?.id !== s.currentPlayer?.id)) {
               _lastAuctionState = s;
               emit('auction:state', s);
             }
@@ -1345,27 +1347,38 @@
   }
 
   function updatePersonIcon() {
-    const personIcons = document.querySelectorAll('.material-symbols-outlined');
-    personIcons.forEach(icon => {
-      const text = icon.textContent.trim();
-      if (text === 'person' || text === 'account_circle') {
-        const btn = icon.closest('a') || icon.closest('button') || icon.closest('div') || icon.parentElement;
-        if (btn && !btn._hammerBound) {
-          btn._hammerBound = true;
-          btn.style.cursor = 'pointer';
-          btn.addEventListener('click', (e) => {
-            if (isLoggedIn()) {
-              e.preventDefault();
-              if (_user && _user.role === 'auctioneer') {
-                window.location.href = '/auction-desk.html';
-              } else if (_user && _user.role === 'team_owner') {
-                window.location.href = '/team-console.html';
-              } else {
-                window.location.href = '/login.html';
-              }
-            }
-          });
-        }
+    const loggedIn = isLoggedIn();
+    const user = getUser();
+
+    // Select all auth targets (login/logout buttons, links, or wrappers)
+    const targets = document.querySelectorAll(
+      '[data-nav="auth"], a[href*="login.html"], button[onclick*="Hammer.logout"], .auth-nav-btn'
+    );
+
+    targets.forEach(el => {
+      if (loggedIn) {
+        // Authenticated: show "LOGOUT" text with clear logout button
+        const roleLabel = user?.role === 'auctioneer' ? 'AUCTIONEER' : (user?.teamId || user?.username?.toUpperCase() || 'USER');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'auth-nav-btn flex items-center gap-2';
+        wrapper.innerHTML = `
+          <span class="hidden sm:inline-block font-mono text-[10px] text-hm-muted px-2 py-0.5 bg-hm-charcoal border border-hm-border rounded-[3px] font-bold">${roleLabel}</span>
+          <button onclick="Hammer.logout()" title="Sign Out of HAMMER" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
+            <span class="material-symbols-outlined text-[14px]">logout</span>
+            <span>LOGOUT</span>
+          </button>
+        `;
+        if (el.parentNode) el.parentNode.replaceChild(wrapper, el);
+      } else {
+        // Unauthenticated: show clear "LOGIN" text button
+        const link = document.createElement('a');
+        link.href = 'login.html';
+        link.className = 'auth-nav-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold shadow-sm';
+        link.innerHTML = `
+          <span class="material-symbols-outlined text-[14px]">login</span>
+          <span>LOGIN</span>
+        `;
+        if (el.parentNode) el.parentNode.replaceChild(link, el);
       }
     });
   }
@@ -1412,6 +1425,8 @@
     addTimer: (sec) => API.addTimer(sec),
     resetTimer: (sec) => API.resetTimer(sec),
     setTimerDuration: (dur) => API.setTimerDuration(dur),
+    setSquadLimit: (maxSlots) => API.setSquadLimit(maxSlots),
+    createFranchise: (data) => API.createFranchise(data),
     setGavelStage: (stage) => API.setGavel(stage),
     getState: () => _lastAuctionState,
     getBidIncrement,

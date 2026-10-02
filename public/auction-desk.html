@@ -76,9 +76,12 @@
             <span class="font-mono text-[10px] font-bold text-hm-vermilion tracking-widest uppercase" id="clock-tick">GAVEL ACTIVE</span>
           </div>
         </div>
-        <button onclick="Hammer.logout()" title="Logout" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
-          <span class="material-symbols-outlined text-[16px]">logout</span>
-        </button>
+        <div data-nav="auth">
+          <button onclick="Hammer.logout()" title="Logout" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
+            <span class="material-symbols-outlined text-[14px]">logout</span>
+            <span>LOGOUT</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -245,61 +248,131 @@
         <!-- RIGHT: SETTINGS & FRANCHISE PURSE AUDIT -->
         <div class="lg:col-span-3 flex flex-col gap-5">
 
-          <!-- AUCTION SETTINGS -->
-          <div class="bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
-            <div class="flex items-center justify-between pb-3 mb-4 border-b border-hm-border">
+          <!-- AUCTION CONFIGURATION (COLLAPSIBLE) -->
+          <div class="bg-hm-panel border border-hm-border-s rounded-[6px] overflow-hidden transition-all duration-300" id="auction-settings-panel">
+            <button id="toggle-settings-btn" type="button" class="w-full p-4 flex items-center justify-between text-left hover:bg-hm-elevated/40 transition-colors">
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 bg-hm-vermilion rounded-[2px]"></span>
+                <span class="material-symbols-outlined text-[16px] text-hm-vermilion">settings</span>
                 <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">AUCTION SETTINGS</span>
+                <span class="px-1.5 py-0.5 text-[9px] font-mono text-hm-faint bg-hm-charcoal border border-hm-border rounded-[2px]" id="settings-summary-badge">15s • 15 SLOTS</span>
               </div>
-              <span class="font-mono text-[9px] text-hm-muted uppercase">AUTHORITY</span>
-            </div>
+              <div class="flex items-center gap-1 font-mono text-[10px] text-hm-faint">
+                <span id="settings-toggle-text">OPEN SETTINGS</span>
+                <span class="material-symbols-outlined text-[16px] transition-transform duration-200" id="settings-toggle-icon">expand_more</span>
+              </div>
+            </button>
 
-            <!-- LOT TIMER SETTING -->
-            <div class="mb-5 pb-4 border-b border-hm-border">
-              <div class="flex items-center justify-between mb-2">
-                <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">LOT TIMER</span>
-                <span class="font-mono text-[9px] text-hm-vermilion uppercase font-bold" id="timer-sync-badge">AUTHORITATIVE</span>
-              </div>
-              <div class="flex items-center justify-between bg-hm-charcoal border border-hm-border px-3 py-2 rounded-[4px] mb-2.5">
-                <button id="setting-timer-minus" type="button" class="btn-paper-physical w-8 h-8 flex items-center justify-center font-mono text-base font-bold text-hm-text hover:text-hm-vermilion transition-colors" title="Decrease timer">−</button>
-                <div class="text-center">
-                  <span class="font-display text-3xl text-hm-text tracking-wider leading-none" id="setting-timer-val">15</span>
-                  <span class="font-mono text-[10px] text-hm-faint tracking-widest uppercase block mt-0.5">SECONDS</span>
+            <!-- Collapsible Body (Default Hidden to save space) -->
+            <div id="settings-content" class="hidden p-5 pt-0 border-t border-hm-border space-y-5">
+              
+              <!-- 1. LOT TIMER SETTING -->
+              <div class="pt-4 pb-4 border-b border-hm-border">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">LOT TIMER</span>
+                  <span class="font-mono text-[9px] text-hm-vermilion uppercase font-bold" id="timer-sync-badge">AUTHORITATIVE</span>
                 </div>
-                <button id="setting-timer-plus" type="button" class="btn-paper-physical w-8 h-8 flex items-center justify-center font-mono text-base font-bold text-hm-text hover:text-hm-vermilion transition-colors" title="Increase timer">+</button>
+                <div class="flex items-center justify-between bg-hm-charcoal border border-hm-border px-3 py-2 rounded-[4px] mb-2.5">
+                  <button id="setting-timer-minus" type="button" class="btn-paper-physical w-8 h-8 flex items-center justify-center font-mono text-base font-bold text-hm-text hover:text-hm-vermilion transition-colors" title="Decrease timer">−</button>
+                  <div class="text-center">
+                    <span class="font-display text-3xl text-hm-text tracking-wider leading-none" id="setting-timer-val">15</span>
+                    <span class="font-mono text-[10px] text-hm-faint tracking-widest uppercase block mt-0.5">SECONDS</span>
+                  </div>
+                  <button id="setting-timer-plus" type="button" class="btn-paper-physical w-8 h-8 flex items-center justify-center font-mono text-base font-bold text-hm-text hover:text-hm-vermilion transition-colors" title="Increase timer">+</button>
+                </div>
+                <!-- Quick preset chips -->
+                <div class="grid grid-cols-4 gap-1 font-mono text-[9px]">
+                  <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="5">5s</button>
+                  <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="10">10s</button>
+                  <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="15">15s</button>
+                  <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="30">30s</button>
+                </div>
               </div>
-              <!-- Quick preset chips -->
-              <div class="grid grid-cols-4 gap-1 font-mono text-[9px]">
-                <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="5">5s</button>
-                <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="10">10s</button>
-                <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="15">15s</button>
-                <button type="button" class="timer-preset-btn px-1.5 py-1 bg-hm-elevated border border-hm-border hover:border-hm-vermilion text-hm-muted hover:text-hm-text transition-colors rounded-[3px]" data-sec="30">30s</button>
-              </div>
-            </div>
 
-            <!-- AUCTION SOUNDS SETTING -->
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">AUCTION SOUNDS</span>
-                <button id="audio-master-toggle" type="button" class="font-mono text-[9px] px-2 py-0.5 bg-hm-elevated border border-hm-border text-hm-text uppercase font-bold hover:bg-hm-surface transition-colors rounded-[3px]">AUDIO: ON</button>
-              </div>
-              <div class="space-y-2 font-mono text-[11px]">
-                <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border rounded-[4px]">
-                  <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[14px] text-hm-vermilion">gavel</span>
-                    <span class="text-hm-text uppercase font-bold">HAMMER STRIKE</span>
-                  </div>
-                  <button id="sound-hammer-toggle" type="button" class="px-2.5 py-1 bg-hm-vermilion text-hm-text text-[10px] font-bold uppercase rounded-[3px]">ON</button>
+              <!-- 2. SQUAD CAPACITY LIMIT SETTING -->
+              <div class="pb-4 border-b border-hm-border">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">FRANCHISE SQUAD CAPACITY</span>
+                  <span class="font-mono text-[9px] text-hm-vermilion uppercase font-bold" id="squad-limit-badge">AUTHORITATIVE</span>
                 </div>
-                <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border rounded-[4px]">
-                  <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[14px] text-hm-amber">timer</span>
-                    <span class="text-hm-text uppercase font-bold">COUNTDOWN (5s)</span>
+                <div class="flex items-center justify-between bg-hm-charcoal border border-hm-border px-3 py-2 rounded-[4px] mb-2">
+                  <button id="setting-squad-minus" type="button" class="btn-paper-physical w-8 h-8 flex items-center justify-center font-mono text-base font-bold text-hm-text hover:text-hm-vermilion transition-colors" title="Decrease squad limit">−</button>
+                  <div class="text-center">
+                    <span class="font-display text-3xl text-hm-text tracking-wider leading-none" id="setting-squad-val">15</span>
+                    <span class="font-mono text-[10px] text-hm-faint tracking-widest uppercase block mt-0.5">PLAYERS / ROSTER</span>
                   </div>
-                  <button id="sound-countdown-toggle" type="button" class="px-2.5 py-1 bg-hm-vermilion text-hm-text text-[10px] font-bold uppercase rounded-[3px]">ON</button>
+                  <button id="setting-squad-plus" type="button" class="btn-paper-physical w-8 h-8 flex items-center justify-center font-mono text-base font-bold text-hm-text hover:text-hm-vermilion transition-colors" title="Increase squad limit">+</button>
+                </div>
+                <div class="flex items-center justify-between font-mono text-[9px] text-hm-faint px-1">
+                  <span>MIN: 7</span>
+                  <span>ACTIVE: <strong class="text-hm-text" id="setting-squad-desc">15 MAX PLAYERS</strong></span>
+                  <span>MAX: 25</span>
                 </div>
               </div>
+
+              <!-- 3. ADD FRANCHISE UP TO 15 -->
+              <div class="pb-4 border-b border-hm-border">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">EXPAND FRANCHISES</span>
+                  <span class="font-mono text-[9px] text-hm-emerald uppercase font-bold" id="franchise-count-badge">10 / 15 TEAMS</span>
+                </div>
+                <div id="add-franchise-container">
+                  <form id="form-add-franchise" class="space-y-2.5 bg-hm-charcoal border border-hm-border p-3 rounded-[4px]">
+                    <div>
+                      <label class="font-mono text-[9px] text-hm-faint uppercase tracking-widest block mb-1">Franchise Name</label>
+                      <input id="new-team-name" type="text" placeholder="e.g. AHMEDABAD ACES" required class="w-full bg-hm-panel border border-hm-border px-2.5 py-1.5 font-mono text-xs text-hm-text placeholder-hm-dim rounded-[3px] focus:border-hm-vermilion focus:outline-none"/>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <label class="font-mono text-[9px] text-hm-faint uppercase tracking-widest block mb-1">Code (2-4 chars)</label>
+                        <input id="new-team-code" type="text" placeholder="e.g. AA" maxlength="4" required class="w-full bg-hm-panel border border-hm-border px-2.5 py-1.5 font-mono text-xs text-hm-text uppercase placeholder-hm-dim rounded-[3px] focus:border-hm-vermilion focus:outline-none"/>
+                      </div>
+                      <div>
+                        <label class="font-mono text-[9px] text-hm-faint uppercase tracking-widest block mb-1">Team Colour</label>
+                        <div class="flex items-center gap-1.5 bg-hm-panel border border-hm-border px-2 py-1 rounded-[3px]">
+                          <input id="new-team-color" type="color" value="#C74632" class="w-6 h-6 bg-transparent border-0 cursor-pointer"/>
+                          <span class="font-mono text-[10px] text-hm-muted" id="new-team-color-hex">#C74632</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label class="font-mono text-[9px] text-hm-faint uppercase tracking-widest block mb-1">Starting Purse (Cr)</label>
+                      <input id="new-team-purse" type="number" value="125" min="50" max="250" class="w-full bg-hm-panel border border-hm-border px-2.5 py-1.5 font-mono text-xs text-hm-text rounded-[3px] focus:border-hm-vermilion focus:outline-none"/>
+                    </div>
+                    <button type="submit" id="btn-submit-team" class="btn-hammer-physical w-full font-mono text-[10px] font-bold uppercase tracking-wider py-2 flex items-center justify-center gap-1.5 rounded-[3px]">
+                      <span class="material-symbols-outlined text-[13px]">add_circle</span>
+                      <span>RATIFY NEW FRANCHISE</span>
+                    </button>
+                  </form>
+                  <p id="max-franchises-msg" class="hidden font-mono text-[10px] text-hm-amber text-center py-2 bg-hm-charcoal border border-hm-border rounded-[4px] font-bold">
+                    MAXIMUM 15 FRANCHISES REACHED
+                  </p>
+                </div>
+              </div>
+
+              <!-- 4. AUCTION SOUNDS SETTING -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">AUCTION SOUNDS</span>
+                  <button id="audio-master-toggle" type="button" class="font-mono text-[9px] px-2 py-0.5 bg-hm-elevated border border-hm-border text-hm-text uppercase font-bold hover:bg-hm-surface transition-colors rounded-[3px]">AUDIO: ON</button>
+                </div>
+                <div class="space-y-2 font-mono text-[11px]">
+                  <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border rounded-[4px]">
+                    <div class="flex items-center gap-2">
+                      <span class="material-symbols-outlined text-[14px] text-hm-vermilion">gavel</span>
+                      <span class="text-hm-text uppercase font-bold">HAMMER STRIKE</span>
+                    </div>
+                    <button id="sound-hammer-toggle" type="button" class="px-2.5 py-1 bg-hm-vermilion text-hm-text text-[10px] font-bold uppercase rounded-[3px]">ON</button>
+                  </div>
+                  <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border rounded-[4px]">
+                    <div class="flex items-center gap-2">
+                      <span class="material-symbols-outlined text-[14px] text-hm-amber">timer</span>
+                      <span class="text-hm-text uppercase font-bold">COUNTDOWN (5s)</span>
+                    </div>
+                    <button id="sound-countdown-toggle" type="button" class="px-2.5 py-1 bg-hm-vermilion text-hm-text text-[10px] font-bold uppercase rounded-[3px]">ON</button>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -465,14 +538,23 @@
     };
 
     function renderAuctionState(state) {
-      if (!state) return;
+      if (!state || state.error) return;
 
       if (state.maxTimer) {
         configuredTimerDuration = state.maxTimer;
         if (settingTimerVal) settingTimerVal.textContent = state.maxTimer;
       }
 
-      if (state.status === 'idle' || !state.currentPlayer) {
+      // If state is live or paused but currentPlayer object is missing, hydrate from allPlayers or lot queue
+      if ((state.status === 'live' || state.status === 'paused') && !state.currentPlayer && state.currentPlayerId) {
+        const found = allPlayers.find(x => String(x.id) === String(state.currentPlayerId) || String(x.lotNumber) === String(state.currentPlayerId));
+        if (found) {
+          state.currentPlayer = found;
+        }
+      }
+
+      // Only enter idle/awaiting lot if status is explicitly idle and no lot is active
+      if (state.status === 'idle' || (!state.currentPlayer && !state.currentPlayerId)) {
         deskStatus.textContent = 'AWAITING LOT';
         deskStatus.className = 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-hm-border-s bg-hm-elevated text-hm-faint rounded-[4px]';
         lotEmpty.classList.remove('hidden');
@@ -633,6 +715,7 @@
             </div>
           `;
         }).join('');
+        if (typeof updateFranchiseUIState === 'function') updateFranchiseUIState(teams.length);
       } catch (e) {
         console.error('Failed to load purse:', e);
       }
@@ -838,6 +921,126 @@
         if (sec) updateTimerDuration(sec);
       });
     });
+
+    // ─── COLLAPSIBLE SETTINGS TOGGLE ───────────────────────
+    const toggleSettingsBtn = document.getElementById('toggle-settings-btn');
+    const settingsContent = document.getElementById('settings-content');
+    const settingsToggleIcon = document.getElementById('settings-toggle-icon');
+    const settingsToggleText = document.getElementById('settings-toggle-text');
+
+    if (toggleSettingsBtn && settingsContent) {
+      toggleSettingsBtn.addEventListener('click', () => {
+        const isHidden = settingsContent.classList.contains('hidden');
+        if (isHidden) {
+          settingsContent.classList.remove('hidden');
+          if (settingsToggleIcon) settingsToggleIcon.textContent = 'expand_less';
+          if (settingsToggleText) settingsToggleText.textContent = 'CLOSE';
+        } else {
+          settingsContent.classList.add('hidden');
+          if (settingsToggleIcon) settingsToggleIcon.textContent = 'expand_more';
+          if (settingsToggleText) settingsToggleText.textContent = 'OPEN SETTINGS';
+        }
+      });
+    }
+
+    // ─── SQUAD SIZE LIMIT HANDLERS ─────────────────────────
+    let configuredSquadLimit = 15;
+    const settingSquadVal = document.getElementById('setting-squad-val');
+    const settingSquadDesc = document.getElementById('setting-squad-desc');
+    const settingsSummaryBadge = document.getElementById('settings-summary-badge');
+
+    async function updateSquadLimit(newLimit) {
+      if (newLimit < 7 || newLimit > 25) return;
+      try {
+        await Hammer.setSquadLimit(newLimit);
+        configuredSquadLimit = newLimit;
+        if (settingSquadVal) settingSquadVal.textContent = newLimit;
+        if (settingSquadDesc) settingSquadDesc.textContent = `${newLimit} MAX PLAYERS`;
+        if (settingsSummaryBadge) {
+          settingsSummaryBadge.textContent = `${configuredTimerDuration}s • ${newLimit} SLOTS`;
+        }
+        await loadPurseOverview();
+        Hammer.showToast(`Franchise squad capacity set to ${newLimit} players`, 'success');
+      } catch (e) {
+        Hammer.showToast(e.message || 'Failed to update squad limit', 'error');
+      }
+    }
+
+    const squadMinusBtn = document.getElementById('setting-squad-minus');
+    if (squadMinusBtn) {
+      squadMinusBtn.addEventListener('click', () => {
+        updateSquadLimit(Math.max(7, configuredSquadLimit - 1));
+      });
+    }
+
+    const squadPlusBtn = document.getElementById('setting-squad-plus');
+    if (squadPlusBtn) {
+      squadPlusBtn.addEventListener('click', () => {
+        updateSquadLimit(Math.min(25, configuredSquadLimit + 1));
+      });
+    }
+
+    // ─── FRANCHISE EXPANSION HANDLERS (UP TO 15) ───────────
+    const colorInput = document.getElementById('new-team-color');
+    const colorHex = document.getElementById('new-team-color-hex');
+    if (colorInput && colorHex) {
+      colorInput.addEventListener('input', (e) => {
+        colorHex.textContent = e.target.value.toUpperCase();
+      });
+    }
+
+    const formAddFranchise = document.getElementById('form-add-franchise');
+    const franchiseCountBadge = document.getElementById('franchise-count-badge');
+    const maxFranchisesMsg = document.getElementById('max-franchises-msg');
+
+    function updateFranchiseUIState(teamsCount) {
+      if (franchiseCountBadge) franchiseCountBadge.textContent = `${teamsCount} / 15 TEAMS`;
+      if (teamsCount >= 15) {
+        if (formAddFranchise) formAddFranchise.classList.add('hidden');
+        if (maxFranchisesMsg) maxFranchisesMsg.classList.remove('hidden');
+      } else {
+        if (formAddFranchise) formAddFranchise.classList.remove('hidden');
+        if (maxFranchisesMsg) maxFranchisesMsg.classList.add('hidden');
+      }
+    }
+
+    if (formAddFranchise) {
+      formAddFranchise.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = document.getElementById('btn-submit-team');
+        const name = document.getElementById('new-team-name').value.trim();
+        const code = document.getElementById('new-team-code').value.trim().toUpperCase();
+        const color = document.getElementById('new-team-color').value;
+        const purseCr = parseFloat(document.getElementById('new-team-purse').value) || 125;
+        const purseLakhs = Math.round(purseCr * 100);
+
+        if (!name || !code) return;
+
+        submitBtn.disabled = true;
+        submitBtn.querySelector('span:last-child').textContent = 'CREATING...';
+
+        try {
+          await Hammer.createFranchise({
+            name,
+            code,
+            shortName: code,
+            color,
+            purse: purseLakhs
+          });
+          Hammer.showToast(`Franchise ${code} — ${name} ratified!`, 'success');
+          formAddFranchise.reset();
+          if (colorHex) colorHex.textContent = '#C74632';
+          await loadPurseOverview();
+          const teams = await Hammer.getTeams();
+          updateFranchiseUIState(teams.length);
+        } catch (err) {
+          Hammer.showToast(err.message || 'Failed to create franchise', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.querySelector('span:last-child').textContent = 'RATIFY NEW FRANCHISE';
+        }
+      });
+    }
 
     // ─── AUDIO SETTINGS TOGGLES ───────────────────────────
     function renderAudioSettings() {

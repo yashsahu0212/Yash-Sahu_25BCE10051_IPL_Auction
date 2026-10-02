@@ -73,9 +73,12 @@
           <span class="font-mono text-[10px] text-hm-muted tracking-widest uppercase" id="conn-status">CONNECTED</span>
         </div>
         <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase" id="clock-tick"></span>
-        <button onclick="Hammer.logout()" title="Logout" class="w-8 h-8 border border-hm-border-s bg-hm-panel flex items-center justify-center text-hm-muted hover:text-hm-text transition-colors rounded-[4px]">
-          <span class="material-symbols-outlined text-[16px]">logout</span>
-        </button>
+        <div data-nav="auth">
+          <button onclick="Hammer.logout()" title="Logout" class="flex items-center gap-1.5 px-2.5 py-1 bg-hm-panel border border-hm-border-s hover:border-hm-border-strong text-hm-muted hover:text-hm-ruby transition-colors rounded-[4px]">
+            <span class="font-mono text-[11px] font-bold tracking-wider">LOGOUT</span>
+            <span class="material-symbols-outlined text-[14px]">logout</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>

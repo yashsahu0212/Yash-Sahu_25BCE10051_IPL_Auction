@@ -173,7 +173,10 @@ function getTeam(id) {
   const clean = String(id).trim().toUpperCase();
   return teams.find(t => (t.id && t.id.toUpperCase() === clean) || (t.code && t.code.toUpperCase() === clean) || (t.shortName && t.shortName.toUpperCase() === clean));
 }
-function getPlayer(id) { return players.find(p => p.id === id); }
+function getPlayer(id) {
+  if (id == null) return null;
+  return players.find(p => String(p.id) === String(id) || String(p.lotNumber) === String(id));
+}
 
 function decodeSupabaseJwt(token) {
   if (!token || typeof token !== 'string') return null;
@@ -334,16 +337,12 @@ function startTimer(resume = false) {
         });
         io.emit('auction:state', getPublicAuctionState());
 
-        // Auto-action when timer expires
-        if (auction.leadingTeamId) {
-          io.emit('auction:hammer_ready', {
-            message: 'Timer expired. Confirm SOLD or continue.',
-            leadingTeamId: auction.leadingTeamId,
-            currentBid: auction.currentBid
-          });
-        } else {
-          markUnsold();
-        }
+        // Notify auctioneer that timer has expired (Final Call) — auctioneer holds gavel to confirm SOLD or mark UNSOLD
+        io.emit('auction:hammer_ready', {
+          message: auction.leadingTeamId ? 'Timer expired. Confirm SOLD or continue.' : 'Timer expired. Mark UNSOLD or continue.',
+          leadingTeamId: auction.leadingTeamId,
+          currentBid: auction.currentBid
+        });
       }
     } catch (err) {
       console.error('Error in auction timer interval:', err);
@@ -1188,6 +1187,121 @@ app.post('/api/auction/timer/settings', requireAuth(['auctioneer']), (req, res) 
   res.json({ success: true, duration: auction.maxTimer, maxTimer: auction.maxTimer, timer: auction.timer, state: getPublicAuctionState() });
 });
 
+// Auctioneer configures maximum squad size limit for all franchises (7-30)
+app.post('/api/auction/squad-limit', requireAuth(['auctioneer']), (req, res) => {
+  const maxSlots = parseInt(req.body.maxSlots);
+  if (isNaN(maxSlots) || maxSlots < 7 || maxSlots > 30) {
+    return res.status(400).json({ error: 'Invalid squad limit. Must be between 7 and 30 players.' });
+  }
+
+  teams.forEach(t => {
+    t.maxSlots = maxSlots;
+  });
+  saveData();
+
+  io.emit('teams:update', teams.map(t => ({
+    ...t,
+    squad: t.players || t.squad || [],
+    players: t.players || t.squad || [],
+    filledSlots: t.players ? t.players.length : (t.filledSlots || 0),
+    maxSlots: t.maxSlots || maxSlots,
+    remaining: t.purse - t.spent
+  })));
+  io.emit('auction:state', getPublicAuctionState());
+
+  logAuctionEvent('SQUAD_LIMIT_UPDATED', {
+    actor_role: 'auctioneer',
+    metadata: { maxSlots }
+  });
+
+  res.json({ success: true, maxSlots, state: getPublicAuctionState() });
+});
+
+// Auctioneer adds new franchise (up to 15 franchises total)
+app.post('/api/teams/create', requireAuth(['auctioneer']), (req, res) => {
+  if (teams.length >= 15) {
+    return res.status(400).json({ error: 'Maximum franchise limit reached (15 franchises maximum allowed).' });
+  }
+
+  const { name, shortName, code, color, purse } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ error: 'Franchise name is required.' });
+
+  const cleanCode = (code || shortName || name.slice(0, 3)).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!cleanCode || cleanCode.length < 2 || cleanCode.length > 5) {
+    return res.status(400).json({ error: 'Franchise code must be between 2 and 5 alphanumeric characters.' });
+  }
+
+  if (teams.some(t => t.id === cleanCode || (t.shortName && t.shortName.toUpperCase() === cleanCode))) {
+    return res.status(400).json({ error: `A franchise with code ${cleanCode} already exists.` });
+  }
+
+  const startingPurse = parseInt(purse) || 12500;
+  const currentMaxSlots = teams[0]?.maxSlots || 15;
+  const teamColor = color && /^#[0-9A-Fa-f]{6}$/.test(color.trim()) ? color.trim() : '#C74632';
+
+  const newTeam = {
+    id: cleanCode,
+    name: name.trim().toUpperCase(),
+    shortName: cleanCode,
+    code: cleanCode,
+    purse: startingPurse,
+    spent: 0,
+    remaining: startingPurse,
+    minSlots: 7,
+    maxSlots: currentMaxSlots,
+    filledSlots: 0,
+    color: teamColor,
+    logo: `/logos/${cleanCode.toLowerCase()}.svg`,
+    players: [],
+    squad: []
+  };
+
+  teams.push(newTeam);
+
+  // Automatically register franchise user credential so franchise can log in immediately
+  const username = cleanCode.toLowerCase();
+  const password = `${username}2026`;
+  if (!USERS.some(u => u.username.toLowerCase() === username)) {
+    USERS.push({
+      id: username,
+      username: username,
+      password: password,
+      role: 'team_owner',
+      teamId: cleanCode
+    });
+  }
+
+  saveData();
+
+  io.emit('teams:update', teams.map(t => ({
+    ...t,
+    squad: t.players || t.squad || [],
+    players: t.players || t.squad || [],
+    filledSlots: t.players ? t.players.length : (t.filledSlots || 0),
+    maxSlots: t.maxSlots || currentMaxSlots,
+    remaining: t.purse - t.spent
+  })));
+  io.emit('auction:state', getPublicAuctionState());
+
+  logAuctionEvent('FRANCHISE_CREATED', {
+    actor_role: 'auctioneer',
+    actor_team_id: cleanCode,
+    actor_team_name: newTeam.name,
+    metadata: {
+      team: newTeam,
+      totalTeams: teams.length,
+      credentials: { username, password }
+    }
+  });
+
+  res.json({
+    success: true,
+    team: newTeam,
+    credentials: { username, password },
+    totalTeams: teams.length
+  });
+});
+
 // Auctioneer extends timer by N seconds
 app.post('/api/auction/timer/add', requireAuth(['auctioneer']), (req, res) => {
   if (auction.status !== 'live') return res.status(400).json({ error: 'Auction is not live' });
@@ -1292,14 +1406,23 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
     p.soldTo = null;
     p.soldPrice = null;
   });
+  teams = teams.slice(0, 10);
   teams.forEach(t => {
     t.purse = 12500;
     t.spent = 0;
     t.remaining = 12500;
     t.filledSlots = 0;
+    t.maxSlots = 15;
     t.players = [];
     t.squad = [];
   });
+  // Reset expansion team users
+  const defaultUserIds = new Set(['auctioneer', 'mi', 'csk', 'rcb', 'dc', 'gt', 'kkr', 'lsg', 'pbks', 'rr', 'srh']);
+  for (let i = USERS.length - 1; i >= 0; i--) {
+    if (!defaultUserIds.has(USERS[i].username.toLowerCase())) {
+      USERS.splice(i, 1);
+    }
+  }
   saveData();
   io.emit('auction:reset', getPublicAuctionState());
   io.emit('teams:update', teams);

@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const ROOT = path.join(__dirname, '..');
 
 function test(title, fn) {
   try {
@@ -29,7 +30,7 @@ console.log('======================================================\n');
 
 // 1. Verify Migration File
 test('Migration File Exists and Contains Core Tables', () => {
-  const migPath = path.join(__dirname, 'backend', 'migrations', '20260928_init_hammer.sql');
+  const migPath = path.join(ROOT, 'backend', 'migrations', '20260928_init_hammer.sql');
   if (!fs.existsSync(migPath)) throw new Error('Migration file not found');
   const sql = fs.readFileSync(migPath, 'utf8');
 
@@ -49,7 +50,7 @@ test('Migration File Exists and Contains Core Tables', () => {
 });
 
 test('RLS Policies Implemented For Role Separation', () => {
-  const sql = fs.readFileSync(path.join(__dirname, 'backend', 'migrations', '20260928_init_hammer.sql'), 'utf8');
+  const sql = fs.readFileSync(path.join(ROOT, 'backend', 'migrations', '20260928_init_hammer.sql'), 'utf8');
   
   if (!sql.includes('ENABLE ROW LEVEL SECURITY')) {
     throw new Error('RLS not enabled on tables');
@@ -63,7 +64,7 @@ test('RLS Policies Implemented For Role Separation', () => {
 });
 
 test('Atomic Stored Procedures with FOR UPDATE Row Lock', () => {
-  const sql = fs.readFileSync(path.join(__dirname, 'backend', 'migrations', '20260928_init_hammer.sql'), 'utf8');
+  const sql = fs.readFileSync(path.join(ROOT, 'backend', 'migrations', '20260928_init_hammer.sql'), 'utf8');
 
   const requiredFunctions = [
     'fn_place_bid',
@@ -95,7 +96,7 @@ test('Atomic Stored Procedures with FOR UPDATE Row Lock', () => {
 });
 
 test('Seed Data Contains 10 Franchises, 20 Marquee Players, and Users', () => {
-  const seedPath = path.join(__dirname, 'backend', 'seed.sql');
+  const seedPath = path.join(ROOT, 'backend', 'seed.sql');
   if (!fs.existsSync(seedPath)) throw new Error('Seed file missing');
   const sql = fs.readFileSync(seedPath, 'utf8');
 
@@ -110,8 +111,8 @@ test('Seed Data Contains 10 Franchises, 20 Marquee Players, and Users', () => {
 });
 
 test('Edge Functions Structure & JWT Authentication', () => {
-  const submitBidPath = path.join(__dirname, 'backend', 'functions', 'submit-bid', 'index.ts');
-  const auctionActionPath = path.join(__dirname, 'backend', 'functions', 'auction-action', 'index.ts');
+  const submitBidPath = path.join(ROOT, 'backend', 'functions', 'submit-bid', 'index.ts');
+  const auctionActionPath = path.join(ROOT, 'backend', 'functions', 'auction-action', 'index.ts');
 
   if (!fs.existsSync(submitBidPath)) throw new Error('submit-bid edge function missing');
   if (!fs.existsSync(auctionActionPath)) throw new Error('auction-action edge function missing');
@@ -131,8 +132,8 @@ test('Edge Functions Structure & JWT Authentication', () => {
 });
 
 test('Client Config and Hammer Dual-Mode Architecture', () => {
-  const cfgPath = path.join(__dirname, 'js', 'supabase-config.js');
-  const hammerPath = path.join(__dirname, 'js', 'hammer.js');
+  const cfgPath = path.join(ROOT, 'js', 'supabase-config.js');
+  const hammerPath = path.join(ROOT, 'js', 'hammer.js');
 
   if (!fs.existsSync(cfgPath)) throw new Error('supabase-config.js missing');
   if (!fs.existsSync(hammerPath)) throw new Error('hammer.js missing');
@@ -154,7 +155,7 @@ test('All 6 Frontend HTML Pages Include Supabase SDK & Config', () => {
   ];
 
   for (const f of htmlFiles) {
-    const content = fs.readFileSync(path.join(__dirname, f), 'utf8');
+    const content = fs.readFileSync(path.join(ROOT, f), 'utf8');
     if (!content.includes('@supabase/supabase-js')) {
       throw new Error(`${f} is missing Supabase JS CDN script`);
     }
@@ -168,7 +169,7 @@ test('All 6 Frontend HTML Pages Include Supabase SDK & Config', () => {
 });
 
 test('Environment Configuration (.env.example) Follows Security Rules', () => {
-  const envPath = path.join(__dirname, '.env.example');
+  const envPath = path.join(ROOT, '.env.example');
   if (!fs.existsSync(envPath)) throw new Error('.env.example missing');
   const envContent = fs.readFileSync(envPath, 'utf8');
 

@@ -109,11 +109,26 @@ let auction = {
   maxTimer: 15,            // Default 15-second timer (authoritative & configurable)
   autoResolve: false,      // false = manual auctioneer gavel operated, true = automatic sold/unsold on timer expiry
   resolutionMode: 'manual',// 'manual' | 'auto'
+  captainsRetained: false, // true = each franchise automatically retains their official 2026 captain (removed from bidding)
   gavelStage: 0,           // 0=bidding, 1=1st call, 2=2nd call, 3=final call
   bidIncrement: 10,        // Integer lakhs (+10L, +20L, +50L)
   bidHistory: [],          // { teamId, teamName, amount, timestamp }
   sessionLabel: '2026 MEGA AUCTION'
 };
+
+// OFFICIAL 2026 FRANCHISE CAPTAINS & MARQUEE LEADERS
+const FRANCHISE_CAPTAINS_2026 = [
+  { teamId: 'CSK', playerId: 12, playerName: 'MS DHONI', role: 'wicketkeeper', roleLabel: 'WICKETKEEPER BATTER', overseas: false, price: 200, lotNumber: 12 },
+  { teamId: 'MI',  playerId: 13, playerName: 'HARDIK PANDYA', role: 'allrounder', roleLabel: 'SEAM-BOWLING ALLROUNDER', overseas: false, price: 200, lotNumber: 13 },
+  { teamId: 'RCB', playerId: 1,  playerName: 'VIRAT KOHLI', role: 'batter', roleLabel: 'TOP-ORDER BATTER', overseas: false, price: 200, lotNumber: 1 },
+  { teamId: 'GT',  playerId: 4,  playerName: 'SHUBMAN GILL', role: 'batter', roleLabel: 'OPENING BATTER', overseas: false, price: 200, lotNumber: 4 },
+  { teamId: 'RR',  playerId: 9,  playerName: 'SANJU SAMSON', role: 'wicketkeeper', roleLabel: 'WICKETKEEPER TOP-ORDER', overseas: false, price: 200, lotNumber: 9 },
+  { teamId: 'SRH', playerId: 20, playerName: 'PAT CUMMINS', role: 'bowler', roleLabel: 'PACE BOWLING CAPTAIN', overseas: true, price: 200, lotNumber: 20 },
+  { teamId: 'DC',  playerId: 18, playerName: 'AXAR PATEL', role: 'allrounder', roleLabel: 'SPIN-BOWLING ALLROUNDER', overseas: false, price: 200, lotNumber: 18 },
+  { teamId: 'LSG', playerId: 11, playerName: 'NICHOLAS POORAN', role: 'wicketkeeper', roleLabel: 'EXPLOSIVE WICKETKEEPER', overseas: true, price: 200, lotNumber: 11 },
+  { teamId: 'KKR', playerId: 29, playerName: 'RINKU SINGH', role: 'batter', roleLabel: 'MIDDLE-ORDER FINISHER', overseas: false, price: 200, lotNumber: 38 },
+  { teamId: 'PBKS', playerId: 24, playerName: 'ARSHDEEP SINGH', role: 'bowler', roleLabel: 'LEFT-ARM SPEEDSTER', overseas: false, price: 200, lotNumber: 24 }
+];
 
 let auctionHistory = [];    // completed lots: { player, soldTo, soldPrice, bidHistory, timestamp }
 try {
@@ -1382,6 +1397,112 @@ app.post('/api/auction/resolution-mode', requireAuth(['auctioneer']), (req, res)
     resolutionMode: auction.resolutionMode,
     autoResolve: auction.autoResolve,
     state: getPublicAuctionState()
+  });
+});
+
+// CAPTAIN RETENTION ENGINE (IPL 2026 OFFICIAL CAPTAINS LOCKED IN FRANCHISES)
+function toggleCaptainRetention(enable) {
+  const shouldRetain = Boolean(enable);
+  auction.captainsRetained = shouldRetain;
+
+  FRANCHISE_CAPTAINS_2026.forEach(cap => {
+    const player = getPlayer(cap.playerId);
+    const team = getTeam(cap.teamId);
+
+    if (shouldRetain) {
+      if (player && team) {
+        player.status = 'sold';
+        player.soldTo = team.id;
+        player.soldPrice = cap.price;
+        player.isCaptain = true;
+        player.isRetained = true;
+
+        if (!team.players) team.players = [];
+        if (!team.squad) team.squad = [];
+
+        const alreadyInSquad = team.players.some(p => p.id === player.id);
+        if (!alreadyInSquad) {
+          const item = {
+            id: player.id,
+            lotNumber: player.lotNumber,
+            name: player.name,
+            role: player.role,
+            roleLabel: player.roleLabel || cap.roleLabel,
+            price: cap.price,
+            soldPrice: cap.price,
+            overseas: !!player.overseas,
+            isCaptain: true,
+            isRetained: true
+          };
+          team.players.push(item);
+          team.squad.push(item);
+        }
+      }
+    } else {
+      if (player && (player.isRetained || player.isCaptain)) {
+        player.status = 'available';
+        player.soldTo = null;
+        player.soldPrice = null;
+        player.isCaptain = false;
+        player.isRetained = false;
+      }
+      if (team && team.players) {
+        team.players = team.players.filter(p => !(p.id === cap.playerId && (p.isRetained || p.isCaptain)));
+        team.squad = team.players;
+      }
+    }
+  });
+
+  // Re-calculate financial figures & slots for all teams
+  teams.forEach(t => {
+    if (!t.players) t.players = [];
+    t.squad = t.players;
+    t.filledSlots = t.players.length;
+    t.spent = t.players.reduce((sum, p) => sum + (Number(p.soldPrice || p.price) || 0), 0);
+    t.remaining = parseFloat((t.purse - t.spent).toFixed(2));
+  });
+
+  saveData();
+
+  io.emit('teams:update', teams.map(t => ({
+    ...t,
+    squad: t.players || t.squad || [],
+    players: t.players || t.squad || [],
+    filledSlots: t.players ? t.players.length : 0,
+    remaining: t.purse - t.spent
+  })));
+  io.emit('auction:captains_retention', { captainsRetained: auction.captainsRetained, captains: FRANCHISE_CAPTAINS_2026 });
+  io.emit('auction:state', getPublicAuctionState());
+
+  logAuctionEvent('CAPTAIN_RETENTION_TOGGLED', {
+    actor_role: 'auctioneer',
+    metadata: {
+      captainsRetained: auction.captainsRetained,
+      retainedCount: shouldRetain ? FRANCHISE_CAPTAINS_2026.length : 0
+    }
+  });
+
+  return {
+    success: true,
+    captainsRetained: auction.captainsRetained,
+    captains: FRANCHISE_CAPTAINS_2026,
+    state: getPublicAuctionState(),
+    teams
+  };
+}
+
+// Auctioneer toggles Franchise Captain Retention (captains locked in teams, removed from bid pool)
+app.post('/api/auction/captain-retention', requireAuth(['auctioneer']), (req, res) => {
+  const retain = req.body.retain !== undefined ? Boolean(req.body.retain) : !auction.captainsRetained;
+  const result = toggleCaptainRetention(retain);
+  res.json(result);
+});
+
+// Query captains retention status & mapping
+app.get('/api/auction/captains', (req, res) => {
+  res.json({
+    captainsRetained: !!auction.captainsRetained,
+    captains: FRANCHISE_CAPTAINS_2026
   });
 });
 

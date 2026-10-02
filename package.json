@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node test_final_audit.js && node test_ipl_rules_demo.js && node test_supabase_architecture.js"
+    "test": "node tests/test_timer_and_resolution.js && node tests/test_captain_retention.js && node tests/test_supabase_architecture.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

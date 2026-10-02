@@ -80,6 +80,12 @@
           <span class="text-hm-border-s">|</span>
           <span class="font-mono text-[10px] font-bold text-hm-vermilion uppercase tracking-wider" id="clock-tick">--:--:--</span>
         </div>
+        <!-- YouTube-Style Fullscreen Button -->
+        <button id="btn-fullscreen-toggle" type="button" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border hover:border-hm-border-strong text-hm-muted hover:text-hm-text transition-all rounded-[4px] font-mono text-[10px] uppercase font-bold" title="Toggle Fullscreen (F)">
+          <span class="material-symbols-outlined text-[16px] leading-none" id="fullscreen-icon">fullscreen</span>
+          <span class="hidden sm:inline" id="fullscreen-text">FULLSCREEN</span>
+          <kbd class="hidden md:inline px-1 py-0.2 bg-hm-panel text-[8px] text-hm-faint rounded border border-hm-border leading-none font-bold">F</kbd>
+        </button>
         <div data-nav="auth">
           <a href="login.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold shadow-sm">
             <span class="material-symbols-outlined text-[14px]">login</span>
@@ -730,6 +736,74 @@
         }
       });
     }
+    // ── YouTube-Style Fullscreen Engine ──
+    const fsBtn = document.getElementById('btn-fullscreen-toggle');
+    const fsIcon = document.getElementById('fullscreen-icon');
+    const fsText = document.getElementById('fullscreen-text');
+
+    function isFullscreenActive() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+    }
+
+    function updateFullscreenUI() {
+      const active = isFullscreenActive();
+      if (fsIcon) fsIcon.textContent = active ? 'fullscreen_exit' : 'fullscreen';
+      if (fsText) fsText.textContent = active ? 'EXIT FULLSCREEN' : 'FULLSCREEN';
+      if (fsBtn) {
+        fsBtn.setAttribute('title', active ? 'Exit Fullscreen (F or Esc)' : 'Toggle Fullscreen (F)');
+        if (active) {
+          fsBtn.classList.add('border-hm-vermilion', 'text-hm-text');
+        } else {
+          fsBtn.classList.remove('border-hm-vermilion', 'text-hm-text');
+        }
+      }
+    }
+
+    async function toggleFullscreen() {
+      try {
+        if (!isFullscreenActive()) {
+          const el = document.documentElement;
+          if (el.requestFullscreen) {
+            await el.requestFullscreen();
+          } else if (el.webkitRequestFullscreen) {
+            await el.webkitRequestFullscreen();
+          } else if (el.msRequestFullscreen) {
+            await el.msRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            await document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            await document.msExitFullscreen();
+          }
+        }
+      } catch (err) {
+        console.warn('Fullscreen action failed:', err);
+      }
+    }
+
+    if (fsBtn) {
+      fsBtn.addEventListener('click', toggleFullscreen);
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+    document.addEventListener('mozfullscreenchange', updateFullscreenUI);
+    document.addEventListener('MSFullscreenChange', updateFullscreenUI);
+
+    // Keyboard shortcut 'F' like YouTube (when not typing in an input)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') {
+        const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if (tag !== 'input' && tag !== 'textarea' && !document.activeElement.isContentEditable) {
+          e.preventDefault();
+          toggleFullscreen();
+        }
+      }
+    });
+
     const initial = await Hammer.getAuctionState();
     renderState(initial);
   })();

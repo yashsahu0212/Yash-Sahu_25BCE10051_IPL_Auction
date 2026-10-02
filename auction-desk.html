@@ -321,7 +321,49 @@
                 </p>
               </div>
 
-              <!-- 3. SQUAD CAPACITY LIMIT SETTING -->
+              <!-- 3. FRANCHISE CAPTAINS RETENTION (IPL 2026) -->
+              <div class="pb-4 border-b border-hm-border">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[14px] text-hm-amber">military_tech</span>
+                    <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">FRANCHISE CAPTAIN RETENTION</span>
+                  </div>
+                  <span class="font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-[2px] bg-hm-charcoal border border-hm-border text-hm-muted" id="captains-retention-badge">OPEN POOL (OFF)</span>
+                </div>
+
+                <div class="mb-2">
+                  <button type="button" id="btn-toggle-captains" class="w-full py-2 px-3 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border hover:border-hm-amber text-hm-muted hover:text-hm-text transition-all rounded-[4px] font-mono text-[10px] uppercase font-bold flex items-center justify-center gap-1.5">
+                    <span class="material-symbols-outlined text-[14px] text-hm-amber" id="captains-btn-icon">lock_open</span>
+                    <span id="captains-btn-text">RETAIN OFFICIAL 2026 CAPTAINS</span>
+                  </button>
+                </div>
+
+                <!-- Captains preview chips -->
+                <div class="bg-hm-charcoal border border-hm-border p-2 rounded-[4px] mb-2 space-y-1 font-mono text-[9px]">
+                  <div class="flex items-center justify-between text-hm-faint border-b border-hm-border pb-1 mb-1">
+                    <span>IPL 2026 OFFICIAL ROSTER LEADERS:</span>
+                    <span class="text-hm-amber font-bold">10 FRANCHISES</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-x-2 gap-y-0.5 text-hm-muted">
+                    <div><span class="text-hm-amber font-bold">CSK:</span> MS Dhoni (WK)</div>
+                    <div><span class="text-hm-amber font-bold">MI:</span> Hardik Pandya (AR)</div>
+                    <div><span class="text-hm-amber font-bold">RCB:</span> Virat Kohli (BAT)</div>
+                    <div><span class="text-hm-amber font-bold">GT:</span> Shubman Gill (BAT)</div>
+                    <div><span class="text-hm-amber font-bold">RR:</span> Sanju Samson (WK)</div>
+                    <div><span class="text-hm-amber font-bold">SRH:</span> Pat Cummins (BOWL)</div>
+                    <div><span class="text-hm-amber font-bold">DC:</span> Axar Patel (AR)</div>
+                    <div><span class="text-hm-amber font-bold">LSG:</span> Nicholas Pooran (WK)</div>
+                    <div><span class="text-hm-amber font-bold">KKR:</span> Rinku Singh (BAT)</div>
+                    <div><span class="text-hm-amber font-bold">PBKS:</span> Arshdeep Singh (BOWL)</div>
+                  </div>
+                </div>
+
+                <p class="font-mono text-[9px] text-hm-faint leading-normal" id="captains-retention-desc">
+                  <span class="text-hm-muted font-bold">RULE:</span> When retained, franchise leaders are locked in their squads at base price and will not go under the hammer.
+                </p>
+              </div>
+
+              <!-- 4. SQUAD CAPACITY LIMIT SETTING -->
               <div class="pb-4 border-b border-hm-border">
                 <div class="flex items-center justify-between mb-2">
                   <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">FRANCHISE SQUAD CAPACITY</span>
@@ -574,6 +616,10 @@
 
       if (state.resolutionMode || state.autoResolve !== undefined) {
         applyResolutionModeUI(state.resolutionMode || (state.autoResolve ? 'auto' : 'manual'));
+      }
+
+      if (state.captainsRetained !== undefined) {
+        applyCaptainsRetentionUI(state.captainsRetained);
       }
 
       // If state is live or paused but currentPlayer object is missing, hydrate from allPlayers or lot queue
@@ -1013,6 +1059,62 @@
       btnModeAuto.addEventListener('click', () => setResolutionMode('auto'));
     }
 
+    // ── FRANCHISE CAPTAINS RETENTION (IPL 2026) ──
+    let captainsRetainedState = false;
+    const btnToggleCaptains = document.getElementById('btn-toggle-captains');
+    const captainsRetentionBadge = document.getElementById('captains-retention-badge');
+    const captainsBtnIcon = document.getElementById('captains-btn-icon');
+    const captainsBtnText = document.getElementById('captains-btn-text');
+    const captainsRetentionDesc = document.getElementById('captains-retention-desc');
+
+    function applyCaptainsRetentionUI(retained) {
+      captainsRetainedState = Boolean(retained);
+      if (captainsRetentionBadge) {
+        if (captainsRetainedState) {
+          captainsRetentionBadge.textContent = 'LOCKED (10/10 RETAINED)';
+          captainsRetentionBadge.className = 'font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-[2px] bg-amber-500/20 border border-amber-500 text-amber-400';
+        } else {
+          captainsRetentionBadge.textContent = 'OPEN POOL (OFF)';
+          captainsRetentionBadge.className = 'font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-[2px] bg-hm-charcoal border border-hm-border text-hm-muted';
+        }
+      }
+
+      if (btnToggleCaptains) {
+        if (captainsRetainedState) {
+          btnToggleCaptains.className = 'w-full py-2 px-3 bg-amber-500/15 hover:bg-amber-500/25 border-2 border-amber-500 text-amber-300 font-bold uppercase rounded-[4px] font-mono text-[10px] flex items-center justify-center gap-1.5 transition-all';
+          if (captainsBtnIcon) captainsBtnIcon.textContent = 'lock';
+          if (captainsBtnText) captainsBtnText.textContent = 'RELEASE CAPTAINS TO BID POOL';
+        } else {
+          btnToggleCaptains.className = 'w-full py-2 px-3 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border hover:border-hm-amber text-hm-muted hover:text-hm-text transition-all rounded-[4px] font-mono text-[10px] uppercase font-bold flex items-center justify-center gap-1.5';
+          if (captainsBtnIcon) captainsBtnIcon.textContent = 'lock_open';
+          if (captainsBtnText) captainsBtnText.textContent = 'RETAIN OFFICIAL 2026 CAPTAINS';
+        }
+      }
+
+      if (captainsRetentionDesc) {
+        if (captainsRetainedState) {
+          captainsRetentionDesc.innerHTML = '<span class="text-amber-400 font-bold">RETAINED:</span> 10 franchise captains are locked into their respective squads. They are removed from bidding & cannot go under the hammer.';
+        } else {
+          captainsRetentionDesc.innerHTML = '<span class="text-hm-muted font-bold">RULE:</span> When retained, franchise leaders are locked in their squads at base price and will not go under the hammer.';
+        }
+      }
+    }
+
+    if (btnToggleCaptains) {
+      btnToggleCaptains.addEventListener('click', async () => {
+        try {
+          const nextState = !captainsRetainedState;
+          const res = await Hammer.setCaptainRetention(nextState);
+          applyCaptainsRetentionUI(res.captainsRetained);
+          Hammer.showToast(nextState ? '10 Franchise captains retained into squads!' : 'Franchise captains returned to auction pool!', 'success');
+          loadPlayers();
+          loadPurseOverview();
+        } catch (e) {
+          Hammer.showToast(e.message || 'Failed to toggle captain retention', 'error');
+        }
+      });
+    }
+
     const toggleSettingsBtn = document.getElementById('toggle-settings-btn');
     const settingsContent = document.getElementById('settings-content');
     const settingsToggleIcon = document.getElementById('settings-toggle-icon');
@@ -1252,6 +1354,13 @@
     Hammer.on('auction:resolution_settings', (d) => {
       if (d?.resolutionMode) {
         applyResolutionModeUI(d.resolutionMode);
+      }
+    });
+    Hammer.on('auction:captains_retention', (d) => {
+      if (d && d.captainsRetained !== undefined) {
+        applyCaptainsRetentionUI(d.captainsRetained);
+        loadPlayers();
+        loadPurseOverview();
       }
     });
     Hammer.on('auction:sold', (d) => {

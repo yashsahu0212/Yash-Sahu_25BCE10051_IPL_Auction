@@ -5,7 +5,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <link rel="shortcut icon" href="/favicon.svg"/>
-  <title>HAMMER • Auctioneer Master Control Desk</title>
+  <title>HAMMER • AUCTIONEER DESK • Master Control</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -289,7 +289,39 @@
                 </div>
               </div>
 
-              <!-- 2. SQUAD CAPACITY LIMIT SETTING -->
+              <!-- 2. LOT RESOLUTION ON TIMER EXPIRY (MANUAL VS AUTOMATIC) -->
+              <div class="pb-4 border-b border-hm-border">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[14px] text-hm-vermilion">gavel</span>
+                    <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">SOLD / UNSOLD RESOLUTION</span>
+                  </div>
+                  <span class="font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-[2px] bg-hm-charcoal border border-hm-border text-hm-muted" id="resolution-mode-badge">MANUAL (GAVEL)</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-2 font-mono text-[10px]">
+                  <button type="button" id="btn-mode-manual" class="px-2.5 py-2 bg-hm-vermilion/10 border-2 border-hm-vermilion text-hm-text font-bold uppercase rounded-[4px] flex flex-col items-center justify-center transition-all text-center" title="Auctioneer manually confirms SOLD or marks UNSOLD">
+                    <div class="flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[13px] text-hm-vermilion">pan_tool</span>
+                      <span class="text-xs">MANUAL</span>
+                    </div>
+                    <span class="text-[8px] text-hm-faint font-normal mt-0.5 tracking-wider">AUCTIONEER OPERATED</span>
+                  </button>
+                  <button type="button" id="btn-mode-auto" class="px-2.5 py-2 bg-hm-charcoal border border-hm-border text-hm-muted hover:text-hm-text font-bold uppercase rounded-[4px] flex flex-col items-center justify-center transition-all text-center" title="Automatically mark SOLD or UNSOLD when timer reaches 0">
+                    <div class="flex items-center gap-1">
+                      <span class="material-symbols-outlined text-[13px] text-emerald-400">timer</span>
+                      <span class="text-xs">AUTOMATIC</span>
+                    </div>
+                    <span class="text-[8px] text-hm-faint font-normal mt-0.5 tracking-wider">ON TIMER EXPIRY</span>
+                  </button>
+                </div>
+
+                <p class="font-mono text-[9px] text-hm-faint leading-normal" id="resolution-mode-desc">
+                  <span class="text-hm-muted font-bold">MANUAL:</span> Auctioneer retains full hammer control. When clock hits 0s, auctioneer confirms SOLD or marks UNSOLD.
+                </p>
+              </div>
+
+              <!-- 3. SQUAD CAPACITY LIMIT SETTING -->
               <div class="pb-4 border-b border-hm-border">
                 <div class="flex items-center justify-between mb-2">
                   <span class="font-mono text-[10px] text-hm-faint uppercase tracking-widest font-bold">FRANCHISE SQUAD CAPACITY</span>
@@ -538,6 +570,10 @@
       if (state.maxTimer) {
         configuredTimerDuration = state.maxTimer;
         if (settingTimerVal) settingTimerVal.textContent = state.maxTimer;
+      }
+
+      if (state.resolutionMode || state.autoResolve !== undefined) {
+        applyResolutionModeUI(state.resolutionMode || (state.autoResolve ? 'auto' : 'manual'));
       }
 
       // If state is live or paused but currentPlayer object is missing, hydrate from allPlayers or lot queue
@@ -880,12 +916,19 @@
         btn.querySelector('span:last-child').textContent = 'RESET LOT';
       }
     });
+    function updateSettingsBadge() {
+      if (!settingsSummaryBadge) return;
+      const modeText = configuredResolutionMode === 'auto' ? 'AUTO' : 'MANUAL';
+      settingsSummaryBadge.textContent = `${configuredTimerDuration}s • ${configuredSquadLimit} SLOTS • ${modeText}`;
+    }
+
     async function updateTimerDuration(newDuration) {
       if (newDuration < 5 || newDuration > 120) return;
       try {
         await Hammer.setTimerDuration(newDuration);
         configuredTimerDuration = newDuration;
         if (settingTimerVal) settingTimerVal.textContent = newDuration;
+        updateSettingsBadge();
         Hammer.showToast(`Auction timer set to ${newDuration}s`, 'success');
       } catch (e) {
         Hammer.showToast(e.message || 'Failed to update timer', 'error');
@@ -910,6 +953,66 @@
         if (sec) updateTimerDuration(sec);
       });
     });
+
+    // ── LOT RESOLUTION (MANUAL vs AUTOMATIC) ──
+    let configuredResolutionMode = 'manual';
+    const btnModeManual = document.getElementById('btn-mode-manual');
+    const btnModeAuto = document.getElementById('btn-mode-auto');
+    const resolutionModeBadge = document.getElementById('resolution-mode-badge');
+    const resolutionModeDesc = document.getElementById('resolution-mode-desc');
+
+    function applyResolutionModeUI(mode) {
+      configuredResolutionMode = mode || 'manual';
+      const isAuto = configuredResolutionMode === 'auto';
+
+      if (btnModeManual && btnModeAuto) {
+        if (isAuto) {
+          btnModeAuto.className = 'px-2.5 py-2 bg-emerald-500/10 border-2 border-emerald-500 text-hm-text font-bold uppercase rounded-[4px] flex flex-col items-center justify-center transition-all text-center';
+          btnModeManual.className = 'px-2.5 py-2 bg-hm-charcoal border border-hm-border text-hm-muted hover:text-hm-text font-bold uppercase rounded-[4px] flex flex-col items-center justify-center transition-all text-center';
+        } else {
+          btnModeManual.className = 'px-2.5 py-2 bg-hm-vermilion/10 border-2 border-hm-vermilion text-hm-text font-bold uppercase rounded-[4px] flex flex-col items-center justify-center transition-all text-center';
+          btnModeAuto.className = 'px-2.5 py-2 bg-hm-charcoal border border-hm-border text-hm-muted hover:text-hm-text font-bold uppercase rounded-[4px] flex flex-col items-center justify-center transition-all text-center';
+        }
+      }
+
+      if (resolutionModeBadge) {
+        if (isAuto) {
+          resolutionModeBadge.textContent = 'AUTOMATIC (0s)';
+          resolutionModeBadge.className = 'font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-[2px] bg-emerald-500/20 border border-emerald-500 text-emerald-400';
+        } else {
+          resolutionModeBadge.textContent = 'MANUAL (GAVEL)';
+          resolutionModeBadge.className = 'font-mono text-[9px] uppercase font-bold px-1.5 py-0.5 rounded-[2px] bg-hm-charcoal border border-hm-border text-hm-muted';
+        }
+      }
+
+      if (resolutionModeDesc) {
+        if (isAuto) {
+          resolutionModeDesc.innerHTML = '<span class="text-emerald-400 font-bold">AUTOMATIC:</span> When timer hits 0s, the lot is automatically marked SOLD to the leading franchise, or UNSOLD if no bids were received.';
+        } else {
+          resolutionModeDesc.innerHTML = '<span class="text-hm-muted font-bold">MANUAL:</span> Auctioneer retains full hammer control. When clock hits 0s, auctioneer confirms SOLD or marks UNSOLD.';
+        }
+      }
+
+      updateSettingsBadge();
+    }
+
+    async function setResolutionMode(mode) {
+      try {
+        await Hammer.setResolutionMode(mode);
+        applyResolutionModeUI(mode);
+        Hammer.showToast(`Lot resolution mode set to ${mode.toUpperCase()}`, 'success');
+      } catch (e) {
+        Hammer.showToast(e.message || 'Failed to update resolution mode', 'error');
+      }
+    }
+
+    if (btnModeManual) {
+      btnModeManual.addEventListener('click', () => setResolutionMode('manual'));
+    }
+    if (btnModeAuto) {
+      btnModeAuto.addEventListener('click', () => setResolutionMode('auto'));
+    }
+
     const toggleSettingsBtn = document.getElementById('toggle-settings-btn');
     const settingsContent = document.getElementById('settings-content');
     const settingsToggleIcon = document.getElementById('settings-toggle-icon');
@@ -941,9 +1044,7 @@
         configuredSquadLimit = newLimit;
         if (settingSquadVal) settingSquadVal.textContent = newLimit;
         if (settingSquadDesc) settingSquadDesc.textContent = `${newLimit} MAX PLAYERS`;
-        if (settingsSummaryBadge) {
-          settingsSummaryBadge.textContent = `${configuredTimerDuration}s • ${newLimit} SLOTS`;
-        }
+        updateSettingsBadge();
         await loadPurseOverview();
         Hammer.showToast(`Franchise squad capacity set to ${newLimit} players`, 'success');
       } catch (e) {
@@ -1146,6 +1247,11 @@
       if (d.maxTimer) {
         configuredTimerDuration = d.maxTimer;
         if (settingTimerVal) settingTimerVal.textContent = d.maxTimer;
+      }
+    });
+    Hammer.on('auction:resolution_settings', (d) => {
+      if (d?.resolutionMode) {
+        applyResolutionModeUI(d.resolutionMode);
       }
     });
     Hammer.on('auction:sold', (d) => {

@@ -107,6 +107,8 @@ let auction = {
   lotIndex: 0,
   timer: 15,
   maxTimer: 15,            // Default 15-second timer (authoritative & configurable)
+  autoResolve: false,      // false = manual auctioneer gavel operated, true = automatic sold/unsold on timer expiry
+  resolutionMode: 'manual',// 'manual' | 'auto'
   gavelStage: 0,           // 0=bidding, 1=1st call, 2=2nd call, 3=final call
   bidIncrement: 10,        // Integer lakhs (+10L, +20L, +50L)
   bidHistory: [],          // { teamId, teamName, amount, timestamp }
@@ -338,12 +340,29 @@ function startTimer(resume = false) {
         });
         io.emit('auction:state', getPublicAuctionState());
 
-        // Notify auctioneer that timer has expired (Final Call) — auctioneer holds gavel to confirm SOLD or mark UNSOLD
-        io.emit('auction:hammer_ready', {
-          message: auction.leadingTeamId ? 'Timer expired. Confirm SOLD or continue.' : 'Timer expired. Mark UNSOLD or continue.',
-          leadingTeamId: auction.leadingTeamId,
-          currentBid: auction.currentBid
-        });
+        if (auction.autoResolve) {
+          // Automatic resolution when timer expires
+          if (auction.leadingTeamId) {
+            logAuctionEvent('AUTO_SOLD_TRIGGERED', {
+              actor_role: 'system',
+              metadata: { reason: 'timer_expired_auto_resolve', leadingTeamId: auction.leadingTeamId, currentBid: auction.currentBid }
+            });
+            markSold();
+          } else {
+            logAuctionEvent('AUTO_UNSOLD_TRIGGERED', {
+              actor_role: 'system',
+              metadata: { reason: 'timer_expired_auto_resolve' }
+            });
+            markUnsold();
+          }
+        } else {
+          // Manual resolution: Notify auctioneer that timer has expired (Final Call) — auctioneer holds gavel to confirm SOLD or mark UNSOLD
+          io.emit('auction:hammer_ready', {
+            message: auction.leadingTeamId ? 'Timer expired. Confirm SOLD or continue.' : 'Timer expired. Mark UNSOLD or continue.',
+            leadingTeamId: auction.leadingTeamId,
+            currentBid: auction.currentBid
+          });
+        }
       }
     } catch (err) {
       console.error('Error in auction timer interval:', err);
@@ -431,6 +450,9 @@ function placeBid(teamId, expectedBid) {
   }
   if (!auction.currentPlayerId) {
     return { error: 'No player currently on the hammer', code: 'NO_PLAYER' };
+  }
+  if (auction.timer <= 0) {
+    return { error: 'Bidding closed: lot timer has expired.', code: 'TIMER_EXPIRED' };
   }
   const team = getTeam(teamId);
   if (!team) {
@@ -976,7 +998,8 @@ function toCSV(headers, rows) {
   };
   const headerLine = headers.map(escapeCell).join(',');
   const rowLines = rows.map(r => r.map(escapeCell).join(','));
-  return [headerLine, ...rowLines].join('\r\n');
+  // \uFEFF is the UTF-8 Byte Order Mark (BOM) ensuring Microsoft Excel decodes UTF-8 symbols (₹, —) properly instead of displaying â‚¹ and â€“
+  return '\uFEFF' + [headerLine, ...rowLines].join('\r\n');
 }
 
 // 1. Export All Squads (Franchise-wise or Complete)
@@ -1012,7 +1035,7 @@ app.get('/api/export/squads', (req, res) => {
   targetTeams.forEach(t => {
     const squad = t.players || [];
     if (squad.length === 0) {
-      rows.push([t.id, t.name, '— (NO ACQUISITIONS YET)', '', '', '', 0, '₹0', '']);
+      rows.push([t.id, t.name, '- (NO ACQUISITIONS YET)', '', '', '', 0, '₹0', '']);
     } else {
       squad.forEach(p => {
         rows.push([
@@ -1031,7 +1054,7 @@ app.get('/api/export/squads', (req, res) => {
   });
 
   const csv = toCSV(headers, rows);
-  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', 'attachment; filename="hammer_squads_2026.csv"');
   res.send(csv);
 });
@@ -1076,7 +1099,7 @@ app.get('/api/export/sold', (req, res) => {
   ]);
 
   const csv = toCSV(headers, rows);
-  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', 'attachment; filename="hammer_sold_players_2026.csv"');
   res.send(csv);
 });
@@ -1111,7 +1134,7 @@ app.get('/api/export/activity', requireAuth(['auctioneer']), (req, res) => {
   ]);
 
   const csv = toCSV(headers, rows);
-  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', 'attachment; filename="hammer_activity_log_2026.csv"');
   res.send(csv);
 });
@@ -1146,7 +1169,7 @@ app.get('/api/export/lot/:id', (req, res) => {
   rows.push(['RESULT', lot.result.toUpperCase(), lot.soldTo ? lot.soldTo.name : 'PASSED', lot.soldPrice || 0, formatCR(lot.soldPrice), new Date(lot.timestamp).toISOString()]);
 
   const csv = toCSV(headers, rows);
-  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="hammer_lot_${lot.player.lotNumber}_replay.csv"`);
   res.send(csv);
 });
@@ -1310,7 +1333,11 @@ app.post('/api/auction/timer/add', requireAuth(['auctioneer']), (req, res) => {
   if (auction.status !== 'live') return res.status(400).json({ error: 'Auction is not live' });
   const seconds = parseInt(req.body.seconds) || 10;
   auction.timer = Math.min(auction.timer + seconds, 120);
-  io.emit('auction:timer', { timer: auction.timer, maxTimer: auction.maxTimer, gavelStage: auction.gavelStage });
+  if (!timerInterval && auction.timer > 0) {
+    startTimer(true);
+  }
+  io.emit('auction:timer', { timer: auction.timer, maxTimer: auction.maxTimer, gavelStage: auction.gavelStage, timestamp: Date.now() });
+  io.emit('auction:state', getPublicAuctionState());
   res.json({ success: true, timer: auction.timer, maxTimer: auction.maxTimer });
 });
 
@@ -1321,8 +1348,41 @@ app.post('/api/auction/timer/reset', requireAuth(['auctioneer']), (req, res) => 
   }
   const seconds = parseInt(req.body.seconds) || auction.maxTimer || 15;
   auction.timer = seconds;
-  io.emit('auction:timer', { timer: auction.timer, maxTimer: auction.maxTimer, gavelStage: auction.gavelStage });
+  if (auction.status === 'live' && (!timerInterval || auction.timer > 0)) {
+    startTimer(true);
+  }
+  io.emit('auction:timer', { timer: auction.timer, maxTimer: auction.maxTimer, gavelStage: auction.gavelStage, timestamp: Date.now() });
+  io.emit('auction:state', getPublicAuctionState());
   res.json({ success: true, timer: auction.timer, maxTimer: auction.maxTimer });
+});
+
+// Auctioneer configures lot resolution mode: manual (auctioneer operated) vs automatic (done when timer runs out)
+app.post('/api/auction/resolution-mode', requireAuth(['auctioneer']), (req, res) => {
+  const mode = req.body.mode || (req.body.autoResolve ? 'auto' : 'manual');
+  if (mode !== 'manual' && mode !== 'auto') {
+    return res.status(400).json({ error: "Invalid resolution mode. Must be 'manual' or 'auto'." });
+  }
+
+  auction.resolutionMode = mode;
+  auction.autoResolve = (mode === 'auto');
+
+  io.emit('auction:resolution_settings', {
+    resolutionMode: auction.resolutionMode,
+    autoResolve: auction.autoResolve
+  });
+  io.emit('auction:state', getPublicAuctionState());
+
+  logAuctionEvent('RESOLUTION_MODE_UPDATED', {
+    actor_role: 'auctioneer',
+    metadata: { resolutionMode: auction.resolutionMode, autoResolve: auction.autoResolve }
+  });
+
+  res.json({
+    success: true,
+    resolutionMode: auction.resolutionMode,
+    autoResolve: auction.autoResolve,
+    state: getPublicAuctionState()
+  });
 });
 
 // Auctioneer manually advances or sets gavel stage (0=Bidding, 1=1st Call, 2=2nd Call, 3=Final Call)

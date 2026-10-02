@@ -5,7 +5,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <link rel="shortcut icon" href="/favicon.svg"/>
-  <title>HAMMER • Franchise Bidding Terminal</title>
+  <title>HAMMER • TEAM TERMINAL • Franchise Bidding Console</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
@@ -500,6 +500,15 @@
         return;
       }
 
+      if (state.timer <= 0) {
+        tcBidBtn.disabled = true;
+        tcBidBtn.className = 'w-full p-5 text-center bg-hm-charcoal text-hm-vermilion border border-hm-vermilion cursor-not-allowed select-none opacity-80 rounded-[6px]';
+        tcBidBtnText.textContent = 'BIDDING CLOSED (TIMER EXPIRED)';
+        tcBidImpactStatus.textContent = state.leadingTeamId ? 'AWAITING FINAL RESOLUTION' : 'AWAITING AUCTIONEER DECISION';
+        tcPurseAfterBid.textContent = 'CLOSED';
+        return;
+      }
+
       if (isSubmitting) {
         tcBidBtn.disabled = true;
         tcBidBtn.className = 'btn-hammer-physical w-full p-5 text-center cursor-wait select-none opacity-90';
@@ -664,6 +673,11 @@
     }
     tcBidBtn.addEventListener('click', async () => {
       if (!currentAuctionState || isSubmitting) return;
+      if (currentAuctionState.timer <= 0) {
+        Hammer.showToast('Bidding closed: timer has expired for this lot', 'error');
+        renderBiddingButton(currentAuctionState);
+        return;
+      }
       const nextBid = getNextValidBid(currentAuctionState);
 
       isSubmitting = true;
@@ -714,6 +728,14 @@
     Hammer.on('auction:timer', (data) => {
       tcTimer.textContent = Hammer.formatTimer(data.timer);
       tcGavelLabel.textContent = Hammer.getGavelLabel(data.gavelStage);
+      if (currentAuctionState) {
+        const prevTimer = currentAuctionState.timer;
+        currentAuctionState.timer = data.timer;
+        if (data.gavelStage !== undefined) currentAuctionState.gavelStage = data.gavelStage;
+        if (data.timer <= 0 || (prevTimer <= 0 && data.timer > 0)) {
+          renderBiddingButton(currentAuctionState);
+        }
+      }
     });
 
     Hammer.on('teams:update', (teams) => {
@@ -724,6 +746,10 @@
     Hammer.on('auction:hammer_ready', () => {
       tcTimer.textContent = '00:00';
       tcGavelLabel.textContent = 'FINAL CALL';
+      if (currentAuctionState) {
+        currentAuctionState.timer = 0;
+        renderBiddingButton(currentAuctionState);
+      }
     });
 
     Hammer.on('auction:sold', (data) => {

@@ -503,6 +503,12 @@
         return { success: true, maxTimer: Number(duration) };
       }
       return data;
+    },
+
+    async setResolutionMode(mode = 'manual') {
+      const sb = this.client;
+      await sb.from('auctions').update({ resolution_mode: mode, auto_resolve: mode === 'auto' }).eq('id', 1);
+      return { success: true, resolutionMode: mode, autoResolve: mode === 'auto' };
     }
   };
 
@@ -591,6 +597,7 @@
     startAuction(playerId) { return this._fetch('POST', '/api/auction/start', { playerId }); },
     placeBid(expectedBid) { return this._fetch('POST', '/api/auction/bid', { expectedBid }); },
     setTimerDuration(duration) { return this._fetch('POST', '/api/auction/timer/settings', { duration }); },
+    setResolutionMode(mode) { return this._fetch('POST', '/api/auction/resolution-mode', { mode }); },
     addTimer(seconds = 10) { return this._fetch('POST', '/api/auction/timer/add', { seconds }); },
     resetTimer(seconds) { return this._fetch('POST', '/api/auction/timer/reset', { seconds }); },
     setGavel(stage) { return this._fetch('POST', '/api/auction/gavel', { stage }); },
@@ -1424,6 +1431,7 @@
     addTimer: (sec) => API.addTimer(sec),
     resetTimer: (sec) => API.resetTimer(sec),
     setTimerDuration: (dur) => API.setTimerDuration(dur),
+    setResolutionMode: (mode) => API.setResolutionMode(mode),
     setSquadLimit: (maxSlots) => API.setSquadLimit(maxSlots),
     createFranchise: (data) => API.createFranchise(data),
     setGavelStage: (stage) => API.setGavel(stage),

@@ -93,9 +93,9 @@ async function runTests() {
     assert(t.purse === 12500, `${code} purse should be 12500 lakhs (₹125 Cr), got ${t.purse}`);
     assert(t.remaining <= 12500, `${code} remaining purse exceeds 12500`);
     assert(t.minSlots === 7, `${code} minSlots should be 7`);
-    assert(t.maxSlots === 25, `${code} maxSlots should be 25`);
+    assert(t.maxSlots === 15, `${code} maxSlots should be 15`);
   }
-  console.log('  ✓ All 10 official IPL franchises verified with ₹125 Cr (12,500 lakhs) purse.\n');
+  console.log('  ✓ All 10 official IPL franchises verified with ₹125 Cr (12,500 lakhs) purse and 15 max slots.\n');
 
   // TEST 2: PLAYERS CHECK
   console.log('[TEST 2] Verifying Real IPL Cricketers Dataset...');
@@ -131,7 +131,7 @@ async function runTests() {
   assert(startRes.success, 'Auction start failed');
   assert(startRes.state.currentPlayer.name === virat.name, 'Wrong player started');
   assert(startRes.state.basePrice === 200, `Virat base price should be 200L, got ${startRes.state.basePrice}`);
-  assert(startRes.state.currentBid === 0, 'Current bid should start at 0');
+  assert(startRes.state.currentBid === virat.basePrice, `Current bid should start at player base reserve (${virat.basePrice})`);
   assert(startRes.state.timer === (startRes.state.maxTimer || 15), `Lot timer should start at ${startRes.state.maxTimer || 15} seconds, got ${startRes.state.timer}`);
   console.log(`  ✓ Lot started: Virat Kohli on hammer at ₹200L base price with ${startRes.state.timer}s timer.\n`);
 

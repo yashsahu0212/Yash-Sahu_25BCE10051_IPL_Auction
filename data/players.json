@@ -26,9 +26,9 @@
       "debutYear": 2008
     },
     "tacticalProfile": "IPL all-time highest run-scorer. Supreme anchor and pacing index through the middle overs with elite boundary conversion against high-pace.",
-    "status": "sold",
-    "soldTo": "RCB",
-    "soldPrice": 220,
+    "status": "available",
+    "soldTo": null,
+    "soldPrice": null,
     "imageUrl": null,
     "image_url": null
   },
@@ -1634,7 +1634,7 @@
     "overseas": false,
     "capped": false,
     "basePrice": 30,
-    "status": "unsold",
+    "status": "available",
     "set": "UNCAPPED-ALLROUNDERS",
     "icon": "sports_cricket",
     "image": "/players/gt/arshad-khan.png",

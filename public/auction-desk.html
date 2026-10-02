@@ -61,10 +61,10 @@
       <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="index.html">LIVE AUCTION</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
-        <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="auction-desk.html">AUCTION DESK</a>
+        <a data-nav="team-console" class="hidden px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a data-nav="auction-desk" class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="auction-desk.html">AUCTION DESK</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
+        <a data-nav="activity" class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
       </nav>
 
@@ -336,7 +336,7 @@
     const user = Hammer.getUser();
     if (!user || user.role !== 'auctioneer') {
       if (user && user.role === 'team_owner') {
-        window.location.replace('/team-console.html');
+        window.location.replace('/unauthorized.html');
         return;
       }
       window.location.replace('/login.html?redirect=/auction-desk.html');
@@ -621,7 +621,7 @@
         if (!container || !Array.isArray(teams)) return;
         container.innerHTML = teams.map(t => {
           const filled = (t.filledSlots != null) ? t.filledSlots : (t.players ? t.players.length : (t.squad ? t.squad.length : 0));
-          const max = t.maxSlots || 25;
+          const max = t.maxSlots || 15;
           const remaining = t.remaining != null ? t.remaining : (t.purse - (t.spent || 0));
           return `
             <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border purse-row rounded-[4px]" data-team="${t.id}">
@@ -929,6 +929,16 @@
         const p = allPlayers.find(x => x.id === s.currentPlayer.id);
         if (p) p.status = 'on_hammer';
       }
+      if (s?.teams) loadPurseOverview(s.teams);
+      renderQueue();
+    });
+    Hammer.on('auction:paused', (s) => {
+      renderAuctionState(s);
+      if (s?.teams) loadPurseOverview(s.teams);
+      renderQueue();
+    });
+    Hammer.on('auction:resumed', (s) => {
+      renderAuctionState(s);
       if (s?.teams) loadPurseOverview(s.teams);
       renderQueue();
     });

@@ -60,10 +60,10 @@
       <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="index.html">LIVE AUCTION</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
-        <a class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="team-console.html">TEAM CONSOLE</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a data-nav="team-console" class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="team-console.html">TEAM CONSOLE</a>
+        <a data-nav="auction-desk" class="hidden px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
-        <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
+        <a data-nav="activity" class="hidden px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
       </nav>
 
@@ -224,7 +224,7 @@
           <div class="bg-hm-panel border border-hm-border-s p-5 rounded-[6px]">
             <div class="flex items-center justify-between pb-3 mb-3 border-b border-hm-border">
               <span class="font-mono text-xs text-hm-text tracking-widest uppercase font-bold">ROSTER CAPACITY & LIMITS</span>
-              <span class="font-mono text-xs text-hm-muted" id="tc-squad-count">0 / 25 SLOTS</span>
+              <span class="font-mono text-xs text-hm-muted" id="tc-squad-count">0 / 15 SLOTS</span>
             </div>
 
             <div class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 mb-3" id="tc-slot-indicators"></div>
@@ -301,7 +301,7 @@
     const user = Hammer.getUser();
     if (!user || user.role !== 'team_owner' || !user.teamId) {
       if (user && user.role === 'auctioneer') {
-        window.location.replace('/auction-desk.html');
+        window.location.replace('/unauthorized.html');
         return;
       }
       window.location.replace('/login.html?redirect=/team-console.html');
@@ -359,8 +359,9 @@
     }
 
     function getNextValidBid(state) {
-      if (!state || !state.currentBid || state.currentBid === 0 || !state.leadingTeamId) {
-        return (state && state.basePrice) ? state.basePrice : 200;
+      if (!state) return 200;
+      if (!state.leadingTeamId) {
+        return state.basePrice || state.currentBid || 200;
       }
       return state.currentBid + getBidIncrement(state.currentBid);
     }
@@ -506,7 +507,8 @@
       const nextBid = getNextValidBid(state);
       const myRemaining = myTeamData ? myTeamData.remaining : 0;
       const isLeading = state.leadingTeamId === myTeamId;
-      const isSquadFull = myTeamData && myTeamData.filledSlots >= myTeamData.maxSlots;
+      const maxSlots = myTeamData?.maxSlots || 15;
+      const isSquadFull = myTeamData && myTeamData.filledSlots >= maxSlots;
       const hasEnoughMoney = myRemaining >= nextBid;
 
       if (isLeading) {
@@ -521,7 +523,7 @@
       if (isSquadFull) {
         tcBidBtn.disabled = true;
         tcBidBtn.className = 'w-full p-5 text-center bg-hm-charcoal text-hm-faint border border-hm-border cursor-not-allowed select-none opacity-70 rounded-[6px]';
-        tcBidBtnText.textContent = 'SQUAD CAPACITY FULL (25/25)';
+        tcBidBtnText.textContent = `SQUAD CAPACITY FULL (${maxSlots}/${maxSlots})`;
         tcBidImpactStatus.textContent = 'NO AVAILABLE ROSTER SLOTS';
         tcPurseAfterBid.textContent = 'FULL';
         return;
@@ -533,6 +535,40 @@
         tcBidBtnText.textContent = `INSUFFICIENT PURSE (${Hammer.formatCurrency(nextBid)})`;
         tcBidImpactStatus.textContent = `DEFICIT: ${Hammer.formatCurrency(nextBid - myRemaining)} SHORT`;
         tcPurseAfterBid.textContent = `MAX: ${Hammer.formatCurrency(myRemaining)}`;
+        return;
+      }
+
+      // Check slot & purse constraints for min 7 players, 1 WK, 3 Bowlers, max 15
+      const currentSquad = myTeamData.squad || myTeamData.players || [];
+      const currentWk = currentSquad.filter(p => p.role === 'wicketkeeper').length;
+      const currentBowlers = currentSquad.filter(p => p.role === 'bowler').length;
+      const p = state.currentPlayer;
+      const willBeWk = currentWk + (p && p.role === 'wicketkeeper' ? 1 : 0);
+      const willBeBowlers = currentBowlers + (p && p.role === 'bowler' ? 1 : 0);
+      const willBeFilled = (myTeamData.filledSlots || 0) + 1;
+      const remainingOpenSlots = maxSlots - willBeFilled;
+      const wkNeeded = Math.max(0, 1 - willBeWk);
+      const bowlersNeeded = Math.max(0, 3 - willBeBowlers);
+      const mandatoryRolesNeeded = wkNeeded + bowlersNeeded;
+
+      if (remainingOpenSlots < mandatoryRolesNeeded) {
+        tcBidBtn.disabled = true;
+        tcBidBtn.className = 'w-full p-5 text-center bg-hm-charcoal text-hm-vermilion border border-hm-vermilion cursor-not-allowed select-none opacity-80 rounded-[6px]';
+        tcBidBtnText.textContent = 'ROSTER LIMIT: RESERVE SLOTS FOR 1 WK & 3 BOWLERS';
+        tcBidImpactStatus.textContent = `NEED TO RESERVE ${mandatoryRolesNeeded} SLOTS FOR MANDATORY ROLES`;
+        tcPurseAfterBid.textContent = 'CONSTRAINT';
+        return;
+      }
+
+      const slotsNeededForMin7 = Math.max(0, 7 - willBeFilled);
+      const mandatorySlotsToBuy = Math.max(slotsNeededForMin7, mandatoryRolesNeeded);
+      const minReserveNeeded = mandatorySlotsToBuy * 30;
+      if ((myRemaining - nextBid) < minReserveNeeded) {
+        tcBidBtn.disabled = true;
+        tcBidBtn.className = 'w-full p-5 text-center bg-hm-charcoal text-hm-vermilion border border-hm-vermilion cursor-not-allowed select-none opacity-80 rounded-[6px]';
+        tcBidBtnText.textContent = 'INSUFFICIENT RESERVE FOR MIN 7 SQUAD';
+        tcBidImpactStatus.textContent = `NEED TO PRESERVE ${Hammer.formatCurrency(minReserveNeeded)} FOR MIN 7 SQUAD (1 WK, 3 BOWLERS)`;
+        tcPurseAfterBid.textContent = 'RESERVED';
         return;
       }
 
@@ -562,7 +598,7 @@
       tcAuctionBadge.textContent = state.status === 'live' ? 'LIVE ON HAMMER' : 'PAUSED';
       tcAuctionBadge.className = state.status === 'live'
         ? 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-vermilion text-hm-vermilion bg-hm-vermilion/10 rounded-[4px]'
-        : 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s text-hm-faint bg-hm-elevated rounded-[4px]';
+        : 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-amber text-hm-amber bg-hm-amber/20 rounded-[4px]';
 
       const p = state.currentPlayer;
       tcLotNum.textContent = 'LOT #' + String(p.lotNumber).padStart(3, '0');
@@ -654,6 +690,16 @@
 
     Hammer.on('auction:started', (state) => {
       HammerUX.playGavelStrike();
+      renderAuctionState(state);
+      if (state?.teams) syncTeamData(state.teams);
+    });
+
+    Hammer.on('auction:paused', (state) => {
+      renderAuctionState(state);
+      if (state?.teams) syncTeamData(state.teams);
+    });
+
+    Hammer.on('auction:resumed', (state) => {
       renderAuctionState(state);
       if (state?.teams) syncTeamData(state.teams);
     });

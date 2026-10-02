@@ -64,10 +64,10 @@
       <nav class="hidden xl:flex items-center gap-0.5 font-mono text-[11px] tracking-wider uppercase">
         <a class="px-2.5 py-1 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="index.html">LIVE AUCTION</a>
         <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
-        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
-        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a data-nav="team-console" class="hidden px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
+        <a data-nav="auction-desk" class="hidden px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
         <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
-        <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
+        <a data-nav="activity" class="hidden px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
         <a class="px-2.5 py-1 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
       </nav>
 
@@ -560,8 +560,8 @@
         showAthleteFallback();
       }
 
-      // Animated current bid number
-      HammerUX.animateCurrencyNumber(bidDisplay, state.currentBid);
+      // Animated current bid number (starts from player base reserve rather than 0)
+      HammerUX.animateCurrencyNumber(bidDisplay, state.currentBid || state.basePrice || 0);
 
       // Leading team with dynamic Team Identity System
       const leaderId = state.leadingTeamId || (leadingTeam ? leadingTeam.id : null);
@@ -588,7 +588,13 @@
         leadingTeamTag.style.backgroundColor = '';
         leadingTeamTag.style.color = '';
 
-        leadingFranchiseName.textContent = state.status === 'live' ? 'NO BIDS YET' : 'AWAITING NEXT LOT';
+        if (state.status === 'live') {
+          leadingFranchiseName.textContent = 'NO BIDS YET // OPENING AT BASE';
+        } else if (state.status === 'paused') {
+          leadingFranchiseName.textContent = 'AUCTION PAUSED // ON HAMMER';
+        } else {
+          leadingFranchiseName.textContent = 'AWAITING NEXT LOT';
+        }
         leadingFranchiseName.style.color = '';
 
         leadingTeamLogoWrap.innerHTML = '<span id="leading-team-logo-fallback" class="font-display text-xl text-hm-muted">—</span>';
@@ -601,8 +607,10 @@
 
       // Timer & gavel
       secondsCounter.textContent = Hammer.formatTimer(state.timer);
-      gavelStageLabel.textContent = Hammer.getGavelLabel(state.gavelStage);
-      resetGavelSteps(state.gavelStage);
+      gavelStageLabel.textContent = state.status === 'paused'
+        ? 'AUCTION PAUSED BY AUCTIONEER'
+        : Hammer.getGavelLabel(state.gavelStage);
+      resetGavelSteps(state.status === 'paused' ? -1 : state.gavelStage);
 
       // Status badge (no live-pulse animation)
       if (state.status === 'live') {
@@ -611,7 +619,8 @@
         verdictOverlay.classList.add('hidden');
       } else if (state.status === 'paused') {
         hammerBadge.textContent = 'PAUSED';
-        hammerBadge.className = 'px-2 py-0.5 bg-hm-panel text-hm-faint border border-hm-border-s font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
+        hammerBadge.className = 'px-2 py-0.5 bg-hm-amber/20 text-hm-amber border border-hm-amber font-mono text-[10px] uppercase tracking-widest font-bold rounded-[3px]';
+        verdictOverlay.classList.add('hidden');
       }
 
       // Bid increment label
@@ -643,6 +652,12 @@
     Hammer.on('auction:state', renderState);
     Hammer.on('auction:started', (state) => {
       HammerUX.playGavelStrike();
+      renderState(state);
+    });
+    Hammer.on('auction:paused', (state) => {
+      renderState(state);
+    });
+    Hammer.on('auction:resumed', (state) => {
       renderState(state);
     });
 

@@ -172,8 +172,13 @@ async function runTests() {
 
   // ─── TEST 5: Verify Activity Events & Sequencing ────────────
   console.log('\nTEST 5: Verifying Activity Events & Sequence Integrity...');
-  const activityRes = await fetch(`${BASE_URL}/api/auction/activity`).then(r => r.json());
-  assert(activityRes.events && activityRes.events.length > 0, `Activity API returned ${activityRes.events.length} total events`);
+  const unauthRes = await fetch(`${BASE_URL}/api/auction/activity`);
+  assert(unauthRes.status === 401, 'Unauthenticated access to activity log must be blocked with 401');
+
+  const activityRes = await fetch(`${BASE_URL}/api/auction/activity`, {
+    headers: { 'Authorization': `Bearer ${loginAuctioneer.token}` }
+  }).then(r => r.json());
+  assert(activityRes.events && activityRes.events.length > 0, `Activity API returned ${activityRes.events?.length} total events`);
 
   const openedEv = activityRes.events.find(e => e.event_type === 'LOT_OPENED' && e.player_id === testPlayer.id);
   assert(openedEv != null && openedEv.event_sequence > 0, `LOT_OPENED event recorded with sequence #${openedEv?.event_sequence}`);
@@ -207,8 +212,13 @@ async function runTests() {
   const soldJson = await fetch(`${BASE_URL}/api/export/sold?format=json`).then(r => r.json());
   assert(soldJson.players && soldJson.players.some(p => p.name === testPlayer.name), 'Sold players JSON contains acquired player record');
 
-  // 6.3 Activity Log Export
-  const activityCsv = await fetch(`${BASE_URL}/api/export/activity?format=csv`).then(r => r.text());
+  // 6.3 Activity Log Export (Auctioneer Only)
+  const unauthExportRes = await fetch(`${BASE_URL}/api/export/activity?format=csv`);
+  assert(unauthExportRes.status === 401, 'Unauthenticated export activity must be blocked with 401');
+
+  const activityCsv = await fetch(`${BASE_URL}/api/export/activity?format=csv`, {
+    headers: { 'Authorization': `Bearer ${loginAuctioneer.token}` }
+  }).then(r => r.text());
   assert(activityCsv.includes('Sequence') && activityCsv.includes('BID_PLACED') && activityCsv.includes('LOT_SOLD'), 'Activity Log CSV contains sequenced events');
 
   // 6.4 Lot Replay Export

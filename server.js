@@ -272,7 +272,7 @@ function getPublicAuctionState() {
       id: t.id, name: t.name, shortName: t.shortName,
       remaining: t.remaining,
       filledSlots: (t.players ? t.players.length : (t.filledSlots || 0)),
-      maxSlots: t.maxSlots || 25,
+      maxSlots: t.maxSlots || 15,
       squad: t.players || t.squad || []
     }))
   };
@@ -295,10 +295,12 @@ function getBidIncrement(currentBidLakhs) {
 }
 
 // ─── TIMER ENGINE ───────────────────────────────────────────
-function startTimer() {
+function startTimer(resume = false) {
   stopTimer();
-  auction.timer = auction.maxTimer;
-  auction.gavelStage = 0;
+  if (!resume || !auction.timer || auction.timer <= 0) {
+    auction.timer = auction.maxTimer;
+    auction.gavelStage = 0;
+  }
   timerInterval = setInterval(() => {
     try {
       if (auction.status !== 'live') {
@@ -386,7 +388,7 @@ function startAuctionForPlayer(playerId) {
   player.status = 'on_hammer';
   auction.status = 'live';
   auction.currentPlayerId = player.id;
-  auction.currentBid = 0; // Reserve base price active, first bid starts at base price
+  auction.currentBid = player.basePrice; // Players auction starts from player base reserve rather than 0 rupees
   auction.basePrice = player.basePrice;
   auction.leadingTeamId = null;
   auction.bidHistory = [];
@@ -395,7 +397,7 @@ function startAuctionForPlayer(playerId) {
   auction.bidIncrement = getBidIncrement(player.basePrice);
   auction.lotIndex++;
 
-  startTimer();
+  startTimer(false);
   const state = getPublicAuctionState();
 
   logAuctionEvent('LOT_OPENED', {
@@ -443,7 +445,7 @@ function placeBid(teamId, expectedBid) {
   // Calculate new bid amount using Tiered Increments (Rule 6)
   const newBid = auction.leadingTeamId
     ? auction.currentBid + getBidIncrement(auction.currentBid)
-    : auction.basePrice; // First bid is at base reserve price
+    : auction.basePrice; // First bid starts at base reserve price
 
   // Anti-race-condition check: if client specified expected bid, ensure it matches
   if (expectedBid != null) {
@@ -460,9 +462,15 @@ function placeBid(teamId, expectedBid) {
     }
   }
 
-  // Validate squad slot limit (max 25)
-  if (team.filledSlots >= team.maxSlots) {
-    return { error: 'Squad is full (maximum 25 players reached)', code: 'SQUAD_FULL' };
+  // SQUAD CONSTRAINTS:
+  // Each franchise must have:
+  // - Minimum 7 players
+  // - Maximum 15 players
+  // - At least 1 Wicketkeeper
+  // - At least 3 Bowlers
+  const maxSlots = team.maxSlots || 15;
+  if (team.filledSlots >= maxSlots) {
+    return { error: `Squad is full (maximum ${maxSlots} players reached)`, code: 'SQUAD_FULL' };
   }
 
   // Validate team can afford in integer lakhs
@@ -473,13 +481,35 @@ function placeBid(teamId, expectedBid) {
     };
   }
 
-  // RULE 10: Squad constraint preservation:
-  // Must preserve at least ₹30L reserve per remaining required slot to reach minimum 7 players
-  const remainingReqSlots = Math.max(0, 7 - (team.filledSlots + 1));
-  const minReserveNeeded = remainingReqSlots * 30; // Minimum base reserve is ₹30L
+  const currentSquad = team.players || team.squad || [];
+  const currentWk = currentSquad.filter(p => p.role === 'wicketkeeper').length;
+  const currentBowlers = currentSquad.filter(p => p.role === 'bowler').length;
+
+  const currentLotPlayer = getPlayer(auction.currentPlayerId);
+  const nextWk = currentWk + (currentLotPlayer && currentLotPlayer.role === 'wicketkeeper' ? 1 : 0);
+  const nextBowlers = currentBowlers + (currentLotPlayer && currentLotPlayer.role === 'bowler' ? 1 : 0);
+  const nextFilledSlots = team.filledSlots + 1;
+  const remainingOpenSlots = maxSlots - nextFilledSlots;
+
+  const wkNeeded = Math.max(0, 1 - nextWk);
+  const bowlersNeeded = Math.max(0, 3 - nextBowlers);
+  const mandatoryRolesNeeded = wkNeeded + bowlersNeeded;
+
+  // Validate slot feasibility: team must not fill up roster preventing 1 WK + 3 Bowlers
+  if (remainingOpenSlots < mandatoryRolesNeeded) {
+    return {
+      error: `Roster constraint: Must preserve roster slots for mandatory 1 wicketkeeper and 3 bowlers within the ${maxSlots}-player limit.`,
+      code: 'SQUAD_CONSTRAINT_VIOLATION'
+    };
+  }
+
+  // Purse reserve feasibility: must preserve at least ₹30L per remaining mandatory slot to reach min 7 & mandatory roles
+  const slotsNeededForMin7 = Math.max(0, 7 - nextFilledSlots);
+  const mandatorySlotsToBuy = Math.max(slotsNeededForMin7, mandatoryRolesNeeded);
+  const minReserveNeeded = mandatorySlotsToBuy * 30; // Minimum base reserve is ₹30L
   if ((team.remaining - newBid) < minReserveNeeded) {
     return {
-      error: `Purse deficit: Bidding ${formatCR(newBid)} leaves ${formatCR(team.remaining - newBid)}, insufficient to fill the mandatory 7-player minimum squad.`,
+      error: `Purse deficit: Bidding ${formatCR(newBid)} leaves ${formatCR(team.remaining - newBid)}, insufficient to fill mandatory minimum squad (7 players with 1 WK & 3 bowlers).`,
       code: 'SQUAD_CONSTRAINT_VIOLATION'
     };
   }
@@ -726,13 +756,20 @@ function pauseAuction() {
   });
   io.emit('auction:paused', state);
   io.emit('auction:state', state);
-  return { success: true };
+  io.emit('auction:timer', {
+    timer: auction.timer,
+    maxTimer: auction.maxTimer,
+    gavelStage: auction.gavelStage,
+    paused: true,
+    timestamp: Date.now()
+  });
+  return { success: true, state };
 }
 
 function resumeAuction() {
   if (auction.status !== 'paused') return { error: 'Auction not paused' };
   auction.status = 'live';
-  startTimer();
+  startTimer(true); // Preserve remaining paused seconds
   const state = getPublicAuctionState();
   logAuctionEvent('AUCTION_RESUMED', {
     lot_id: auction.lotIndex,
@@ -741,7 +778,14 @@ function resumeAuction() {
   });
   io.emit('auction:resumed', state);
   io.emit('auction:state', state);
-  return { success: true };
+  io.emit('auction:timer', {
+    timer: auction.timer,
+    maxTimer: auction.maxTimer,
+    gavelStage: auction.gavelStage,
+    paused: false,
+    timestamp: Date.now()
+  });
+  return { success: true, state };
 }
 
 // ─── AUTH ROUTES ────────────────────────────────────────────
@@ -881,8 +925,8 @@ app.get('/api/auction/history', (req, res) => {
   res.json(auctionHistory);
 });
 
-// ─── ACTIVITY LOG ROUTE ─────────────────────────────────────
-app.get('/api/auction/activity', (req, res) => {
+// ─── ACTIVITY LOG ROUTE (Strictly Auctioneer Only) ───────────
+app.get('/api/auction/activity', requireAuth(['auctioneer']), (req, res) => {
   let result = [...auctionEvents];
   if (req.query.type && req.query.type !== 'all') {
     const t = req.query.type.toUpperCase();
@@ -1035,8 +1079,8 @@ app.get('/api/export/sold', (req, res) => {
   res.send(csv);
 });
 
-// 3. Export Activity Log
-app.get('/api/export/activity', (req, res) => {
+// 3. Export Activity Log (Auctioneer Only)
+app.get('/api/export/activity', requireAuth(['auctioneer']), (req, res) => {
   const format = (req.query.format || 'csv').toLowerCase();
 
   if (format === 'json') {
@@ -1340,10 +1384,18 @@ app.get(['/lot-replay', '/lot-replay.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'lot-replay.html'));
 });
 
-// 3b. Chronological Live Activity Log
-app.get(['/activity-log', '/activity-log.html', '/activity'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'activity-log.html'));
-});
+// 3b. Chronological Live Activity Log (Strictly Auctioneer Only)
+const activityLogGuard = (req, res) => {
+  const session = getSession(req);
+  if (!session) {
+    return res.redirect('/login.html?redirect=/activity-log.html');
+  }
+  if (session.role !== 'auctioneer') {
+    return res.status(403).sendFile(path.join(__dirname, 'unauthorized.html'));
+  }
+  return res.sendFile(path.join(__dirname, 'activity-log.html'));
+};
+app.get(['/activity-log', '/activity-log.html', '/activity'], activityLogGuard);
 
 // 3c. Final Squads & Sold Players View
 app.get(['/final-squads', '/final-squads.html', '/squads'], (req, res) => {

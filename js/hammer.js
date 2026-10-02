@@ -139,7 +139,7 @@
       logo: t.logo_url || t.logo,
       playersCount: teamSquad.length,
       filledSlots: teamSquad.length,
-      maxSlots: t.max_slots || t.maxSlots || 25,
+      maxSlots: t.max_slots || t.maxSlots || 15,
       minSlots: t.min_slots || t.minSlots || 7,
       overseasCount: overseasCount,
       squad: teamSquad.map(s => {
@@ -923,6 +923,8 @@
       _lastAuctionState.timer = data.timer;
       if (data.maxTimer !== undefined) _lastAuctionState.maxTimer = data.maxTimer;
       if (data.gavelStage !== undefined) _lastAuctionState.gavelStage = data.gavelStage;
+      if (data.paused === true) _lastAuctionState.status = 'paused';
+      else if (data.paused === false && _lastAuctionState.status === 'paused') _lastAuctionState.status = 'live';
     } else if (event === 'auction:timer_settings' && _lastAuctionState) {
       if (data.maxTimer !== undefined) _lastAuctionState.maxTimer = data.maxTimer;
       if (data.timer !== undefined) _lastAuctionState.timer = data.timer;
@@ -1221,6 +1223,48 @@
     document.head.appendChild(style);
   }
 
+  // ─── ROLE-BASED UI VISIBILITY ───────────────────────────
+  function updateRoleBasedUI(user = _user) {
+    const role = user?.role;
+    const isTeamOwner = role === 'team_owner';
+    const isAuctioneer = role === 'auctioneer';
+
+    // 1. Team Console (Franchise owner only)
+    document.querySelectorAll('[data-nav="team-console"], a[href*="team-console"]').forEach(el => {
+      if (isTeamOwner) {
+        el.classList.remove('hidden');
+        el.style.display = '';
+      } else {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      }
+    });
+
+    // 2. Auctioneer Desk (Auctioneer only)
+    document.querySelectorAll('[data-nav="auction-desk"], a[href*="auction-desk"]').forEach(el => {
+      if (isAuctioneer) {
+        el.classList.remove('hidden');
+        el.style.display = '';
+      } else {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      }
+    });
+
+    // 3. Activity Section (Strictly auctioneer only - no one else)
+    document.querySelectorAll('[data-nav="activity"], a[href*="activity-log"], a[href="/activity"]').forEach(el => {
+      if (isAuctioneer) {
+        el.classList.remove('hidden');
+        el.style.display = '';
+      } else {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      }
+    });
+
+    updatePersonIcon();
+  }
+
   // ─── INITIALIZATION ─────────────────────────────────────
   async function init() {
     if (_initPromise) return _initPromise;
@@ -1228,8 +1272,8 @@
     _initPromise = (async () => {
       startClock('clock-tick');
       await checkAuth();
+      updateRoleBasedUI(_user);
       connectRealtime();
-      updatePersonIcon();
       renderBackendBadge();
       return { user: _user, authState: _authState };
     })();
@@ -1381,6 +1425,7 @@
     getStatusBadge,
     startClock,
     updateNav,
+    updateRoleBasedUI: (u) => updateRoleBasedUI(u),
     showToast,
     syncNow
   };

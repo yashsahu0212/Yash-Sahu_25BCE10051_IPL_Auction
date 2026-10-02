@@ -62,7 +62,7 @@ flowchart TD
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
 ### 1. YouTube-Style Full Screen Mode
 - **One-Click Theatre & Stadium View**: Integrated into the Live Broadcast Board (`index.html`) with an interactive fullscreen toggle button and keyboard hotkey (`[F]`).
@@ -112,7 +112,7 @@ flowchart TD
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer | Technologies |
 | :--- | :--- |
@@ -178,7 +178,7 @@ flowchart TD
 
 ---
 
-## ⚙️ Environment Variables
+##  Environment Variables
 
 Create a `.env` file in the workspace root:
 
@@ -232,7 +232,7 @@ Open your browser and navigate to:
 
 ---
 
-## 🔐 Credentials & Access Matrix
+##  Credentials & Access Matrix
 
 | Role | Username | Password | Access Capabilities |
 | :--- | :--- | :--- | :--- |
@@ -241,34 +241,10 @@ Open your browser and navigate to:
 | **MI Owner** | `mi` | `mi2026` | Mumbai Indians bidding console & real-time squad ledger. |
 | **RCB Owner** | `rcb` | `rcb2026` | Royal Challengers Bengaluru bidding console & real-time squad ledger. |
 | **Other Franchises** | `gt`, `rr`, `srh`, `dc`, `lsg`, `kkr`, `pbks` | `[teamcode]2026` | Dedicated franchise bidding consoles for all 10 IPL franchises. |
-| **Public Viewer** | `viewer` | `view2026` | Read-only live broadcast observation. |
 
 ---
 
-## 🧪 Verification & Automated Test Suites
-
-HAMMER includes automated end-to-end and regression test suites. Execute all tests with a single command:
-
-```bash
-npm test
-```
-
-### Verified Test Suites:
-1. **Timer Expiration & Resolution Suite** (`tests/test_timer_and_resolution.js`):
-   - Validates that bids submitted after `0s` are strictly blocked.
-   - Tests `AUTO` resolution (auto-sold to leading team or auto-unsold on zero bids).
-   - Verifies CSV Byte Order Mark (`\uFEFF`) and eliminates mojibake.
-2. **Franchise Captain Retention Suite** (`tests/test_captain_retention.js`):
-   - Tests atomic retention and release of all 10 official 2026 franchise captains.
-   - Confirms retained captains are shielded from hammer bids (`ALREADY_SOLD`).
-   - Verifies team purse deductions and squad slot accounting.
-3. **Supabase Cloud Architecture Suite** (`tests/test_supabase_architecture.js`):
-   - Validates 6 core PostgreSQL tables, RLS security policies, and `FOR UPDATE` locking.
-   - Validates Edge Function endpoints and dual-mode client fallbacks.
-
----
-
-## 📜 Submission Details
+## Submission Details
 
 - **Participant's Name:** Yash Sahu
 - **Registration Number:** 25BCE10051

@@ -1579,6 +1579,10 @@ const profileHandler = (req, res) => {
   return res.redirect('/');
 };
 app.get(['/profile', '/profile.html', '/avatar'], profileHandler);
+app.get(['/favicon.ico', '/favicon.svg'], (req, res) => {
+  res.type('image/svg+xml');
+  res.sendFile(path.join(__dirname, 'favicon.svg'));
+});
 
 // STATIC ASSET SERVING
 // Root directories take priority — they contain the latest, canonical implementations.

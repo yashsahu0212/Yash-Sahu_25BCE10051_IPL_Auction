@@ -297,6 +297,7 @@
     const size = options.size || 'md';
     const showFullName = options.showFullName || false;
     const customClass = options.customClass || '';
+    const label = showFullName ? theme.fullName : theme.shortName;
 
     let heightClass = 'h-7 px-2.5 text-xs';
     let logoSizeClass = 'w-4 h-4';

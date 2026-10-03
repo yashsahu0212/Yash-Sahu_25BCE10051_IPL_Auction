@@ -11,7 +11,7 @@
     "capped": true,
     "set": "SET 01 // MARQUEE BATTERS (M1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/rcb/virat-kohli.png",
     "icon": "sports_cricket",
     "stats": {
       "matches": 252,
@@ -29,8 +29,8 @@
     "status": "sold",
     "soldTo": "CSK",
     "soldPrice": 260,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/rcb/virat-kohli.png",
+    "image_url": "/players/rcb/virat-kohli.png"
   },
   {
     "id": 2,
@@ -44,7 +44,7 @@
     "capped": true,
     "set": "SET 01 // MARQUEE BATTERS (M1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/mi/rohit-sharma.png",
     "icon": "sports_cricket",
     "stats": {
       "matches": 257,
@@ -59,11 +59,11 @@
       "debutYear": 2008
     },
     "tacticalProfile": "5-time IPL title-winning captain. Ruthless power-play ball-striker against short-pitch fast bowling (pull shot efficiency 88.4%).",
-    "status": "available",
-    "soldTo": null,
-    "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "status": "sold",
+    "soldTo": "MI",
+    "soldPrice": 220,
+    "imageUrl": "/players/mi/rohit-sharma.png",
+    "image_url": "/players/mi/rohit-sharma.png"
   },
   {
     "id": 3,
@@ -77,7 +77,7 @@
     "capped": true,
     "set": "SET 01 // MARQUEE BATTERS (M1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/srh/travis-head.png",
     "icon": "sports_cricket",
     "stats": {
       "matches": 25,
@@ -92,11 +92,11 @@
       "debutYear": 2016
     },
     "tacticalProfile": "Ultra-aggressive powerplay specialist. Highest scoring rate in overs 1-6 across world T20 cricket in 2024 (SR 216.4).",
-    "status": "available",
-    "soldTo": null,
-    "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "status": "sold",
+    "soldTo": "CSK",
+    "soldPrice": 200,
+    "imageUrl": "/players/srh/travis-head.png",
+    "image_url": "/players/srh/travis-head.png"
   },
   {
     "id": 4,
@@ -110,7 +110,7 @@
     "capped": true,
     "set": "SET 01 // MARQUEE BATTERS (M1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/gt/shubman-gill.png",
     "icon": "sports_cricket",
     "stats": {
       "matches": 103,
@@ -125,11 +125,11 @@
       "debutYear": 2018
     },
     "tacticalProfile": "Orange Cap winner 2023 (890 runs). Elite balance against pace and spin with exceptional boundary-finding placement in field restrictions.",
-    "status": "available",
+    "status": "unsold",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/gt/shubman-gill.png",
+    "image_url": "/players/gt/shubman-gill.png"
   },
   {
     "id": 5,
@@ -143,7 +143,7 @@
     "capped": true,
     "set": "SET 01 // MARQUEE BATTERS (M1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/rr/yashasvi-jaiswal.png",
     "icon": "sports_cricket",
     "stats": {
       "matches": 52,
@@ -161,8 +161,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/rr/yashasvi-jaiswal.png",
+    "image_url": "/players/rr/yashasvi-jaiswal.png"
   },
   {
     "id": 6,
@@ -176,7 +176,7 @@
     "capped": true,
     "set": "SET 01 // MARQUEE BATTERS (M1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/mi/suryakumar-yadav.png",
     "icon": "sports_cricket",
     "stats": {
       "matches": 150,
@@ -194,8 +194,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/mi/suryakumar-yadav.png",
+    "image_url": "/players/mi/suryakumar-yadav.png"
   },
   {
     "id": 7,
@@ -209,7 +209,7 @@
     "capped": true,
     "set": "SET 02 // WICKETKEEPERS (WK1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/lsg/rishabh-pant.png",
     "icon": "front_hand",
     "stats": {
       "matches": 111,
@@ -228,8 +228,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/lsg/rishabh-pant.png",
+    "image_url": "/players/lsg/rishabh-pant.png"
   },
   {
     "id": 8,
@@ -243,7 +243,7 @@
     "capped": true,
     "set": "SET 02 // WICKETKEEPERS (WK1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/srh/heinrich-klaasen.png",
     "icon": "front_hand",
     "stats": {
       "matches": 35,
@@ -262,8 +262,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/srh/heinrich-klaasen.png",
+    "image_url": "/players/srh/heinrich-klaasen.png"
   },
   {
     "id": 9,
@@ -277,7 +277,7 @@
     "capped": true,
     "set": "SET 02 // WICKETKEEPERS (WK1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/csk/sanju-samson.png",
     "icon": "front_hand",
     "stats": {
       "matches": 167,
@@ -296,8 +296,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/csk/sanju-samson.png",
+    "image_url": "/players/csk/sanju-samson.png"
   },
   {
     "id": 10,
@@ -345,7 +345,7 @@
     "capped": true,
     "set": "SET 02 // WICKETKEEPERS (WK1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/lsg/nicholas-pooran.png",
     "icon": "front_hand",
     "stats": {
       "matches": 76,
@@ -364,8 +364,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/lsg/nicholas-pooran.png",
+    "image_url": "/players/lsg/nicholas-pooran.png"
   },
   {
     "id": 12,
@@ -379,7 +379,7 @@
     "capped": true,
     "set": "SET 02 // WICKETKEEPERS (WK1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/csk/mahendra-singh-dhoni.png",
     "icon": "front_hand",
     "stats": {
       "matches": 264,
@@ -398,8 +398,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/csk/mahendra-singh-dhoni.png",
+    "image_url": "/players/csk/mahendra-singh-dhoni.png"
   },
   {
     "id": 13,
@@ -413,7 +413,7 @@
     "capped": true,
     "set": "SET 03 // MARQUEE ALL-ROUNDERS (AR1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/mi/hardik-pandya.png",
     "icon": "public",
     "stats": {
       "matches": 137,
@@ -431,8 +431,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/mi/hardik-pandya.png",
+    "image_url": "/players/mi/hardik-pandya.png"
   },
   {
     "id": 14,
@@ -446,7 +446,7 @@
     "capped": true,
     "set": "SET 03 // MARQUEE ALL-ROUNDERS (AR1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/rr/ravindra-jadeja.png",
     "icon": "public",
     "stats": {
       "matches": 240,
@@ -464,8 +464,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/rr/ravindra-jadeja.png",
+    "image_url": "/players/rr/ravindra-jadeja.png"
   },
   {
     "id": 15,
@@ -479,7 +479,7 @@
     "capped": true,
     "set": "SET 03 // MARQUEE ALL-ROUNDERS (AR1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/kkr/andre-russell.png",
     "icon": "public",
     "stats": {
       "matches": 127,
@@ -497,8 +497,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/kkr/andre-russell.png",
+    "image_url": "/players/kkr/andre-russell.png"
   },
   {
     "id": 16,
@@ -512,7 +512,7 @@
     "capped": true,
     "set": "SET 03 // MARQUEE ALL-ROUNDERS (AR1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/gt/rashid-khan.png",
     "icon": "public",
     "stats": {
       "matches": 121,
@@ -530,8 +530,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/gt/rashid-khan.png",
+    "image_url": "/players/gt/rashid-khan.png"
   },
   {
     "id": 17,
@@ -545,7 +545,7 @@
     "capped": true,
     "set": "SET 03 // MARQUEE ALL-ROUNDERS (AR1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/kkr/sunil-narine.png",
     "icon": "public",
     "stats": {
       "matches": 177,
@@ -563,8 +563,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/kkr/sunil-narine.png",
+    "image_url": "/players/kkr/sunil-narine.png"
   },
   {
     "id": 18,
@@ -578,7 +578,7 @@
     "capped": true,
     "set": "SET 03 // MARQUEE ALL-ROUNDERS (AR1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/dc/axar-patel.png",
     "icon": "public",
     "stats": {
       "matches": 150,
@@ -596,8 +596,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/dc/axar-patel.png",
+    "image_url": "/players/dc/axar-patel.png"
   },
   {
     "id": 19,
@@ -611,7 +611,7 @@
     "capped": true,
     "set": "SET 04 // FAST BOWLERS (FAST1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/mi/jasprit-bumrah.png",
     "icon": "bolt",
     "stats": {
       "matches": 133,
@@ -629,8 +629,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/mi/jasprit-bumrah.png",
+    "image_url": "/players/mi/jasprit-bumrah.png"
   },
   {
     "id": 20,
@@ -644,7 +644,7 @@
     "capped": true,
     "set": "SET 04 // FAST BOWLERS (FAST1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/srh/pat-cummins.png",
     "icon": "bolt",
     "stats": {
       "matches": 58,
@@ -662,8 +662,8 @@
     "status": "unsold",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/srh/pat-cummins.png",
+    "image_url": "/players/srh/pat-cummins.png"
   },
   {
     "id": 21,
@@ -677,7 +677,7 @@
     "capped": true,
     "set": "SET 04 // FAST BOWLERS (FAST1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/dc/mitchell-starc.png",
     "icon": "bolt",
     "stats": {
       "matches": 41,
@@ -693,8 +693,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/dc/mitchell-starc.png",
+    "image_url": "/players/dc/mitchell-starc.png"
   },
   {
     "id": 22,
@@ -708,7 +708,7 @@
     "capped": true,
     "set": "SET 04 // FAST BOWLERS (FAST1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/mi/trent-boult.png",
     "icon": "bolt",
     "stats": {
       "matches": 104,
@@ -724,8 +724,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/mi/trent-boult.png",
+    "image_url": "/players/mi/trent-boult.png"
   },
   {
     "id": 23,
@@ -739,7 +739,7 @@
     "capped": true,
     "set": "SET 04 // FAST BOWLERS (FAST1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/lsg/mohammed-shami.png",
     "icon": "bolt",
     "stats": {
       "matches": 110,
@@ -755,8 +755,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/lsg/mohammed-shami.png",
+    "image_url": "/players/lsg/mohammed-shami.png"
   },
   {
     "id": 24,
@@ -770,7 +770,7 @@
     "capped": true,
     "set": "SET 04 // FAST BOWLERS (FAST1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/pbks/arshdeep-singh.png",
     "icon": "bolt",
     "stats": {
       "matches": 65,
@@ -786,8 +786,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/pbks/arshdeep-singh.png",
+    "image_url": "/players/pbks/arshdeep-singh.png"
   },
   {
     "id": 26,
@@ -801,7 +801,7 @@
     "capped": true,
     "set": "SET 05 // SPIN BOWLERS (SPIN1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/pbks/yuzvendra-chahal.png",
     "icon": "bolt",
     "stats": {
       "matches": 160,
@@ -817,8 +817,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/pbks/yuzvendra-chahal.png",
+    "image_url": "/players/pbks/yuzvendra-chahal.png"
   },
   {
     "id": 27,
@@ -832,7 +832,7 @@
     "capped": true,
     "set": "SET 05 // SPIN BOWLERS (SPIN1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/dc/kuldeep-yadav.png",
     "icon": "bolt",
     "stats": {
       "matches": 84,
@@ -848,8 +848,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/dc/kuldeep-yadav.png",
+    "image_url": "/players/dc/kuldeep-yadav.png"
   },
   {
     "id": 35,
@@ -863,7 +863,7 @@
     "capped": true,
     "set": "SET 04 // FAST BOWLERS (FAST1)",
     "basePrice": 200,
-    "image": null,
+    "image": "/players/gt/kagiso-rabada.png",
     "icon": "bolt",
     "stats": {
       "matches": 80,
@@ -879,8 +879,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/gt/kagiso-rabada.png",
+    "image_url": "/players/gt/kagiso-rabada.png"
   },
   {
     "name": "JOFRA ARCHER",
@@ -956,7 +956,7 @@
     "capped": true,
     "set": "SET 04 // FAST BOWLERS (FAST1)",
     "basePrice": 150,
-    "image": null,
+    "image": "/players/kkr/matheesha-pathirana.png",
     "icon": "bolt",
     "stats": {
       "matches": 20,
@@ -972,8 +972,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/kkr/matheesha-pathirana.png",
+    "image_url": "/players/kkr/matheesha-pathirana.png"
   },
   {
     "id": 28,
@@ -1018,7 +1018,7 @@
     "capped": true,
     "set": "SET 02 // WICKETKEEPERS (WK1)",
     "basePrice": 150,
-    "image": null,
+    "image": "/players/rcb/phil-salt.png",
     "icon": "front_hand",
     "stats": {
       "matches": 21,
@@ -1037,8 +1037,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/rcb/phil-salt.png",
+    "image_url": "/players/rcb/phil-salt.png"
   },
   {
     "name": "KHALEEL AHMED",
@@ -1198,7 +1198,7 @@
     "capped": true,
     "set": "SET 06 // EMERGING & IMPACT (ACC1)",
     "basePrice": 100,
-    "image": null,
+    "image": "/players/kkr/rinku-singh.png",
     "icon": "sports_cricket",
     "stats": {
       "matches": 45,
@@ -1215,8 +1215,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/kkr/rinku-singh.png",
+    "image_url": "/players/kkr/rinku-singh.png"
   },
   {
     "name": "RAHUL CHAHAR",
@@ -1456,7 +1456,7 @@
     "capped": true,
     "set": "SET 06 // EMERGING & IMPACT (ACC1)",
     "basePrice": 75,
-    "image": null,
+    "image": "/players/lsg/mayank-yadav.png",
     "icon": "bolt",
     "stats": {
       "matches": 4,
@@ -1472,8 +1472,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/lsg/mayank-yadav.png",
+    "image_url": "/players/lsg/mayank-yadav.png"
   },
   {
     "id": 32,
@@ -1487,7 +1487,7 @@
     "capped": true,
     "set": "SET 06 // EMERGING & IMPACT (ACC1)",
     "basePrice": 75,
-    "image": null,
+    "image": "/players/srh/nitish-kumar-reddy.png",
     "icon": "public",
     "stats": {
       "matches": 15,
@@ -1505,8 +1505,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/srh/nitish-kumar-reddy.png",
+    "image_url": "/players/srh/nitish-kumar-reddy.png"
   },
   {
     "name": "DEWALD BREVIS",
@@ -1670,7 +1670,7 @@
       "debutYear": 2022
     },
     "tacticalProfile": "Calculative middle-order finisher with inventive ramp and sweep shots against high-velocity pace.",
-    "status": "available",
+    "status": "on_hammer",
     "soldTo": null,
     "soldPrice": null,
     "id": 43,
@@ -1688,7 +1688,7 @@
     "capped": false,
     "set": "SET 06 // EMERGING & IMPACT (ACC1)",
     "basePrice": 40,
-    "image": null,
+    "image": "/players/pbks/shashank-singh.png",
     "icon": "sports_cricket",
     "stats": {
       "matches": 24,
@@ -1705,8 +1705,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/pbks/shashank-singh.png",
+    "image_url": "/players/pbks/shashank-singh.png"
   },
   {
     "id": 33,
@@ -1720,7 +1720,7 @@
     "capped": false,
     "set": "SET 06 // EMERGING & IMPACT (ACC1)",
     "basePrice": 40,
-    "image": null,
+    "image": "/players/dc/abishek-porel.png",
     "icon": "front_hand",
     "stats": {
       "matches": 18,
@@ -1739,8 +1739,8 @@
     "status": "available",
     "soldTo": null,
     "soldPrice": null,
-    "imageUrl": null,
-    "image_url": null
+    "imageUrl": "/players/dc/abishek-porel.png",
+    "image_url": "/players/dc/abishek-porel.png"
   },
   {
     "name": "MUKESH CHOUDHARY",

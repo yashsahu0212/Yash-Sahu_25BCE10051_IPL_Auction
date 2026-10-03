@@ -495,6 +495,7 @@
     let currentFilter = 'all';
     let currentSearch = '';
     let configuredTimerDuration = 15;
+    let currentDeskImgPlayerId = null;
 
     const deskStatus = document.getElementById('desk-status');
     const lotEmpty = document.getElementById('lot-empty');
@@ -632,11 +633,18 @@
 
       // Only enter idle/awaiting lot if status is explicitly idle and no lot is active
       if (state.status === 'idle' || (!state.currentPlayer && !state.currentPlayerId)) {
+        currentDeskImgPlayerId = null;
         deskStatus.textContent = 'AWAITING LOT';
         deskStatus.className = 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-hm-border-s bg-hm-elevated text-hm-faint rounded-[4px]';
         lotEmpty.classList.remove('hidden');
         lotActive.classList.add('hidden');
         lotBadge.textContent = 'NO LOT ACTIVE';
+        const emptyImg = document.getElementById('desk-player-img');
+        if (emptyImg) {
+          emptyImg.src = '';
+          emptyImg.classList.add('hidden');
+          emptyImg.style.opacity = '0';
+        }
         loadPlayers();
         return;
       }
@@ -668,26 +676,38 @@
       function showDeskFallback() {
         if (skeleton) skeleton.classList.add('hidden');
         img.classList.add('hidden');
+        img.style.opacity = '0';
         if (fallback) fallback.classList.remove('hidden');
       }
 
-      if (p.image) {
-        if (skeleton) skeleton.classList.remove('hidden');
-        img.classList.remove('hidden');
-        img.style.opacity = '0';
+      function revealDeskImage() {
+        if (skeleton) skeleton.classList.add('hidden');
         if (fallback) fallback.classList.add('hidden');
-        img.src = p.image;
-        img.alt = p.name;
-        img.onload = () => {
-          img.style.opacity = '1';
-          if (skeleton) skeleton.classList.add('hidden');
-        };
-        img.onerror = showDeskFallback;
-        if (img.complete && img.naturalHeight > 0) {
-          img.style.opacity = '1';
-          if (skeleton) skeleton.classList.add('hidden');
+        img.classList.remove('hidden');
+        img.style.opacity = '1';
+      }
+
+      const playerImgUrl = p.image || p.imageUrl || p.image_url || (window.getHammerPlayerImage ? window.getHammerPlayerImage(p.name) : null);
+
+      if (playerImgUrl) {
+        if (currentDeskImgPlayerId !== p.id || img.classList.contains('hidden') || img.style.opacity !== '1' || !img.src.includes(playerImgUrl)) {
+          currentDeskImgPlayerId = p.id;
+          if (skeleton) skeleton.classList.remove('hidden');
+          img.classList.remove('hidden');
+          img.style.opacity = '0';
+          if (fallback) fallback.classList.add('hidden');
+          img.onload = revealDeskImage;
+          img.onerror = showDeskFallback;
+          img.src = playerImgUrl;
+          img.alt = p.name;
+          if (img.complete && img.naturalHeight > 0) {
+            revealDeskImage();
+          }
+        } else {
+          revealDeskImage();
         }
       } else {
+        currentDeskImgPlayerId = null;
         showDeskFallback();
       }
 
@@ -1385,7 +1405,9 @@
       renderQueue();
       if (d?.state?.teams) loadPurseOverview(d.state.teams);
     });
-    Hammer.on('auction:reset', () => {
+    Hammer.on('auction:reset', (s) => {
+      currentDeskImgPlayerId = null;
+      renderAuctionState(s || Hammer.getState());
       loadPurseOverview();
       loadPlayers();
     });

@@ -115,12 +115,11 @@
     "RS AMBRISH": "/players/srh/rs-ambrish.png",
     "ZEESHAN ANSARI": "/players/srh/zeeshan-ansari.png",
     "SALIL ARORA": "/players/srh/salil-arora.png",
-    "BRYDON CARSE": "/players/srh/brydon-carse.png"
-};
+    "BRYDON CARSE": "/players/srh/brydon-carse.png",
+    "ANDRE RUSSELL": "/players/kkr/andre-russell.png"
+  };
 
-  window.HAMMER_PLAYER_IMAGES = playerImages;
-
-  window.getHammerPlayerImage = function(playerName) {
+  const getPlayerImage = function(playerName) {
     if (!playerName) return null;
     if (playerImages[playerName]) return playerImages[playerName];
     const lower = playerName.trim().toLowerCase();
@@ -130,8 +129,12 @@
     return null;
   };
 
-  if (typeof Hammer !== 'undefined') {
-    Hammer.getPlayerImage = window.getHammerPlayerImage;
+  if (typeof window !== 'undefined') {
+    window.HAMMER_PLAYER_IMAGES = playerImages;
+    window.getHammerPlayerImage = getPlayerImage;
+    if (typeof Hammer !== 'undefined') {
+      Hammer.getPlayerImage = getPlayerImage;
+    }
   }
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = playerImages;

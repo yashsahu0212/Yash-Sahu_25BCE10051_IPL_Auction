@@ -191,9 +191,20 @@ function getTeam(id) {
   const clean = String(id).trim().toUpperCase();
   return teams.find(t => (t.id && t.id.toUpperCase() === clean) || (t.code && t.code.toUpperCase() === clean) || (t.shortName && t.shortName.toUpperCase() === clean));
 }
+let playerImageMap = {};
+try {
+  playerImageMap = require(path.join(__dirname, 'js', 'player-images.js'));
+} catch (e) {}
+
 function getPlayer(id) {
   if (id == null) return null;
-  return players.find(p => String(p.id) === String(id) || String(p.lotNumber) === String(id));
+  const p = players.find(x => String(x.id) === String(id) || String(x.lotNumber) === String(id));
+  if (p && !p.image) {
+    p.image = playerImageMap[p.name] || playerImageMap[p.displayName] || null;
+    p.imageUrl = p.image;
+    p.image_url = p.image;
+  }
+  return p;
 }
 
 function decodeSupabaseJwt(token) {
@@ -1560,10 +1571,11 @@ app.post('/api/auction/reset', requireAuth(['auctioneer']), (req, res) => {
   auction.leadingTeamId = null;
   auction.bidHistory = [];
   auction.gavelStage = 0;
-  auction.timer = 0;
-
-  io.emit('auction:reset', getPublicAuctionState());
-  res.json({ success: true, state: getPublicAuctionState() });
+  const state = getPublicAuctionState();
+  io.emit('auction:reset', state);
+  io.emit('auction:state', state);
+  io.emit('auction:timer', { timer: 0, maxTimer: auction.maxTimer, gavelStage: 0, timestamp: Date.now() });
+  res.json({ success: true, state });
 });
 
 // Full session reset for testing / tournament restart
@@ -1608,9 +1620,12 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
     }
   }
   saveData();
-  io.emit('auction:reset', getPublicAuctionState());
+  const state = getPublicAuctionState();
+  io.emit('auction:reset', state);
+  io.emit('auction:state', state);
+  io.emit('auction:timer', { timer: 0, maxTimer: auction.maxTimer, gavelStage: 0, timestamp: Date.now() });
   io.emit('teams:update', teams);
-  res.json({ success: true, state: getPublicAuctionState() });
+  res.json({ success: true, state });
 });
 
 // SOCKET.IO

@@ -354,6 +354,7 @@
     const tcSquadSpent = document.getElementById('tc-squad-spent');
     const tcSquadList = document.getElementById('tc-squad-list');
     const tcAllTeams = document.getElementById('tc-all-teams');
+    let currentTcImgPlayerId = null;
 
     function getBidIncrement(bid) {
       if (bid < 100) return 10;
@@ -598,10 +599,16 @@
       currentAuctionState = state;
 
       if (state.status === 'idle' || !state.currentPlayer) {
+        currentTcImgPlayerId = null;
         tcIdle.classList.remove('hidden');
         tcLive.classList.add('hidden');
         tcAuctionBadge.textContent = 'AWAITING LOT';
         tcAuctionBadge.className = 'px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-widest font-bold border border-hm-border-s bg-hm-elevated rounded-[4px]';
+        if (tcPlayerImg) {
+          tcPlayerImg.src = '';
+          tcPlayerImg.classList.add('hidden');
+          tcPlayerImg.style.opacity = '0';
+        }
         renderBiddingButton(state);
         return;
       }
@@ -634,26 +641,38 @@
       function showPlayerFallback() {
         if (tcSkeleton) tcSkeleton.classList.add('hidden');
         tcPlayerImg.classList.add('hidden');
+        tcPlayerImg.style.opacity = '0';
         if (tcPlayerFallback) tcPlayerFallback.classList.remove('hidden');
       }
 
-      if (p.image) {
-        if (tcSkeleton) tcSkeleton.classList.remove('hidden');
-        tcPlayerImg.classList.remove('hidden');
-        tcPlayerImg.style.opacity = '0';
+      function revealPlayerImage() {
+        if (tcSkeleton) tcSkeleton.classList.add('hidden');
         if (tcPlayerFallback) tcPlayerFallback.classList.add('hidden');
-        tcPlayerImg.src = p.image;
-        tcPlayerImg.alt = p.name;
-        tcPlayerImg.onload = () => {
-          tcPlayerImg.style.opacity = '1';
-          if (tcSkeleton) tcSkeleton.classList.add('hidden');
-        };
-        tcPlayerImg.onerror = showPlayerFallback;
-        if (tcPlayerImg.complete && tcPlayerImg.naturalHeight > 0) {
-          tcPlayerImg.style.opacity = '1';
-          if (tcSkeleton) tcSkeleton.classList.add('hidden');
+        tcPlayerImg.classList.remove('hidden');
+        tcPlayerImg.style.opacity = '1';
+      }
+
+      const playerImgUrl = p.image || p.imageUrl || p.image_url || (window.getHammerPlayerImage ? window.getHammerPlayerImage(p.name) : null);
+
+      if (playerImgUrl) {
+        if (currentTcImgPlayerId !== p.id || tcPlayerImg.classList.contains('hidden') || tcPlayerImg.style.opacity !== '1' || !tcPlayerImg.src.includes(playerImgUrl)) {
+          currentTcImgPlayerId = p.id;
+          if (tcSkeleton) tcSkeleton.classList.remove('hidden');
+          tcPlayerImg.classList.remove('hidden');
+          tcPlayerImg.style.opacity = '0';
+          if (tcPlayerFallback) tcPlayerFallback.classList.add('hidden');
+          tcPlayerImg.onload = revealPlayerImage;
+          tcPlayerImg.onerror = showPlayerFallback;
+          tcPlayerImg.src = playerImgUrl;
+          tcPlayerImg.alt = p.name;
+          if (tcPlayerImg.complete && tcPlayerImg.naturalHeight > 0) {
+            revealPlayerImage();
+          }
+        } else {
+          revealPlayerImage();
         }
       } else {
+        currentTcImgPlayerId = null;
         showPlayerFallback();
       }
 
@@ -767,6 +786,11 @@
       renderAuctionState(data.state);
       if (data?.state?.teams) syncTeamData(data.state.teams);
       Hammer.showToast(`${data.player.name} — UNSOLD`, 'info');
+    });
+
+    Hammer.on('auction:reset', (state) => {
+      renderAuctionState(state || Hammer.getState());
+      loadTeamData();
     });
 
     await loadTeamData();

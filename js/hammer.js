@@ -594,7 +594,11 @@
       }
       return `/api/export/${type}?format=${format}`;
     },
-    startAuction(playerId) { return this._fetch('POST', '/api/auction/start', { playerId }); },
+    async startAuction(playerId) {
+      const res = await this._fetch('POST', '/api/auction/start', { playerId });
+      if (res && res.state) _lastAuctionState = res.state;
+      return res;
+    },
     placeBid(expectedBid) { return this._fetch('POST', '/api/auction/bid', { expectedBid }); },
     setTimerDuration(duration) { return this._fetch('POST', '/api/auction/timer/settings', { duration }); },
     setResolutionMode(mode) { return this._fetch('POST', '/api/auction/resolution-mode', { mode }); },
@@ -603,11 +607,31 @@
     addTimer(seconds = 10) { return this._fetch('POST', '/api/auction/timer/add', { seconds }); },
     resetTimer(seconds) { return this._fetch('POST', '/api/auction/timer/reset', { seconds }); },
     setGavel(stage) { return this._fetch('POST', '/api/auction/gavel', { stage }); },
-    markSold() { return this._fetch('POST', '/api/auction/sold'); },
-    markUnsold() { return this._fetch('POST', '/api/auction/unsold'); },
-    pauseAuction() { return this._fetch('POST', '/api/auction/pause'); },
-    resumeAuction() { return this._fetch('POST', '/api/auction/resume'); },
-    resetAuction() { return this._fetch('POST', '/api/auction/reset'); },
+    async markSold() {
+      const res = await this._fetch('POST', '/api/auction/sold');
+      if (res && res.state) _lastAuctionState = res.state;
+      return res;
+    },
+    async markUnsold() {
+      const res = await this._fetch('POST', '/api/auction/unsold');
+      if (res && res.state) _lastAuctionState = res.state;
+      return res;
+    },
+    async pauseAuction() {
+      const res = await this._fetch('POST', '/api/auction/pause');
+      if (res && res.state) _lastAuctionState = res.state;
+      return res;
+    },
+    async resumeAuction() {
+      const res = await this._fetch('POST', '/api/auction/resume');
+      if (res && res.state) _lastAuctionState = res.state;
+      return res;
+    },
+    async resetAuction() {
+      const res = await this._fetch('POST', '/api/auction/reset');
+      if (res && res.state) _lastAuctionState = res.state;
+      return res;
+    },
     setSquadLimit(maxSlots) { return this._fetch('POST', '/api/auction/squad-limit', { maxSlots }); },
     createFranchise(data) { return this._fetch('POST', '/api/teams/create', data); }
   };
@@ -924,8 +948,15 @@
       if (isDuplicateEvent(data)) return;
     }
 
-    if (event === 'auction:state' || event === 'auction:started' || event === 'auction:paused' || event === 'auction:resumed') {
-      _lastAuctionState = data;
+    if (data?.currentPlayer) {
+      data.currentPlayer = mapPlayer(data.currentPlayer);
+    }
+    if (data?.state?.currentPlayer) {
+      data.state.currentPlayer = mapPlayer(data.state.currentPlayer);
+    }
+
+    if (event === 'auction:state' || event === 'auction:started' || event === 'auction:paused' || event === 'auction:resumed' || event === 'auction:reset') {
+      _lastAuctionState = data?.state || data;
     } else if (event === 'auction:bid' && data?.state) {
       _lastAuctionState = data.state;
     } else if ((event === 'auction:sold' || event === 'auction:unsold') && data?.state) {

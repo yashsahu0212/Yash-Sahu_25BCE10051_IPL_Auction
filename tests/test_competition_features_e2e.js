@@ -13,11 +13,7 @@ const io = require('socket.io-client');
 
 const BASE_URL = 'http://localhost:3000';
 
-async function runTests() {
-  console.log('================================================================');
-  console.log('HAMMER // COMPETITION FEATURES & REALTIME SYNC TEST SUITE');
-  console.log('================================================================\n');
-
+async function runTests() {  console.log('HAMMER // COMPETITION FEATURES & REALTIME SYNC TEST SUITE');
   let passed = 0;
   let failed = 0;
 
@@ -234,12 +230,7 @@ async function runTests() {
   assert(miTeam.players && miTeam.players.some(p => p.id === testPlayer.id), 'Team MI squad contains acquired player');
   assert(miTeam.remaining === miTeam.purse - miTeam.spent, 'Team MI remaining purse accurately matches (purse - spent)');
 
-  socketViewer.disconnect();
-
-  console.log('\n================================================================');
-  console.log(`SUMMARY: ${passed} PASSED, ${failed} FAILED`);
-  console.log('================================================================');
-
+  socketViewer.disconnect();  console.log(`SUMMARY: ${passed} PASSED, ${failed} FAILED`);
   if (failed > 0) {
     process.exit(1);
   } else {

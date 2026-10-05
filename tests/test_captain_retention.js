@@ -39,9 +39,7 @@ function request(method, path, body, cookie) {
 }
 
 async function run() {
-  console.log('\n======================================================');
-  console.log(' HAMMER — IPL 2026 FRANCHISE CAPTAINS RETENTION TEST');
-  console.log('======================================================\n');
+  console.log('\n--- HAMMER: IPL CAPTAINS RETENTION TEST ---\n');
 
   // 1. Reset state
   await request('POST', '/api/auction/reset');
@@ -99,9 +97,7 @@ async function run() {
   // Clean up
   await request('POST', '/api/auction/reset');
 
-  console.log('\n======================================================');
-  console.log(' ALL CAPTAIN RETENTION TESTS PASSED WITH 100% SUCCESS! ✓');
-  console.log('======================================================\n');
+  console.log('\n--- ALL CAPTAIN RETENTION TESTS PASSED ---\n');
 }
 
 run().catch(err => {

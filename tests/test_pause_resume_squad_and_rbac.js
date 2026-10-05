@@ -57,11 +57,7 @@ async function login(username, password) {
   return { res, cookie, user: res.json ? res.json.user : null };
 }
 
-async function runTests() {
-  console.log('===============================================================');
-  console.log('HAMMER // RUNNING COMPREHENSIVE FIX & RBAC VERIFICATION SUITE');
-  console.log('===============================================================\n');
-
+async function runTests() {  console.log('HAMMER // RUNNING COMPREHENSIVE FIX & RBAC VERIFICATION SUITE');
   // Authenticate different actors
   console.log('[AUTH] Logging in test actors...');
   const viewerSession = { cookie: '' }; // unauthenticated viewer
@@ -322,12 +318,7 @@ async function runTests() {
 
   console.log('    ✓ Franchise Owner can access Team Console');
   console.log('    ✓ Franchise Owner is forbidden from accessing Auction Desk (403)');
-  console.log('    ✓ Franchise Owner is forbidden from accessing Activity section (403)\n');
-
-  console.log('===============================================================');
-  console.log('🎉 ALL AUDIT & SPECIFICATION REQUIREMENTS VERIFIED SUCCESSFULLY');
-  console.log('===============================================================');
-}
+  console.log('    ✓ Franchise Owner is forbidden from accessing Activity section (403)\n');  console.log('🎉 ALL AUDIT & SPECIFICATION REQUIREMENTS VERIFIED SUCCESSFULLY');}
 
 runTests().catch(err => {
   console.error('\n❌ TEST FAILED:', err);

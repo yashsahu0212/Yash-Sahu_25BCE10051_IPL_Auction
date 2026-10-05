@@ -24,9 +24,7 @@ function test(title, fn) {
   }
 }
 
-console.log('\n======================================================');
-console.log(' HAMMER — SUPABASE BACKEND ARCHITECTURE AUDIT & TESTS');
-console.log('======================================================\n');
+console.log('\n--- HAMMER: SUPABASE BACKEND ARCHITECTURE AUDIT & TESTS ---\n');
 
 // 1. Verify Migration File
 test('Migration File Exists and Contains Core Tables', () => {
@@ -184,6 +182,4 @@ test('Environment Configuration (.env.example) Follows Security Rules', () => {
   }
 });
 
-console.log('\n======================================================');
-console.log(' ALL 8 SUPABASE ARCHITECTURE AUDIT CHECKS PASSED ✓');
-console.log('======================================================\n');
+console.log('\n--- ALL SUPABASE ARCHITECTURE AUDIT CHECKS PASSED ---\n');

@@ -49,9 +49,7 @@ async function login(username, password) {
 }
 
 async function runTests() {
-  console.log('===============================================================');
-  console.log('  HAMMER AUCTION ENGINE: TIMER EXPIRATION & RESOLUTION TEST   ');
-  console.log('===============================================================\n');
+  console.log('\n--- HAMMER: TIMER EXPIRATION & RESOLUTION TEST ---\n');
 
   // 1. Authenticate users
   const auctioneer = await login('auctioneer', 'hammer2026');
@@ -357,9 +355,7 @@ async function runTests() {
     headers: authHeader(auctioneer)
   }, { duration: 15 });
 
-  console.log('\n===============================================================');
-  console.log('  ALL TESTS PASSED WITH 100% SUCCESS!                         ');
-  console.log('===============================================================\n');
+  console.log('\n--- ALL TIMER & RESOLUTION TESTS PASSED ---\n');
 }
 
 runTests().catch(err => {

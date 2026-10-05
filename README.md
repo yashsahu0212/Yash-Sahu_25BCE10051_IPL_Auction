@@ -1,30 +1,17 @@
-#  HAMMER — Realtime Cricket Player Auction Platform (IPL Edition)
+# HAMMER - Realtime Cricket Player Auction Platform (IPL Edition)
 
-##  Submission Details
-
-| Field | Information |
-| :--- | :--- |
-| **Participant's Name** | **Yash Sahu** |
-| **Registration Number** | **`25BCE10051`** |
-| **Live Application Link** | [**https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/**](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/) |
-| **Source Repository** | [github.com/yashsahu0212/Yash-Sahu_25BCE10051_IPL_Auction](https://github.com/yashsahu0212/Yash-Sahu_25BCE10051_IPL_Auction) |
-| **Youtube Video Link** | [**https://youtu.be/WKKRjuD2s5s**](https://youtu.be/WKKRjuD2s5s) |
-| **Date of Submission** | 5 October 2026 |
+```
+                                    SUBMISSION COVER PAGE
+  Participant's Name   : Yash Sahu
+  Registration Number  : 25BCE10051
+  Date of Submission   : 2 OCT 2026
+  Repository Link      : https://github.com/yashsahu0212/Yash-Sahu_25BCE10051_IPL_Auction
+  Project Visibility   : Publicly Viewable
+```
 
 ---
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg?style=for-the-badge&logo=node.js)](https://nodejs.org)
-[![Socket.IO](https://img.shields.io/badge/Socket.IO-v4-black.svg?style=for-the-badge&logo=socketdotio)](https://socket.io)
-[![Supabase](https://img.shields.io/badge/Supabase-Ready-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com)
-
-
-
-
----
-
-##  Executive Summary & Architecture Overview
+## 📌 Executive Summary & Architecture Overview
 
 **HAMMER** is an enterprise-grade, server-authoritative, real-time cricket player auction system designed for high-concurrency franchise bidding wars. Emulating the real-world Indian Premier League (IPL) mega auction, the platform provides a live broadcast board, dedicated team owner bidding consoles, an authoritative auctioneer master desk, real-time ledger auditing, and full compliance with BCCI financial and squad retention regulations.
 
@@ -122,7 +109,7 @@ flowchart TD
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
 | Layer | Technologies |
 | :--- | :--- |
@@ -135,10 +122,10 @@ flowchart TD
 
 ---
 
-##  Clean Repository Structure
+## 📁 Clean Repository Structure
 
 ```
-├── README.md                           # Master project documentation & setup guide
+├── README.md                           # Master project documentation with submission cover page
 ├── LICENSE                             # MIT Open Source License
 ├── package.json                        # Project metadata, dependencies, and test scripts
 ├── server.js                           # Node.js / Express / Socket.IO realtime server
@@ -208,39 +195,20 @@ cp .env.example .env
 
 ---
 
-##  Quick Start & How to Run
+## 🏃 Quick Start & How to Run
 
-###  Option A: Live Website (Instant Access — No Setup)
-
-The platform is deployed live on Vercel:  
- **[https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/)**
-
-| Screen / Portal | Description | Direct Link |
-| :--- | :--- | :--- |
-|  **Live Broadcast Board** | Main auction stadium screen *(Press `[F]` for Fullscreen)* | [Open Broadcast Screen](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/) |
-|  **Auctioneer Master Desk** | Master gavel controls, timer overrides, lot management | [Open Auctioneer Desk](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/auction-desk.html) |
-|  **Franchise Bidder Console** | Interactive bidding console for all 10 IPL franchises | [Open Bidder Console](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/team-console.html) |
-|  **Player Pool & 3D Dossiers** | 73 official IPL players with interactive 3D stat cards | [Open Player Pool](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/player-pool.html) |
-|  **Lot Replay & History** | Completed lots playback and bidding progression | [Open Lot Replay](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/lot-replay.html) |
-|  **Audit Activity Log** | Real-time audit log with spreadsheet CSV export | [Open Activity Log](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/activity-log.html) |
-|  **Post-Auction Squads** | Roster breakdown, purse usage, and composition analysis | [Open Final Squads](https://yash-sahu-25-bce-10051-ipl-auction.vercel.app/final-squads.html) |
-
----
-
-###  Option B: Run Locally (Node.js & Socket.IO)
-
-#### Step 1: Clone the Repository
+### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/yashsahu0212/Yash-Sahu_25BCE10051_IPL_Auction.git
 cd Yash-Sahu_25BCE10051_IPL_Auction
 ```
 
-#### Step 2: Install Dependencies
+### Step 2: Install Dependencies
 ```bash
 npm install
 ```
 
-#### Step 3: Launch the Platform
+### Step 3: Launch the Platform
 ```bash
 # Start server
 npm start
@@ -249,7 +217,7 @@ npm start
 npm run dev
 ```
 
-#### Step 4: Open in Browser
+### Step 4: Open in Browser
 Open your browser and navigate to:
 - **Live Broadcast Board:** [http://localhost:3000/](http://localhost:3000/) *(Press `[F]` or click full-screen icon)*
 - **Auctioneer Control Desk:** [http://localhost:3000/auction-desk.html](http://localhost:3000/auction-desk.html)
@@ -273,29 +241,10 @@ Open your browser and navigate to:
 
 ---
 
-##  Verification & Automated Test Suites
+## Submission Details
 
-HAMMER includes automated end-to-end and regression test suites. Execute all tests with a single command:
-
-```bash
-npm test
-```
-
-### Verified Test Suites:
-1. **Timer Expiration & Resolution Suite** (`tests/test_timer_and_resolution.js`):
-   - Validates that bids submitted after `0s` are strictly blocked.
-   - Tests `AUTO` resolution (auto-sold to leading team or auto-unsold on zero bids).
-   - Verifies CSV Byte Order Mark (`\uFEFF`) and eliminates mojibake.
-2. **Franchise Captain Retention Suite** (`tests/test_captain_retention.js`):
-   - Tests atomic retention and release of all 10 official 2026 franchise captains.
-   - Confirms retained captains are shielded from hammer bids (`ALREADY_SOLD`).
-   - Verifies team purse deductions and squad slot accounting.
-3. **Supabase Cloud Architecture Suite** (`tests/test_supabase_architecture.js`):
-   - Validates 6 core PostgreSQL tables, RLS security policies, and `FOR UPDATE` locking.
-   - Validates Edge Function endpoints and dual-mode client fallbacks.
-
----
-
-##  License
-
-This project is open-source and licensed under the [MIT License](LICENSE).
+- **Participant's Name:** Yash Sahu
+- **Registration Number:** 25BCE10051
+- **Date of Submission:** 2 OCT 2026
+- **Repository:** [https://github.com/yashsahu0212/Yash-Sahu_25BCE10051_IPL_Auction](https://github.com/yashsahu0212/Yash-Sahu_25BCE10051_IPL_Auction)
+- **License:** MIT License

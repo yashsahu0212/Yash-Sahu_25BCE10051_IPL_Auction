@@ -66,11 +66,7 @@ function assert(condition, message) {
   }
 }
 
-async function runTests() {
-  console.log('===============================================================');
-  console.log(' HAMMER // IPL OFFICIAL DATA & TASK-SPECIFIC RULES TEST SUITE');
-  console.log('===============================================================\n');
-
+async function runTests() {  console.log(' HAMMER // IPL OFFICIAL DATA & TASK-SPECIFIC RULES TEST SUITE');
   // Authenticate auctioneer
   console.log('[AUTH] Logging in Auctioneer & Syndicate Teams...');
   const authRes = await post('/api/auth/login', { username: 'auctioneer', password: 'hammer2026' });
@@ -256,12 +252,7 @@ async function runTests() {
   auctioneer.disconnect();
   teamCSK.disconnect();
   teamMI.disconnect();
-  teamRCB.disconnect();
-
-  console.log('===============================================================');
-  console.log(' ALL 13 REAL IPL DATA & AUCTION RULES TESTS PASSED (100% ✓)');
-  console.log('===============================================================\n');
-}
+  teamRCB.disconnect();  console.log(' ALL 13 REAL IPL DATA & AUCTION RULES TESTS PASSED (100% ✓)');}
 
 runTests().catch(err => {
   console.error('\nFAILED WITH ERROR:\n', err);

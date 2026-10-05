@@ -32,9 +32,7 @@ function extractCookie(cookieHeaders, name) {
 }
 
 async function runMatrix() {
-  console.log('================================================================');
-  console.log(' HAMMER — COMPREHENSIVE AUTHENTICATION & TEAM CONSOLE MATRIX');
-  console.log('================================================================\n');
+  console.log(' HAMMER ï¿½ COMPREHENSIVE AUTHENTICATION & TEAM CONSOLE MATRIX');
 
   let passed = 0;
   let total = 0;
@@ -45,7 +43,7 @@ async function runMatrix() {
       passed++;
       console.log('  [PASS] TEST ' + total + ': ' + title);
     } else {
-      console.error('  [FAIL] TEST ' + total + ': ' + title + ' — ' + extra);
+      console.error('  [FAIL] TEST ' + total + ': ' + title + ' ï¿½ ' + extra);
       process.exitCode = 1;
     }
   }
@@ -275,10 +273,7 @@ async function runMatrix() {
   assert('Post-logout token lookup receives 401 Not authenticated',
     resPostLogout.status === 401,
     'Status: ' + resPostLogout.status);
-
-  console.log('\n================================================================');
   console.log(' RESULTS: ' + passed + '/' + total + ' TESTS PASSED (' + Math.round((passed/total)*100) + '%)');
-  console.log('================================================================');
 }
 
 runMatrix().catch(console.error);

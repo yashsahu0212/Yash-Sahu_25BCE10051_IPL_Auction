@@ -15,11 +15,7 @@ function request(options, body) {
   });
 }
 
-async function runTests() {
-  console.log('======================================================');
-  console.log(' HAMMER — FINAL BUG FIX & AUTHENTICATION AUDIT TESTS');
-  console.log('======================================================\n');
-
+async function runTests() {  console.log(' HAMMER — FINAL BUG FIX & AUTHENTICATION AUDIT TESTS');
   let passed = 0;
   let total = 0;
 
@@ -414,12 +410,7 @@ async function runTests() {
   });
   assert('Logout successfully terminates session on server',
     res17.status === 200 && res17Check.status === 401,
-    `Logout status ${res17.status}, Auth check status ${res17Check.status}`);
-
-  console.log(`\n======================================================`);
-  console.log(` RESULTS: ${passed}/${total} TESTS PASSED (${Math.round((passed/total)*100)}%)`);
-  console.log('======================================================\n');
-}
+    `Logout status ${res17.status}, Auth check status ${res17Check.status}`);  console.log(` RESULTS: ${passed}/${total} TESTS PASSED (${Math.round((passed/total)*100)}%)`);}
 
 runTests().catch(err => {
   console.error('Test run error:', err);

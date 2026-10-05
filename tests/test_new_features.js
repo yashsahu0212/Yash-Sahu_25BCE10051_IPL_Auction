@@ -278,12 +278,7 @@ async function runTests() {
   } catch (err) {
     console.error('Test error:', err);
     failed++;
-  }
-
-  console.log(`\n========================================`);
-  console.log(`TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);
-  console.log(`========================================\n`);
-  process.exit(failed > 0 ? 1 : 0);
+  }  console.log(`TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);  process.exit(failed > 0 ? 1 : 0);
 }
 
 runTests();

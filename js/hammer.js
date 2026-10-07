@@ -864,16 +864,24 @@
 
   // Cross-device recovery: automatically resync on visibility change, window focus, and online
   if (typeof document !== 'undefined') {
+    let syncTimeout = null;
+    function debouncedSync() {
+      if (syncTimeout) clearTimeout(syncTimeout);
+      syncTimeout = setTimeout(() => {
+        syncNow();
+      }, 150);
+    }
+
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        syncNow();
+        debouncedSync();
       }
     });
     window.addEventListener('focus', () => {
-      syncNow();
+      debouncedSync();
     });
     window.addEventListener('online', () => {
-      syncNow();
+      debouncedSync();
     });
 
     // Auto-resync watchdog: keeps devices in lockstep every 3.5s without manual refresh

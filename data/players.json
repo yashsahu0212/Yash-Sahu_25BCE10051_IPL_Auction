@@ -59,9 +59,9 @@
       "debutYear": 2008
     },
     "tacticalProfile": "5-time IPL title-winning captain. Ruthless power-play ball-striker against short-pitch fast bowling (pull shot efficiency 88.4%).",
-    "status": "sold",
-    "soldTo": "MI",
-    "soldPrice": 220,
+    "status": "available",
+    "soldTo": null,
+    "soldPrice": null,
     "imageUrl": "/players/mi/rohit-sharma.png",
     "image_url": "/players/mi/rohit-sharma.png"
   },
@@ -92,9 +92,9 @@
       "debutYear": 2016
     },
     "tacticalProfile": "Ultra-aggressive powerplay specialist. Highest scoring rate in overs 1-6 across world T20 cricket in 2024 (SR 216.4).",
-    "status": "sold",
-    "soldTo": "CSK",
-    "soldPrice": 200,
+    "status": "available",
+    "soldTo": null,
+    "soldPrice": null,
     "imageUrl": "/players/srh/travis-head.png",
     "image_url": "/players/srh/travis-head.png"
   },
@@ -125,7 +125,7 @@
       "debutYear": 2018
     },
     "tacticalProfile": "Orange Cap winner 2023 (890 runs). Elite balance against pace and spin with exceptional boundary-finding placement in field restrictions.",
-    "status": "unsold",
+    "status": "available",
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/gt/shubman-gill.png",
@@ -1670,7 +1670,7 @@
       "debutYear": 2022
     },
     "tacticalProfile": "Calculative middle-order finisher with inventive ramp and sweep shots against high-velocity pace.",
-    "status": "on_hammer",
+    "status": "available",
     "soldTo": null,
     "soldPrice": null,
     "id": 43,

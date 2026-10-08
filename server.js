@@ -1556,25 +1556,52 @@ app.post('/api/auction/resume', requireAuth(['auctioneer']), (req, res) => {
   res.json(result);
 });
 
-// Reset current lot (auctioneer debug/override)
+// Reset auction state completely (all sold players return to available pool, team purses restored, activity log preserved)
 app.post('/api/auction/reset', requireAuth(['auctioneer']), (req, res) => {
   stopTimer();
-  if (auction.currentPlayerId) {
-    const player = getPlayer(auction.currentPlayerId);
-    if (player && (player.status === 'on_hammer' || player.status === 'available')) {
-      player.status = 'available';
-    }
-  }
-  auction.status = 'idle';
-  auction.currentPlayerId = null;
-  auction.currentBid = 0;
-  auction.leadingTeamId = null;
-  auction.bidHistory = [];
-  auction.gavelStage = 0;
+  auction = {
+    status: 'idle',
+    currentPlayerId: null,
+    currentBid: 0,
+    basePrice: 0,
+    leadingTeamId: null,
+    round: 1,
+    lotIndex: 0,
+    timer: 15,
+    maxTimer: 15,
+    gavelStage: 0,
+    bidIncrement: 10,
+    bidHistory: [],
+    sessionLabel: '2026 MEGA AUCTION',
+    captainsRetained: false
+  };
+  auctionHistory = [];
+  players.forEach(p => {
+    p.status = 'available';
+    p.soldTo = null;
+    p.soldPrice = null;
+  });
+  teams.forEach(t => {
+    t.purse = t.purse || 12500;
+    t.spent = 0;
+    t.remaining = t.purse;
+    t.filledSlots = 0;
+    t.maxSlots = t.maxSlots || 15;
+    t.players = [];
+    t.squad = [];
+  });
+  logAuctionEvent('AUCTION_RESET', {
+    actor_role: req.user?.role || 'auctioneer',
+    actor_user_id: req.user?.userId || 'auctioneer',
+    metadata: { note: 'Auction reset executed. All sold players returned to available pool, team budgets restored.' }
+  });
+  saveData();
   const state = getPublicAuctionState();
   io.emit('auction:reset', state);
   io.emit('auction:state', state);
   io.emit('auction:timer', { timer: 0, maxTimer: auction.maxTimer, gavelStage: 0, timestamp: Date.now() });
+  io.emit('teams:update', teams);
+  io.emit('players:update', players);
   res.json({ success: true, state });
 });
 
@@ -1594,7 +1621,8 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
     gavelStage: 0,
     bidIncrement: 10,
     bidHistory: [],
-    sessionLabel: '2026 MEGA AUCTION'
+    sessionLabel: '2026 MEGA AUCTION',
+    captainsRetained: false
   };
   auctionHistory = [];
   players.forEach(p => {
@@ -1619,12 +1647,18 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
       USERS.splice(i, 1);
     }
   }
+  logAuctionEvent('AUCTION_RESET', {
+    actor_role: req.user?.role || 'auctioneer',
+    actor_user_id: req.user?.userId || 'auctioneer',
+    metadata: { note: 'Complete auction reset. All sold players returned to available pool, team budgets restored.' }
+  });
   saveData();
   const state = getPublicAuctionState();
   io.emit('auction:reset', state);
   io.emit('auction:state', state);
   io.emit('auction:timer', { timer: 0, maxTimer: auction.maxTimer, gavelStage: 0, timestamp: Date.now() });
   io.emit('teams:update', teams);
+  io.emit('players:update', players);
   res.json({ success: true, state });
 });
 

@@ -27,10 +27,12 @@
     },
     "tacticalProfile": "IPL all-time highest run-scorer. Supreme anchor and pacing index through the middle overs with elite boundary conversion against high-pace.",
     "status": "sold",
-    "soldTo": "CSK",
-    "soldPrice": 260,
+    "soldTo": "RCB",
+    "soldPrice": 220,
     "imageUrl": "/players/rcb/virat-kohli.png",
-    "image_url": "/players/rcb/virat-kohli.png"
+    "image_url": "/players/rcb/virat-kohli.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 2,
@@ -129,7 +131,9 @@
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/gt/shubman-gill.png",
-    "image_url": "/players/gt/shubman-gill.png"
+    "image_url": "/players/gt/shubman-gill.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 5,
@@ -297,7 +301,9 @@
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/csk/sanju-samson.png",
-    "image_url": "/players/csk/sanju-samson.png"
+    "image_url": "/players/csk/sanju-samson.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 10,
@@ -365,7 +371,9 @@
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/lsg/nicholas-pooran.png",
-    "image_url": "/players/lsg/nicholas-pooran.png"
+    "image_url": "/players/lsg/nicholas-pooran.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 12,
@@ -399,7 +407,9 @@
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/csk/mahendra-singh-dhoni.png",
-    "image_url": "/players/csk/mahendra-singh-dhoni.png"
+    "image_url": "/players/csk/mahendra-singh-dhoni.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 13,
@@ -432,7 +442,9 @@
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/mi/hardik-pandya.png",
-    "image_url": "/players/mi/hardik-pandya.png"
+    "image_url": "/players/mi/hardik-pandya.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 14,
@@ -597,7 +609,9 @@
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/dc/axar-patel.png",
-    "image_url": "/players/dc/axar-patel.png"
+    "image_url": "/players/dc/axar-patel.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 19,
@@ -659,11 +673,13 @@
       "debutYear": 2014
     },
     "tacticalProfile": "World Cup winning captain. Hard-length enforcer through middle overs and explosive counter-attacking lower order batter (14-ball 50).",
-    "status": "unsold",
+    "status": "available",
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/srh/pat-cummins.png",
-    "image_url": "/players/srh/pat-cummins.png"
+    "image_url": "/players/srh/pat-cummins.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 21,
@@ -787,7 +803,9 @@
     "soldTo": null,
     "soldPrice": null,
     "imageUrl": "/players/pbks/arshdeep-singh.png",
-    "image_url": "/players/pbks/arshdeep-singh.png"
+    "image_url": "/players/pbks/arshdeep-singh.png",
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 26,
@@ -942,7 +960,9 @@
     "soldTo": null,
     "soldPrice": null,
     "id": 42,
-    "lotNumber": 29
+    "lotNumber": 29,
+    "isCaptain": false,
+    "isRetained": false
   },
   {
     "id": 25,

@@ -602,6 +602,8 @@ BEGIN
         lot_index = 0,
         updated_at = now()
     WHERE id = 1;
+    INSERT INTO public.auction_events (auction_id, event_type, actor_role, metadata)
+    VALUES (1, 'AUCTION_RESET', 'auctioneer', '{"note": "Auction reset: all sold players made available, team purses restored"}'::jsonb);
     RETURN jsonb_build_object('success', true, 'message', 'Auction session completely reset');
 END;
 $$;

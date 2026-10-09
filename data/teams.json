@@ -5,15 +5,37 @@
     "shortName": "CSK",
     "code": "CSK",
     "purse": 12500,
-    "spent": 0,
-    "remaining": 12500,
+    "spent": 260,
+    "remaining": 12240,
     "maxSlots": 15,
     "minSlots": 7,
-    "filledSlots": 0,
+    "filledSlots": 1,
     "color": "#F9CD05",
     "logo": "/teams/csk/logo.svg",
-    "squad": [],
-    "players": []
+    "squad": [
+      {
+        "id": 1,
+        "lotNumber": 1,
+        "name": "VIRAT KOHLI",
+        "role": "batter",
+        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
+        "price": 260,
+        "soldPrice": 260,
+        "overseas": false
+      }
+    ],
+    "players": [
+      {
+        "id": 1,
+        "lotNumber": 1,
+        "name": "VIRAT KOHLI",
+        "role": "batter",
+        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
+        "price": 260,
+        "soldPrice": 260,
+        "overseas": false
+      }
+    ]
   },
   {
     "id": "DC",
@@ -133,37 +155,15 @@
     "shortName": "RCB",
     "code": "RCB",
     "purse": 12500,
-    "spent": 220,
-    "remaining": 12280,
+    "spent": 0,
+    "remaining": 12500,
     "maxSlots": 15,
     "minSlots": 7,
-    "filledSlots": 1,
+    "filledSlots": 0,
     "color": "#4A154B",
     "logo": "/teams/rcb/logo.svg",
-    "squad": [
-      {
-        "id": 1,
-        "lotNumber": 1,
-        "name": "VIRAT KOHLI",
-        "role": "batter",
-        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
-        "price": 220,
-        "soldPrice": 220,
-        "overseas": false
-      }
-    ],
-    "players": [
-      {
-        "id": 1,
-        "lotNumber": 1,
-        "name": "VIRAT KOHLI",
-        "role": "batter",
-        "roleLabel": "TOP-ORDER BATTER (RIGHT HAND)",
-        "price": 220,
-        "soldPrice": 220,
-        "overseas": false
-      }
-    ]
+    "squad": [],
+    "players": []
   },
   {
     "id": "SRH",

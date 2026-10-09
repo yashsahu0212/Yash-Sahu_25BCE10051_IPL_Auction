@@ -41,13 +41,27 @@ players.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0));
 let teams = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'teams.json'), 'utf-8'));
 
 // Compute and normalize remaining purse and filled slots for each team
-teams.forEach(t => {
+function recalculateTeamPurse(t) {
+  if (!t) return;
   if (!t.players) t.players = [];
-  if (!t.squad) t.squad = t.players;
+  t.players = t.players.filter(p => p && (p.id != null || p.name));
+  const uniqueMap = new Map();
+  t.players.forEach(p => {
+    const key = String(p.id != null ? p.id : (p.lotNumber != null ? p.lotNumber : p.name));
+    uniqueMap.set(key, p);
+  });
+  t.players = Array.from(uniqueMap.values());
+  t.squad = t.players;
   t.filledSlots = t.players.length;
-  t.spent = t.players.reduce((sum, p) => sum + (Number(p.soldPrice || p.price) || 0), t.spent || 0);
-  t.remaining = parseFloat((t.purse - t.spent).toFixed(2));
-});
+  t.spent = t.players.reduce((sum, p) => sum + (Number(p.soldPrice || p.price) || 0), 0);
+  t.remaining = parseFloat(((t.purse || 12500) - t.spent).toFixed(2));
+}
+
+function updateAllTeamPurses() {
+  teams.forEach(t => recalculateTeamPurse(t));
+}
+
+updateAllTeamPurses();
 
 const sessions = new Map(); // token -> { userId, role, teamId, username }
 const revokedTokens = new Set();
@@ -633,14 +647,19 @@ function markSold() {
   if (!player) return { error: 'Current player not found', code: 'PLAYER_NOT_FOUND' };
   if (!team) return { error: 'Leading team not found', code: 'TEAM_NOT_FOUND' };
 
+  // Remove player from any team that previously held this player (e.g. initial dataset allocations)
+  teams.forEach(t => {
+    if (t.players) {
+      t.players = t.players.filter(p => String(p.id) !== String(player.id));
+      t.squad = t.players;
+    }
+  });
+
   // Update player
   player.status = 'sold';
   player.soldTo = team.id;
   player.soldPrice = auction.currentBid;
 
-  // Update team (Integer Lakhs)
-  team.spent = team.spent + auction.currentBid;
-  team.remaining = team.purse - team.spent;
   const playerItem = {
     id: player.id,
     lotNumber: player.lotNumber,
@@ -653,9 +672,10 @@ function markSold() {
   };
   if (!team.players) team.players = [];
   team.players.push(playerItem);
-  if (!team.squad) team.squad = [];
-  team.squad.push(playerItem);
-  team.filledSlots = team.players.length;
+  team.squad = team.players;
+
+  // Recalculate financial figures & filled slots for ALL teams atomically
+  updateAllTeamPurses();
 
   // Record history
   auctionHistory.push({
@@ -1428,26 +1448,29 @@ function toggleCaptainRetention(enable) {
         player.isCaptain = true;
         player.isRetained = true;
 
-        if (!team.players) team.players = [];
-        if (!team.squad) team.squad = [];
+        // Remove player from all teams first before assigning captain retention
+        teams.forEach(t => {
+          if (t.players) {
+            t.players = t.players.filter(p => String(p.id) !== String(player.id));
+            t.squad = t.players;
+          }
+        });
 
-        const alreadyInSquad = team.players.some(p => p.id === player.id);
-        if (!alreadyInSquad) {
-          const item = {
-            id: player.id,
-            lotNumber: player.lotNumber,
-            name: player.name,
-            role: player.role,
-            roleLabel: player.roleLabel || cap.roleLabel,
-            price: cap.price,
-            soldPrice: cap.price,
-            overseas: !!player.overseas,
-            isCaptain: true,
-            isRetained: true
-          };
-          team.players.push(item);
-          team.squad.push(item);
-        }
+        const item = {
+          id: player.id,
+          lotNumber: player.lotNumber,
+          name: player.name,
+          role: player.role,
+          roleLabel: player.roleLabel || cap.roleLabel,
+          price: cap.price,
+          soldPrice: cap.price,
+          overseas: !!player.overseas,
+          isCaptain: true,
+          isRetained: true
+        };
+        if (!team.players) team.players = [];
+        team.players.push(item);
+        team.squad = team.players;
       }
     } else {
       if (player && (player.isRetained || player.isCaptain)) {
@@ -1457,21 +1480,17 @@ function toggleCaptainRetention(enable) {
         player.isCaptain = false;
         player.isRetained = false;
       }
-      if (team && team.players) {
-        team.players = team.players.filter(p => !(p.id === cap.playerId && (p.isRetained || p.isCaptain)));
-        team.squad = team.players;
-      }
+      teams.forEach(t => {
+        if (t.players) {
+          t.players = t.players.filter(p => !(String(p.id) === String(cap.playerId) && (p.isRetained || p.isCaptain)));
+          t.squad = t.players;
+        }
+      });
     }
   });
 
   // Re-calculate financial figures & slots for all teams
-  teams.forEach(t => {
-    if (!t.players) t.players = [];
-    t.squad = t.players;
-    t.filledSlots = t.players.length;
-    t.spent = t.players.reduce((sum, p) => sum + (Number(p.soldPrice || p.price) || 0), 0);
-    t.remaining = parseFloat((t.purse - t.spent).toFixed(2));
-  });
+  updateAllTeamPurses();
 
   saveData();
 

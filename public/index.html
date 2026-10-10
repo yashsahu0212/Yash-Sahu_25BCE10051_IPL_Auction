@@ -197,32 +197,32 @@
           </div>
 
           <!-- GIANT LIVE BID VALUE DISPLAY -->
-          <div class="my-2 p-3 sm:p-5 bg-hm-charcoal border border-hm-border-s relative rounded-[6px]">
-            <span class="font-mono text-[10px] text-hm-faint uppercase tracking-[0.25em] block mb-2 font-bold">
+          <div class="my-1.5 sm:my-2 p-2.5 sm:p-3.5 bg-hm-charcoal border border-hm-border-s relative rounded-[6px]">
+            <span class="font-mono text-[10px] text-hm-faint uppercase tracking-[0.25em] block mb-1 font-bold">
               CURRENT BID
             </span>
 
             <div class="flex items-baseline gap-4 flex-wrap">
-              <div class="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl text-hm-vermilion tracking-wide leading-none tabular-nums" id="current-bid-display">
+              <div class="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-hm-vermilion tracking-wide leading-none tabular-nums" id="current-bid-display">
                 —
               </div>
             </div>
 
             <!-- Leading Franchise (Dynamic Team Colors & Logo) -->
-            <div id="leading-franchise-container" class="mt-3 pt-3 border-t border-hm-border flex flex-wrap items-center justify-between gap-3 p-2 bg-hm-panel/60 rounded-[4px] border border-hm-border transition-all">
-              <div class="flex items-center gap-3">
-                <div id="leading-team-logo-wrap" class="w-11 h-11 flex items-center justify-center bg-hm-charcoal border border-hm-border rounded-[4px] p-1 overflow-hidden shrink-0">
-                  <span id="leading-team-logo-fallback" class="font-display text-xl text-hm-muted">—</span>
+            <div id="leading-franchise-container" class="mt-2 pt-2 border-t border-hm-border flex flex-wrap items-center justify-between gap-2 p-2 bg-hm-panel/60 rounded-[4px] border border-hm-border transition-all">
+              <div class="flex items-center gap-2.5">
+                <div id="leading-team-logo-wrap" class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-hm-charcoal border border-hm-border rounded-[4px] p-1 overflow-hidden shrink-0">
+                  <span id="leading-team-logo-fallback" class="font-display text-lg text-hm-muted">—</span>
                 </div>
                 <div>
                   <span class="block font-mono text-[9px] text-hm-faint tracking-widest uppercase">CURRENT HIGH BIDDER</span>
-                  <span class="font-display text-2xl sm:text-3xl text-hm-text uppercase tracking-wide" id="leading-franchise-name">
+                  <span class="font-display text-xl sm:text-2xl text-hm-text uppercase tracking-wide" id="leading-franchise-name">
                     AWAITING BID
                   </span>
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <span class="px-3.5 py-1 bg-hm-charcoal text-hm-muted border border-hm-border font-display text-2xl sm:text-3xl tracking-wider uppercase rounded-[4px] transition-all" id="leading-team-tag">
+                <span class="px-3 py-0.5 bg-hm-charcoal text-hm-muted border border-hm-border font-display text-xl sm:text-2xl tracking-wider uppercase rounded-[4px] transition-all" id="leading-team-tag">
                   —
                 </span>
               </div>
@@ -269,42 +269,18 @@
           </div>
 
           <!-- CONTAINED RECENT BIDS PANEL (SCROLLS INTERNALLY - ZERO PAGE SCROLL) -->
-          <div class="mt-2 p-2 bg-hm-charcoal border border-hm-border rounded-[4px] shrink-0">
-            <div class="flex items-center justify-between pb-1 mb-1 border-b border-hm-border text-[9px] font-mono uppercase tracking-widest">
-              <span class="text-hm-faint">RECENT BID ACTIVITY</span>
+          <div class="mt-2 p-2.5 bg-hm-charcoal border border-hm-border rounded-[4px] flex-1 min-h-[100px] flex flex-col justify-between">
+            <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-hm-border text-[9px] font-mono uppercase tracking-widest shrink-0">
+              <span class="text-hm-faint font-bold">RECENT BID ACTIVITY</span>
               <span class="text-hm-muted" id="recent-bids-count">AUTHORITATIVE FEED</span>
             </div>
-            <div id="recent-bids-feed" class="max-h-14 overflow-y-auto space-y-1 font-mono text-xs pr-1">
-              <div class="text-hm-faint text-[10px] uppercase text-center py-1">AWAITING BIDS ON ACTIVE LOT</div>
+            <div id="recent-bids-feed" class="flex-1 min-h-[65px] max-h-36 sm:max-h-48 overflow-y-auto space-y-1 font-mono text-xs pr-1">
+              <div class="text-hm-faint text-[10px] uppercase text-center py-2">AWAITING BIDS ON ACTIVE LOT</div>
             </div>
           </div>
 
         </div>
 
-      </div>
-    </div>
-
-    <!-- SLIM SIMULATION CONTROLS -->
-    <div class="w-full max-w-[1720px] mx-auto px-2 lg:px-4 mb-1 shrink-0">
-      <div class="bg-hm-panel border border-hm-border-s px-3 py-1 flex flex-col md:flex-row items-center justify-between gap-1 font-mono text-[10px] rounded-[4px]">
-        <div class="flex items-center gap-1.5">
-          <span class="material-symbols-outlined text-hm-faint text-[14px]">tune</span>
-          <span class="text-hm-faint uppercase tracking-wider">STAGE EMULATION:</span>
-        </div>
-        <div class="flex flex-wrap items-center gap-1 w-full md:w-auto">
-          <button id="btn-trigger-bid" type="button" class="btn-paper-physical px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
-            SIMULATE BID
-          </button>
-          <button id="btn-render-sold" type="button" class="btn-paper-physical text-hm-vermilion px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
-            SIMULATE SOLD
-          </button>
-          <button id="btn-render-unsold" type="button" class="btn-paper-physical text-hm-muted px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
-            SIMULATE UNSOLD
-          </button>
-          <button id="btn-reset-lot" type="button" class="btn-paper-physical px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
-            RESET LOT
-          </button>
-        </div>
       </div>
     </div>
 
@@ -347,10 +323,6 @@
     const callStep2 = document.getElementById('call-step-2');
     const callStep2Text = document.getElementById('call-step-2-text');
     const callStep3 = document.getElementById('call-step-3');
-    const btnBid = document.getElementById('btn-trigger-bid');
-    const btnSold = document.getElementById('btn-render-sold');
-    const btnUnsold = document.getElementById('btn-render-unsold');
-    const btnReset = document.getElementById('btn-reset-lot');
     const bgLotWatermark = document.getElementById('bg-lot-watermark');
     const dossierLotLabel = document.getElementById('dossier-lot-label');
     const poolSetLabel = document.getElementById('pool-set-label');
@@ -763,47 +735,6 @@
       gavelStageLabel.textContent = 'FINAL CALL';
       resetGavelSteps(3);
     });
-    if (btnBid) {
-      btnBid.addEventListener('click', async () => {
-        const state = Hammer.getState();
-        const next = Hammer.getNextValidBid(state);
-        try {
-          await Hammer.placeBid(next);
-        } catch (e) {
-          Hammer.showToast(e.message || 'Bid failed', 'error');
-        }
-      });
-    }
-
-    if (btnSold) {
-      btnSold.addEventListener('click', async () => {
-        try {
-          await Hammer.sellPlayer();
-        } catch (e) {
-          Hammer.showToast(e.message || 'Sold action failed', 'error');
-        }
-      });
-    }
-
-    if (btnUnsold) {
-      btnUnsold.addEventListener('click', async () => {
-        try {
-          await Hammer.unsoldPlayer();
-        } catch (e) {
-          Hammer.showToast(e.message || 'Unsold action failed', 'error');
-        }
-      });
-    }
-
-    if (btnReset) {
-      btnReset.addEventListener('click', async () => {
-        try {
-          await Hammer.resetAuction();
-        } catch (e) {
-          Hammer.showToast(e.message || 'Reset failed', 'error');
-        }
-      });
-    }
     // ── YouTube-Style Fullscreen Engine ──
     const fsBtn = document.getElementById('btn-fullscreen-toggle');
     const fsIcon = document.getElementById('fullscreen-icon');

@@ -133,8 +133,8 @@
             </span>
           </div>
 
-          <!-- Player Photography Canvas -->
-          <div class="relative my-2 border border-hm-border p-1 bg-hm-ink rounded-[4px] flex-1 min-h-[160px] max-h-[32vh] sm:max-h-[36vh] flex items-center justify-center overflow-hidden">
+          <!-- Player Photography Canvas (Expanded Hero Canvas) -->
+          <div class="relative my-2 border border-hm-border p-1 bg-hm-ink rounded-[4px] flex-1 min-h-[250px] sm:min-h-[300px] lg:min-h-[350px] flex items-center justify-center overflow-hidden">
             <div class="relative overflow-hidden w-full h-full bg-hm-charcoal border border-hm-border rounded-[3px] flex items-center justify-center">
               
               <!-- Subtle Skeleton Shimmer -->
@@ -161,7 +161,7 @@
             </div>
           </div>
 
-          <!-- Athlete Identification Tag -->
+          <!-- Athlete Identification & Career Telemetry Card -->
           <div class="bg-hm-elevated p-3 border border-hm-border rounded-[4px] shrink-0">
             <div class="flex items-center justify-between mb-1">
               <span class="font-mono text-[9px] text-hm-vermilion uppercase tracking-[0.25em] font-bold block">
@@ -175,6 +175,34 @@
             <p id="athlete-subtitle" class="font-mono text-xs text-hm-muted uppercase tracking-wider mt-1 truncate">
               CRICKET AUCTION DOSSIER
             </p>
+
+            <!-- Career Stats Matrix on Leftover Space -->
+            <div class="mt-2.5 pt-2 border-t border-hm-border grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="athlete-stats-grid">
+              <div class="bg-hm-charcoal border border-hm-border p-1.5 text-center rounded-[3px]">
+                <span class="font-mono text-[8px] sm:text-[9px] text-hm-faint block uppercase tracking-wider">MATCHES</span>
+                <span class="font-mono text-xs sm:text-sm font-bold text-hm-text block truncate" id="stat-matches">—</span>
+              </div>
+              <div class="bg-hm-charcoal border border-hm-border p-1.5 text-center rounded-[3px]">
+                <span class="font-mono text-[8px] sm:text-[9px] text-hm-faint block uppercase tracking-wider">RUNS</span>
+                <span class="font-mono text-xs sm:text-sm font-bold text-hm-text block truncate" id="stat-runs">—</span>
+              </div>
+              <div class="bg-hm-charcoal border border-hm-border p-1.5 text-center rounded-[3px]">
+                <span class="font-mono text-[8px] sm:text-[9px] text-hm-faint block uppercase tracking-wider">WICKETS</span>
+                <span class="font-mono text-xs sm:text-sm font-bold text-hm-text block truncate" id="stat-wickets">—</span>
+              </div>
+              <div class="bg-hm-charcoal border border-hm-border p-1.5 text-center rounded-[3px]">
+                <span class="font-mono text-[8px] sm:text-[9px] text-hm-faint block uppercase tracking-wider">STRIKE RATE</span>
+                <span class="font-mono text-xs sm:text-sm font-bold text-hm-vermilion block truncate" id="stat-strike-rate">—</span>
+              </div>
+              <div class="bg-hm-charcoal border border-hm-border p-1.5 text-center rounded-[3px]">
+                <span class="font-mono text-[8px] sm:text-[9px] text-hm-faint block uppercase tracking-wider">AVERAGE</span>
+                <span class="font-mono text-xs sm:text-sm font-bold text-hm-text block truncate" id="stat-average">—</span>
+              </div>
+              <div class="bg-hm-charcoal border border-hm-border p-1.5 text-center rounded-[3px]">
+                <span class="font-mono text-[8px] sm:text-[9px] text-hm-faint block uppercase tracking-wider" id="stat-role-label">ECON / 100s</span>
+                <span class="font-mono text-xs sm:text-sm font-bold text-hm-text block truncate" id="stat-role-val">—</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -462,6 +490,22 @@
           const capLabel = document.getElementById('athlete-cap-label');
           if (capLabel) capLabel.textContent = 'STAGE STANDBY';
 
+          // Clear stats indicators when awaiting lot
+          const statMatches = document.getElementById('stat-matches');
+          const statRuns = document.getElementById('stat-runs');
+          const statWickets = document.getElementById('stat-wickets');
+          const statStrikeRate = document.getElementById('stat-strike-rate');
+          const statAverage = document.getElementById('stat-average');
+          const statRoleLabel = document.getElementById('stat-role-label');
+          const statRoleVal = document.getElementById('stat-role-val');
+          if (statMatches) statMatches.textContent = '—';
+          if (statRuns) statRuns.textContent = '—';
+          if (statWickets) statWickets.textContent = '—';
+          if (statStrikeRate) statStrikeRate.textContent = '—';
+          if (statAverage) statAverage.textContent = '—';
+          if (statRoleLabel) statRoleLabel.textContent = 'ECON / 100s';
+          if (statRoleVal) statRoleVal.textContent = '—';
+
           // Completely clear and hide the previous athlete image
           const athleteFallback = document.getElementById('athlete-fallback');
           const fallbackInitials = document.getElementById('athlete-fallback-initials');
@@ -510,6 +554,44 @@
       if (nameEl) nameEl.textContent = p.name;
       if (subEl) subEl.textContent = (p.nationality || 'IND').toUpperCase() + ' • ' + (p.roleLabel || (p.role || '').toUpperCase());
       if (athleteBasePrice) athleteBasePrice.textContent = 'BASE: ' + Hammer.formatCurrency(p.basePrice);
+
+      // Update Player Career Stats
+      const statMatches = document.getElementById('stat-matches');
+      const statRuns = document.getElementById('stat-runs');
+      const statWickets = document.getElementById('stat-wickets');
+      const statStrikeRate = document.getElementById('stat-strike-rate');
+      const statAverage = document.getElementById('stat-average');
+      const statRoleLabel = document.getElementById('stat-role-label');
+      const statRoleVal = document.getElementById('stat-role-val');
+
+      const stats = p.stats || {};
+      if (statMatches) statMatches.textContent = stats.matches != null ? stats.matches : '—';
+      if (statRuns) statRuns.textContent = stats.runs != null ? Number(stats.runs).toLocaleString() : '—';
+      if (statWickets) statWickets.textContent = stats.wickets != null ? stats.wickets : '—';
+      if (statStrikeRate) statStrikeRate.textContent = stats.strikeRate != null ? stats.strikeRate : '—';
+      if (statAverage) statAverage.textContent = stats.average != null ? stats.average : '—';
+
+      if (statRoleLabel && statRoleVal) {
+        if (p.role === 'bowler') {
+          statRoleLabel.textContent = 'ECONOMY';
+          statRoleVal.textContent = stats.economy != null ? stats.economy : (stats.best ? `BEST ${stats.best}` : '—');
+        } else if (p.role === 'allrounder') {
+          statRoleLabel.textContent = 'ECONOMY';
+          statRoleVal.textContent = stats.economy != null ? stats.economy : '—';
+        } else {
+          // Batter or Wicketkeeper
+          if (stats.hundreds != null || stats.fifties != null) {
+            statRoleLabel.textContent = '100s / 50s';
+            statRoleVal.textContent = `${stats.hundreds || 0} / ${stats.fifties || 0}`;
+          } else if (stats.best) {
+            statRoleLabel.textContent = 'BEST SCORE';
+            statRoleVal.textContent = stats.best;
+          } else {
+            statRoleLabel.textContent = 'ECONOMY';
+            statRoleVal.textContent = '—';
+          }
+        }
+      }
 
       // Update background watermark number & labels
       if (bgLotWatermark) bgLotWatermark.textContent = String(p.lotNumber).padStart(3, '0');

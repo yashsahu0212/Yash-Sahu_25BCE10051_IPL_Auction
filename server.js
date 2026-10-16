@@ -198,14 +198,48 @@ function logAuctionEvent(eventType, payload = {}) {
 
   auctionEvents.push(event);
 
-  // Asynchronous non-blocking persistence
-  fs.writeFile(path.join(__dirname, 'data', 'activity_log.json'), JSON.stringify(auctionEvents, null, 2), err => {
-    if (err) console.error('Error saving activity_log.json:', err);
-  });
+  // Crash-resilient debounced non-blocking persistence
+  const isCriticalEvent = ['LOT_OPENED', 'LOT_SOLD', 'LOT_UNSOLD', 'AUCTION_RESET', 'FRANCHISE_CREATED'].includes(eventType);
+  scheduleActivityLogSave(isCriticalEvent);
 
   io.emit('auction:event', event);
   io.emit('activity_created', event);
   return event;
+}
+
+// ATOMIC FILE PERSISTENCE (Thread-safe & Crash-safe for rapid bidding)
+function atomicWriteJson(filePath, data) {
+  const content = JSON.stringify(data, null, 2);
+  const tmpPath = `${filePath}.tmp.${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  try {
+    fs.writeFileSync(tmpPath, content, 'utf8');
+    fs.renameSync(tmpPath, filePath);
+  } catch (err) {
+    try {
+      if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+    } catch (_) {}
+    fs.writeFile(filePath, content, 'utf8', wErr => {
+      if (wErr) console.error(`Error saving ${path.basename(filePath)}:`, wErr);
+    });
+  }
+}
+
+let activityLogSaveTimeout = null;
+function scheduleActivityLogSave(immediate = false) {
+  if (immediate) {
+    if (activityLogSaveTimeout) {
+      clearTimeout(activityLogSaveTimeout);
+      activityLogSaveTimeout = null;
+    }
+    atomicWriteJson(path.join(__dirname, 'data', 'activity_log.json'), auctionEvents);
+    return;
+  }
+  if (!activityLogSaveTimeout) {
+    activityLogSaveTimeout = setTimeout(() => {
+      activityLogSaveTimeout = null;
+      atomicWriteJson(path.join(__dirname, 'data', 'activity_log.json'), auctionEvents);
+    }, 150);
+  }
 }
 
 let timerInterval = null;
@@ -237,6 +271,15 @@ function decodeSupabaseJwt(token) {
   try {
     const parts = token.split('.');
     if (parts.length === 3) {
+      if (process.env.SUPABASE_JWT_SECRET) {
+        const expectedSig = crypto
+          .createHmac('sha256', process.env.SUPABASE_JWT_SECRET)
+          .update(parts[0] + '.' + parts[1])
+          .digest('base64url');
+        if (expectedSig !== parts[2]) {
+          return null;
+        }
+      }
       const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
       if (payload && payload.exp && payload.exp * 1000 < Date.now()) return null;
       const email = payload.email || '';
@@ -307,15 +350,9 @@ function requireAuth(roles = []) {
 }
 
 function saveData() {
-  fs.writeFile(path.join(__dirname, 'data', 'players.json'), JSON.stringify(players, null, 2), err => {
-    if (err) console.error('Error saving players.json:', err);
-  });
-  fs.writeFile(path.join(__dirname, 'data', 'teams.json'), JSON.stringify(teams, null, 2), err => {
-    if (err) console.error('Error saving teams.json:', err);
-  });
-  fs.writeFile(path.join(__dirname, 'data', 'history.json'), JSON.stringify(auctionHistory, null, 2), err => {
-    if (err) console.error('Error saving history.json:', err);
-  });
+  atomicWriteJson(path.join(__dirname, 'data', 'players.json'), players);
+  atomicWriteJson(path.join(__dirname, 'data', 'teams.json'), teams);
+  atomicWriteJson(path.join(__dirname, 'data', 'history.json'), auctionHistory);
 }
 
 function getPublicAuctionState() {
@@ -445,12 +482,17 @@ function startAuctionForPlayer(playerId) {
   if (!player) return { error: 'Player not found' };
   if (player.status === 'sold') return { error: 'Player already sold to franchise', code: 'ALREADY_SOLD' };
 
-  // If another lot was active but expired without bids or was idle, clean it up
-  if (auction.status === 'live' && auction.currentPlayerId !== playerId) {
+  // If this exact player is already on the hammer, reject duplicate start
+  if ((auction.status === 'live' || auction.status === 'paused') && auction.currentPlayerId === player.id) {
+    return { error: 'Player is already active on the hammer', code: 'ALREADY_ACTIVE' };
+  }
+
+  // If another lot was active or paused but expired without bids or was idle, clean it up
+  if ((auction.status === 'live' || auction.status === 'paused') && auction.currentPlayerId !== playerId) {
     if (auction.timer <= 0 && !auction.leadingTeamId) {
       markUnsold();
     } else {
-      return { error: 'Auction already in progress', currentLot: auction.currentPlayerId };
+      return { error: 'Auction already in progress', currentLot: auction.currentPlayerId, code: 'AUCTION_IN_PROGRESS' };
     }
   }
 
@@ -523,6 +565,9 @@ function placeBid(teamId, expectedBid) {
   // Anti-race-condition check: if client specified expected bid, ensure it matches
   if (expectedBid != null) {
     const expectedNum = Number(expectedBid);
+    if (isNaN(expectedNum) || !isFinite(expectedNum) || expectedNum <= 0) {
+      return { error: 'Invalid expected bid amount', code: 'INVALID_BID' };
+    }
     if (Math.abs(expectedNum - newBid) > 0.001) {
       const leader = getTeam(auction.leadingTeamId);
       return {
@@ -1307,9 +1352,12 @@ app.post('/api/teams/create', requireAuth(['auctioneer']), (req, res) => {
   }
 
   const { name, shortName, code, color, purse } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ error: 'Franchise name is required.' });
+  if (!name || !String(name).trim()) return res.status(400).json({ error: 'Franchise name is required.' });
 
-  const cleanCode = (code || shortName || name.slice(0, 3)).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const cleanName = String(name).replace(/<[^>]*>?/gm, '').trim().toUpperCase();
+  if (!cleanName) return res.status(400).json({ error: 'Franchise name contains invalid characters.' });
+
+  const cleanCode = (code || shortName || cleanName.slice(0, 3)).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (!cleanCode || cleanCode.length < 2 || cleanCode.length > 5) {
     return res.status(400).json({ error: 'Franchise code must be between 2 and 5 alphanumeric characters.' });
   }
@@ -1324,7 +1372,7 @@ app.post('/api/teams/create', requireAuth(['auctioneer']), (req, res) => {
 
   const newTeam = {
     id: cleanCode,
-    name: name.trim().toUpperCase(),
+    name: cleanName,
     shortName: cleanCode,
     code: cleanCode,
     purse: startingPurse,

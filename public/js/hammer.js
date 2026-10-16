@@ -863,12 +863,10 @@
           state.currentPlayer = _lastAuctionState.currentPlayer;
         }
       }
-      // 2. Reject transient/cached idle state if lot is actively in progress
-      if (state.status === 'idle' && !state.currentPlayer) {
-        if (_lastAuctionState.currentPlayer && (_lastAuctionState.currentBid > 0 || _lastAuctionState.timer > 0)) {
-          console.warn('[Hammer] Rejecting transient idle overwrite while active lot is in progress');
-          return;
-        }
+      // 2. Reject stale responses from an earlier lot (e.g. lotIndex older than current active lot)
+      if (state.lotIndex !== undefined && _lastAuctionState.lotIndex !== undefined && state.lotIndex < _lastAuctionState.lotIndex) {
+        console.warn('[Hammer] Rejecting stale auction state with older lotIndex:', state.lotIndex, '<', _lastAuctionState.lotIndex);
+        return;
       }
     }
 
@@ -1223,6 +1221,16 @@
     return `₹${lakhs} L`;
   }
 
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function formatTimer(seconds) {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -1542,6 +1550,7 @@
     getNextValidBid,
     getSquadConstraints,
     formatCurrency,
+    escapeHtml,
     formatTimer,
     getGavelLabel,
     getRoleIcon,

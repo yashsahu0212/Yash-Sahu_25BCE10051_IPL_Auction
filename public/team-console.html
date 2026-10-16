@@ -435,7 +435,7 @@
             <div class="flex items-center justify-between p-2 bg-hm-charcoal border border-hm-border rounded-[4px]">
               <div>
                 <span class="font-mono text-[9px] text-hm-faint mr-1.5">#${idx + 1}</span>
-                <span class="font-mono text-xs text-hm-text font-bold">${p.name}</span>
+                <span class="font-mono text-xs text-hm-text font-bold">${Hammer.escapeHtml(p.name)}</span>
                 <span class="font-mono text-[9px] text-hm-faint ml-1.5 uppercase">${Hammer.getRoleLabel(p.role)}</span>
               </div>
               <span class="font-mono text-xs text-hm-vermilion font-bold">${Hammer.formatCurrency(p.price)}</span>
@@ -474,7 +474,7 @@
         const isMe = t.id === myTeamId;
         const isLeader = currentAuctionState && currentAuctionState.leadingTeamId === t.id;
         const theme = window.getTeamTheme ? window.getTeamTheme(t.id) : null;
-        const badgeHtml = window.renderTeamBadge ? window.renderTeamBadge(t.id, { size: 'sm', showFullName: false }) : `<span class="font-mono text-xs font-bold text-hm-muted">${t.shortName}</span>`;
+        const badgeHtml = window.renderTeamBadge ? window.renderTeamBadge(t.id, { size: 'sm', showFullName: false }) : `<span class="font-mono text-xs font-bold text-hm-muted">${Hammer.escapeHtml(t.shortName)}</span>`;
         const filled = (t.filledSlots != null) ? t.filledSlots : (t.players ? t.players.length : (t.squad ? t.squad.length : 0));
         const max = t.maxSlots || 15;
         return `

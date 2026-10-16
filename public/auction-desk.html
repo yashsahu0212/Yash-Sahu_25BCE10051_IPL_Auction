@@ -575,10 +575,14 @@
         return;
       }
       const currentState = Hammer.getState();
-      if (currentState && currentState.status === 'live' && currentState.currentPlayer?.id !== playerId) {
+      if (currentState && (currentState.status === 'live' || currentState.status === 'paused') && currentState.currentPlayer?.id === playerId) {
+        Hammer.showToast('THIS CRICKETER IS ALREADY UNDER THE HAMMER', 'info');
+        return;
+      }
+      if (currentState && (currentState.status === 'live' || currentState.status === 'paused') && currentState.currentPlayer?.id !== playerId) {
         // If timer is at 0 and no bids, allow advancing
         if (!(currentState.timer <= 0 && !currentState.leadingTeamId)) {
-          Hammer.showToast('ANOTHER LOT IS CURRENTLY LIVE', 'error');
+          Hammer.showToast('ANOTHER LOT IS CURRENTLY IN PROGRESS', 'error');
           return;
         }
       }
@@ -796,7 +800,7 @@
         <div class="flex items-center justify-between bg-hm-charcoal border ${i === 0 ? 'border-hm-vermilion' : 'border-hm-border'} px-3 py-1.5 transition-all rounded-[4px]">
           <div class="flex items-center gap-2">
             <span class="font-mono text-[9px] text-hm-faint">#${history.length - i}</span>
-            <span>${typeof renderTeamBadge === 'function' ? renderTeamBadge(bid.teamId || bid.teamShortName, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${bid.teamShortName}</span>`}</span>
+            <span>${typeof renderTeamBadge === 'function' ? renderTeamBadge(bid.teamId || bid.teamShortName, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${Hammer.escapeHtml(bid.teamShortName)}</span>`}</span>
             <span class="font-mono text-[9px] text-hm-faint">${new Date(bid.timestamp).toLocaleTimeString()}</span>
           </div>
           <span class="font-mono text-xs font-bold text-hm-text">${Hammer.formatCurrency(bid.amount)}</span>
@@ -818,7 +822,7 @@
           return `
             <div class="flex items-center justify-between px-3 py-2 bg-hm-charcoal border border-hm-border purse-row rounded-[4px]" data-team="${t.id}">
               <div class="flex items-center gap-2">
-                ${typeof renderTeamBadge === 'function' ? renderTeamBadge(t.id, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${t.shortName}</span>`}
+                ${typeof renderTeamBadge === 'function' ? renderTeamBadge(t.id, { size: 'sm' }) : `<span class="font-mono text-xs font-bold text-hm-text">${Hammer.escapeHtml(t.shortName)}</span>`}
                 <span class="font-mono text-[9px] text-hm-faint purse-slots-val">${filled}/${max}</span>
               </div>
               <span class="font-mono text-xs font-bold text-hm-text purse-amount-val">${Hammer.formatCurrency(remaining)}</span>
@@ -852,7 +856,7 @@
       putNextBtn.addEventListener('click', async () => {
         if (_actionInFlight) return;
         const currentState = Hammer.getState();
-        if (currentState && currentState.status === 'live' && currentState.leadingTeamId) {
+        if (currentState && (currentState.status === 'live' || currentState.status === 'paused') && currentState.leadingTeamId) {
           Hammer.showToast('CANNOT PUT NEXT PLAYER: CURRENT LOT HAS ACTIVE BIDS. SELL OR CLOSE LOT FIRST.', 'error');
           return;
         }

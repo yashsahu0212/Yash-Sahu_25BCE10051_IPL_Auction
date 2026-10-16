@@ -366,7 +366,7 @@
     function addRecentBidEntry(teamShortName, teamId, amount) {
       if (!recentBidsFeed) return;
       const theme = window.getTeamTheme ? window.getTeamTheme(teamId) : null;
-      const badgeHtml = window.renderTeamBadge ? window.renderTeamBadge(teamId, { size: 'sm' }) : `<span class="font-bold text-hm-text">${teamShortName}</span>`;
+      const badgeHtml = window.renderTeamBadge ? window.renderTeamBadge(teamId, { size: 'sm' }) : `<span class="font-bold text-hm-text">${Hammer.escapeHtml(teamShortName)}</span>`;
       
       const entry = document.createElement('div');
       entry.className = 'flex items-center justify-between p-1 bg-hm-elevated/70 border border-hm-border rounded-[3px] animate-bid-flash';

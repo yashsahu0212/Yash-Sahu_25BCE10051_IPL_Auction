@@ -331,6 +331,7 @@
 
     let currentLotNumber = null;
     let currentAthleteImageId = null;
+    let _lastLivePlayer = null;
     let verdictTimer = null;
     const bidHistoryStream = [];
 
@@ -400,7 +401,23 @@
       }).join('');
     }
     function renderState(state) {
-      if (!state) return;
+      if (!state || typeof state !== 'object' || state.error || !state.status) return;
+
+      const isLiveOrPaused = state.status === 'live' || state.status === 'paused';
+
+      // Hydrate currentPlayer if missing but lot is active
+      if (isLiveOrPaused && !state.currentPlayer) {
+        if (state.currentPlayerId) {
+          const cur = Hammer.getState();
+          if (cur?.currentPlayer && String(cur.currentPlayer.id) === String(state.currentPlayerId)) {
+            state.currentPlayer = cur.currentPlayer;
+          }
+        }
+        if (!state.currentPlayer && _lastLivePlayer) {
+          state.currentPlayer = _lastLivePlayer;
+        }
+      }
+
       const { currentPlayer, leadingTeam, teams } = state;
 
       // Update purse ribbon with real team data and dynamic team-tinted boxes
@@ -408,8 +425,9 @@
         renderPurseRibbon(teams, state);
       }
 
-      // No active auction — show idle state
-      if (state.status === 'idle' || !currentPlayer) {
+      // STRICT IDLE GUARD: Active or paused lot NEVER displays idle state
+      if (!isLiveOrPaused && (state.status === 'idle' || (!currentPlayer && !state.currentPlayerId))) {
+        _lastLivePlayer = null;
         if (!verdictOverlay || verdictOverlay.classList.contains('hidden')) {
           currentLotNumber = null;
           currentAthleteImageId = null;
@@ -465,6 +483,10 @@
           }
         }
         return;
+      }
+
+      if (currentPlayer) {
+        _lastLivePlayer = currentPlayer;
       }
 
       // Active auction — update player info

@@ -355,6 +355,7 @@
     const tcSquadList = document.getElementById('tc-squad-list');
     const tcAllTeams = document.getElementById('tc-all-teams');
     let currentTcImgPlayerId = null;
+    let _lastTcPlayer = null;
 
     function getBidIncrement(bid) {
       if (bid < 100) return 10;
@@ -595,10 +596,24 @@
     }
 
     function renderAuctionState(state) {
-      if (!state) return;
+      if (!state || typeof state !== 'object' || state.error || !state.status) return;
+
+      const isLiveOrPaused = state.status === 'live' || state.status === 'paused';
+
+      // Hydrate currentPlayer if missing but lot is live or paused
+      if (isLiveOrPaused && !state.currentPlayer) {
+        if (state.currentPlayerId && currentAuctionState?.currentPlayer?.id === state.currentPlayerId) {
+          state.currentPlayer = currentAuctionState.currentPlayer;
+        } else if (_lastTcPlayer) {
+          state.currentPlayer = _lastTcPlayer;
+        }
+      }
+
       currentAuctionState = state;
 
-      if (state.status === 'idle' || !state.currentPlayer) {
+      // STRICT IDLE GUARD: Active or paused lot NEVER displays idle state
+      if (!isLiveOrPaused && (state.status === 'idle' || (!state.currentPlayer && !state.currentPlayerId))) {
+        _lastTcPlayer = null;
         currentTcImgPlayerId = null;
         tcIdle.classList.remove('hidden');
         tcLive.classList.add('hidden');
@@ -611,6 +626,10 @@
         }
         renderBiddingButton(state);
         return;
+      }
+
+      if (state.currentPlayer) {
+        _lastTcPlayer = state.currentPlayer;
       }
 
       tcIdle.classList.add('hidden');

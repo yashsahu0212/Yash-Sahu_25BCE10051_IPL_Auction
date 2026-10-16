@@ -27,6 +27,7 @@ async function main() {
     console.log('Server is UP!');
 
     const testFiles = [
+      'scratch/test_tab_switch_resilience.js',
       'tests/test_ipl_rules_demo.js',
       'tests/test_captain_retention.js',
       'tests/test_timer_and_resolution.js',

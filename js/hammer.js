@@ -519,14 +519,40 @@
       const opts = {
         method,
         credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' }
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
       };
       if (activeToken) opts.headers['Authorization'] = `Bearer ${activeToken}`;
       if (body) opts.body = JSON.stringify(body);
-      const res = await fetch(API_BASE + url, opts);
-      const data = await res.json().catch(() => ({}));
+
+      // Cache-busting timestamp on GET requests to guarantee fresh state on tab switch/wake
+      let fetchUrl = API_BASE + url;
+      if (method === 'GET') {
+        const sep = fetchUrl.includes('?') ? '&' : '?';
+        fetchUrl = `${fetchUrl}${sep}_t=${Date.now()}`;
+      }
+
+      let res;
+      try {
+        res = await fetch(fetchUrl, opts);
+      } catch (networkErr) {
+        console.warn(`[Hammer API] Network error on ${method} ${url}:`, networkErr);
+        throw networkErr;
+      }
+
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        data = null;
+      }
+
       if (!res.ok) {
-        const err = new Error(data.error || 'Request failed');
+        const err = new Error((data && data.error) ? data.error : `Request failed with status ${res.status}`);
         err.status = res.status;
         throw err;
       }
@@ -571,8 +597,15 @@
 
     async getAuctionState() {
       const state = await this._fetch('GET', '/api/auction/state');
-      if (state && state.currentPlayer) {
+      if (!state || typeof state !== 'object' || !state.status) {
+        return null;
+      }
+      if (state.currentPlayer) {
         state.currentPlayer = mapPlayer(state.currentPlayer);
+      } else if (state.currentPlayerId && (state.status === 'live' || state.status === 'paused')) {
+        if (_lastAuctionState?.currentPlayer && String(_lastAuctionState.currentPlayer.id) === String(state.currentPlayerId)) {
+          state.currentPlayer = _lastAuctionState.currentPlayer;
+        }
       }
       return state;
     },
@@ -785,37 +818,14 @@
       _connectionStatus = 'connected';
       if (token) _socket.emit('auth', { token });
       emit('connected', { mode: 'socket' });
-      // Immediately pull fresh state & teams to guarantee zero desync across all clients
-      API.getAuctionState().then(state => {
-        if (state) {
-          _lastAuctionState = state;
-          emit('auction:state', state);
-          if (state.timer !== undefined) {
-            emit('auction:timer', { timer: state.timer, maxTimer: state.maxTimer || 15, gavelStage: state.gavelStage || 0 });
-          }
-        }
-      }).catch(() => {});
-      API.getTeams().then(teams => {
-        if (teams) emit('teams:update', teams);
-      }).catch(() => {});
+      syncNow();
     });
 
     _socket.on('reconnect', () => {
       _connectionStatus = 'connected';
       if (token) _socket.emit('auth', { token });
       emit('connected', { mode: 'socket' });
-      API.getAuctionState().then(state => {
-        if (state) {
-          _lastAuctionState = state;
-          emit('auction:state', state);
-          if (state.timer !== undefined) {
-            emit('auction:timer', { timer: state.timer, maxTimer: state.maxTimer || 15, gavelStage: state.gavelStage || 0 });
-          }
-        }
-      }).catch(() => {});
-      API.getTeams().then(teams => {
-        if (teams) emit('teams:update', teams);
-      }).catch(() => {});
+      syncNow();
     });
 
     _socket.on('reconnect_attempt', () => {
@@ -839,27 +849,68 @@
     });
   }
 
-  function syncNow() {
-    if (_socket) {
-      if (!_socket.connected) {
-        _socket.connect();
-      } else {
-        const t = getToken();
-        if (t) _socket.emit('auth', { token: t });
-      }
-    }
-    API.getAuctionState().then(state => {
-      if (state) {
-        _lastAuctionState = state;
-        emit('auction:state', state);
-        if (state.timer !== undefined) {
-          emit('auction:timer', { timer: state.timer, maxTimer: state.maxTimer || 15, gavelStage: state.gavelStage || 0 });
+  let _syncInFlight = false;
+
+  function handleAuctionStateSync(state) {
+    if (!state || typeof state !== 'object' || !state.status) return;
+
+    // ACTIVE LOT DEFENSE:
+    // If client currently has a live or paused auction lot:
+    if (_lastAuctionState && (_lastAuctionState.status === 'live' || _lastAuctionState.status === 'paused')) {
+      // 1. Preserve currentPlayer object if state is missing it
+      if ((state.status === 'live' || state.status === 'paused') && !state.currentPlayer) {
+        if (_lastAuctionState.currentPlayer) {
+          state.currentPlayer = _lastAuctionState.currentPlayer;
         }
       }
-    }).catch(() => {});
-    API.getTeams().then(teams => {
-      if (teams) emit('teams:update', teams);
-    }).catch(() => {});
+      // 2. Reject transient/cached idle state if lot is actively in progress
+      if (state.status === 'idle' && !state.currentPlayer) {
+        if (_lastAuctionState.currentPlayer && (_lastAuctionState.currentBid > 0 || _lastAuctionState.timer > 0)) {
+          console.warn('[Hammer] Rejecting transient idle overwrite while active lot is in progress');
+          return;
+        }
+      }
+    }
+
+    _lastAuctionState = state;
+    emit('auction:state', state);
+    if (state.timer !== undefined) {
+      emit('auction:timer', {
+        timer: state.timer,
+        maxTimer: state.maxTimer || 15,
+        gavelStage: state.gavelStage || 0,
+        paused: state.status === 'paused'
+      });
+    }
+  }
+
+  async function syncNow() {
+    if (_syncInFlight) return;
+    _syncInFlight = true;
+    try {
+      if (_socket) {
+        if (!_socket.connected) {
+          _socket.connect();
+        } else {
+          const t = getToken();
+          if (t) _socket.emit('auth', { token: t });
+        }
+      }
+      const [stateRes, teamsRes] = await Promise.allSettled([
+        API.getAuctionState(),
+        API.getTeams()
+      ]);
+      if (stateRes.status === 'fulfilled' && stateRes.value) {
+        handleAuctionStateSync(stateRes.value);
+      }
+      if (teamsRes.status === 'fulfilled' && teamsRes.value && Array.isArray(teamsRes.value)) {
+        emit('teams:update', teamsRes.value);
+      }
+    } catch (e) {
+      console.warn('[Hammer] Error during syncNow:', e);
+    } finally {
+      _syncInFlight = false;
+    }
   }
 
   // Cross-device recovery: automatically resync on visibility change, window focus, and online
@@ -869,7 +920,7 @@
       if (syncTimeout) clearTimeout(syncTimeout);
       syncTimeout = setTimeout(() => {
         syncNow();
-      }, 150);
+      }, 100);
     }
 
     document.addEventListener('visibilitychange', () => {
@@ -893,8 +944,7 @@
         if (_lastAuctionState && (_lastAuctionState.status === 'live' || _lastAuctionState.status === 'paused')) {
           API.getAuctionState().then(s => {
             if (s && !s.error && s.status && s.status !== 'idle' && s.currentPlayer && (_lastAuctionState?.status !== s.status || _lastAuctionState?.currentBid !== s.currentBid || _lastAuctionState?.currentPlayer?.id !== s.currentPlayer?.id)) {
-              _lastAuctionState = s;
-              emit('auction:state', s);
+              handleAuctionStateSync(s);
             }
           }).catch(() => {});
         }
@@ -954,6 +1004,15 @@
   function emit(event, data) {
     if (event === 'auction:event' || event === 'activity_created') {
       if (isDuplicateEvent(data)) return;
+    }
+
+    if (event === 'auction:state') {
+      if (!data || typeof data !== 'object' || !data.status) return;
+      if ((data.status === 'live' || data.status === 'paused') && !data.currentPlayer && data.currentPlayerId) {
+        if (_lastAuctionState?.currentPlayer && String(_lastAuctionState.currentPlayer.id) === String(data.currentPlayerId)) {
+          data.currentPlayer = _lastAuctionState.currentPlayer;
+        }
+      }
     }
 
     if (data?.currentPlayer) {

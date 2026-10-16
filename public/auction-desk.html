@@ -78,6 +78,10 @@
             <span class="font-mono text-[10px] font-bold text-hm-vermilion tracking-widest uppercase" id="clock-tick">GAVEL ACTIVE</span>
           </div>
         </div>
+        <button id="desk-btn-sync" onclick="Hammer.syncNow(); Hammer.showToast('SYNCING DESK...', 'info');" title="Resync auction state" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s hover:border-hm-border text-hm-muted hover:text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
+          <span class="material-symbols-outlined text-[13px]">sync</span>
+          <span class="hidden sm:inline">SYNC</span>
+        </button>
         <div data-nav="auth">
           <button onclick="Hammer.logout()" title="Logout" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-text transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
             <span class="material-symbols-outlined text-[14px]">logout</span>
@@ -496,6 +500,7 @@
     let currentSearch = '';
     let configuredTimerDuration = 15;
     let currentDeskImgPlayerId = null;
+    let _lastRenderedPlayer = null;
 
     const deskStatus = document.getElementById('desk-status');
     const lotEmpty = document.getElementById('lot-empty');
@@ -608,7 +613,7 @@
     };
 
     function renderAuctionState(state) {
-      if (!state || state.error) return;
+      if (!state || typeof state !== 'object' || state.error || !state.status) return;
 
       if (state.maxTimer) {
         configuredTimerDuration = state.maxTimer;
@@ -623,16 +628,22 @@
         applyCaptainsRetentionUI(state.captainsRetained);
       }
 
-      // If state is live or paused but currentPlayer object is missing, hydrate from allPlayers or lot queue
-      if ((state.status === 'live' || state.status === 'paused') && !state.currentPlayer && state.currentPlayerId) {
-        const found = allPlayers.find(x => String(x.id) === String(state.currentPlayerId) || String(x.lotNumber) === String(state.currentPlayerId));
-        if (found) {
-          state.currentPlayer = found;
+      const isLiveOrPaused = state.status === 'live' || state.status === 'paused';
+
+      // If state is live or paused but currentPlayer object is missing, hydrate from allPlayers or _lastRenderedPlayer
+      if (isLiveOrPaused && !state.currentPlayer) {
+        if (state.currentPlayerId) {
+          const found = allPlayers.find(x => String(x.id) === String(state.currentPlayerId) || String(x.lotNumber) === String(state.currentPlayerId));
+          if (found) state.currentPlayer = found;
+        }
+        if (!state.currentPlayer && _lastRenderedPlayer) {
+          state.currentPlayer = _lastRenderedPlayer;
         }
       }
 
-      // Only enter idle/awaiting lot if status is explicitly idle and no lot is active
-      if (state.status === 'idle' || (!state.currentPlayer && !state.currentPlayerId)) {
+      // STRICT IDLE GUARD: Active or paused lot NEVER displays empty placeholder
+      if (!isLiveOrPaused && (state.status === 'idle' || (!state.currentPlayer && !state.currentPlayerId))) {
+        _lastRenderedPlayer = null;
         currentDeskImgPlayerId = null;
         deskStatus.textContent = 'AWAITING LOT';
         deskStatus.className = 'px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider font-bold border border-hm-border-s bg-hm-elevated text-hm-faint rounded-[4px]';
@@ -647,6 +658,10 @@
         }
         loadPlayers();
         return;
+      }
+
+      if (state.currentPlayer) {
+        _lastRenderedPlayer = state.currentPlayer;
       }
 
       deskStatus.textContent = state.status === 'live' ? 'LIVE ON HAMMER' : 'PAUSED';

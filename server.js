@@ -9,14 +9,25 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  pingInterval: 5000,
-  pingTimeout: 7000,
+  pingInterval: 10000,
+  pingTimeout: 30000,
   cors: { origin: '*' }
 });
 
 // MIDDLEWARE
 app.use(express.json());
 app.use(cookieParser());
+
+// Force no-store caching for all API endpoints to guarantee zero desync across devices and tab shifts
+app.use('/api', (req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store'
+  });
+  next();
+});
 
 // Block direct access to server files, sensitive data, and environment configs
 const SENSITIVE_PATTERNS = [

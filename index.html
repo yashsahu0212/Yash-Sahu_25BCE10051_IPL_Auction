@@ -80,8 +80,8 @@
           <span class="text-hm-border-s">|</span>
           <span class="font-mono text-[10px] font-bold text-hm-vermilion uppercase tracking-wider" id="clock-tick">--:--:--</span>
         </div>
-        <!-- YouTube-Style Fullscreen Button -->
-        <button id="btn-fullscreen-toggle" type="button" class="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border hover:border-hm-border-strong text-hm-muted hover:text-hm-text transition-all rounded-[4px] font-mono text-[10px] uppercase font-bold" title="Toggle Fullscreen (F)">
+        <!-- YouTube-Style Fullscreen Button (Hidden on Mobile) -->
+        <button id="btn-fullscreen-toggle" type="button" class="hidden md:inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border hover:border-hm-border-strong text-hm-muted hover:text-hm-text transition-all rounded-[4px] font-mono text-[10px] uppercase font-bold" title="Toggle Fullscreen (F)">
           <span class="material-symbols-outlined text-[16px] leading-none" id="fullscreen-icon">fullscreen</span>
           <span class="hidden md:inline" id="fullscreen-text">FULLSCREEN</span>
           <kbd class="hidden lg:inline px-1 py-0.2 bg-hm-panel text-[8px] text-hm-faint rounded border border-hm-border leading-none font-bold">F</kbd>
@@ -128,10 +128,6 @@
       <div class="bg-hm-panel border border-hm-border-s p-3 rounded-[6px]">
         <div class="flex items-center justify-between pb-2 mb-2 border-b border-hm-border">
           <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest font-bold">OPERATOR IDENTITY</span>
-          <div class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-hm-emerald"></span>
-            <span class="font-mono text-[9px] text-hm-emerald uppercase font-bold">SYNC ACTIVE</span>
-          </div>
         </div>
         <div data-nav="auth" class="w-full">
           <a href="login.html" class="flex items-center justify-center gap-2 w-full py-2 bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text transition-colors rounded-[4px] font-mono text-[11px] uppercase tracking-wider font-bold shadow-sm">
@@ -282,8 +278,8 @@
               CRICKET AUCTION DOSSIER
             </p>
 
-            <!-- Career Stats Matrix on Leftover Space -->
-            <div class="mt-2.5 pt-2 border-t border-hm-border grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="athlete-stats-grid">
+            <!-- Career Stats Matrix on Leftover Space (Hidden on Mobile) -->
+            <div class="mt-2.5 pt-2 border-t border-hm-border hidden md:grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="athlete-stats-grid">
               <div class="bg-hm-charcoal border border-hm-border p-1.5 text-center rounded-[3px]">
                 <span class="font-mono text-[8px] sm:text-[9px] text-hm-faint block uppercase tracking-wider">MATCHES</span>
                 <span class="font-mono text-xs sm:text-sm font-bold text-hm-text block truncate" id="stat-matches">—</span>

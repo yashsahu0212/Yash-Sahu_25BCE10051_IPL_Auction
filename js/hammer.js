@@ -935,21 +935,27 @@
       debouncedSync();
     });
 
-    // Auto-resync watchdog: keeps devices in lockstep every 3.5s without manual refresh
+    // Auto-resync watchdog: keeps devices in lockstep every 3s without manual refresh
     setInterval(() => {
       if (document.visibilityState === 'visible') {
         if (_socket && !_socket.connected) {
           _socket.connect();
         }
-        if (_lastAuctionState && (_lastAuctionState.status === 'live' || _lastAuctionState.status === 'paused')) {
-          API.getAuctionState().then(s => {
-            if (s && !s.error && s.status && s.status !== 'idle' && s.currentPlayer && (_lastAuctionState?.status !== s.status || _lastAuctionState?.currentBid !== s.currentBid || _lastAuctionState?.currentPlayer?.id !== s.currentPlayer?.id)) {
+        API.getAuctionState().then(s => {
+          if (s && !s.error && s.status) {
+            const hasChanged = !_lastAuctionState ||
+              _lastAuctionState.status !== s.status ||
+              _lastAuctionState.currentBid !== s.currentBid ||
+              _lastAuctionState.currentPlayer?.id !== s.currentPlayer?.id ||
+              _lastAuctionState.leadingTeamId !== s.leadingTeamId;
+
+            if (hasChanged) {
               handleAuctionStateSync(s);
             }
-          }).catch(() => {});
-        }
+          }
+        }).catch(() => {});
       }
-    }, 3500);
+    }, 3000);
   }
 
   async function socketBid(expectedBid) {

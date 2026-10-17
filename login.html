@@ -131,10 +131,28 @@
         console.warn('Hammer.init warning:', e);
       }
 
-      const user = Hammer.getUser();
-      if (user && Hammer.isLoggedIn()) {
-        redirectByRole(user.role);
-        return;
+      const params = new URLSearchParams(window.location.search);
+      const target = params.get('redirect');
+
+      // CRITICAL LOOP BREAKER:
+      // If the user arrived with a ?redirect= query param, the target route rejected their session.
+      // NEVER auto-redirect back to that target on page load! That causes an immediate 302 <-> JS infinite loop.
+      if (target) {
+        console.warn('Authentication portal opened with redirect target:', target, '— requiring fresh operator login');
+        localStorage.removeItem('hammer_token');
+        localStorage.removeItem('hammer_user');
+      } else {
+        // Only if NO redirect parameter was specified, check if user is already authenticated
+        const user = Hammer.getUser();
+        if (user && Hammer.isLoggedIn()) {
+          const now = Date.now();
+          const lastRedirect = Number(sessionStorage.getItem('hammer_login_auto_redirect_ts') || 0);
+          if (now - lastRedirect > 5000) {
+            sessionStorage.setItem('hammer_login_auto_redirect_ts', String(now));
+            redirectByRole(user.role);
+            return;
+          }
+        }
       }
 
       const form = document.getElementById('login-form');
@@ -157,6 +175,12 @@
           const username = document.getElementById('username').value.trim().toLowerCase();
           const password = document.getElementById('password').value;
           const result = await Hammer.login(username, password);
+          // Clear bounce loop guards on explicit user authentication
+          sessionStorage.removeItem('hammer_login_auto_redirect_ts');
+          sessionStorage.removeItem('hammer_last_redirect_target');
+          sessionStorage.removeItem('tc_bounce_ts');
+          sessionStorage.removeItem('ad_bounce_ts');
+          sessionStorage.removeItem('al_bounce_ts');
           redirectByRole(result.user.role);
         } catch (err) {
           errorEl.textContent = err.message || 'Authentication failed';
@@ -167,20 +191,47 @@
       });
 
       function redirectByRole(role) {
-        const params = new URLSearchParams(window.location.search);
-        const target = params.get('redirect');
-        if (target) {
-          if (target.includes('auction-desk') && role !== 'auctioneer') {
+        const urlParams = new URLSearchParams(window.location.search);
+        let dest = urlParams.get('redirect');
+
+        // Prevent redirecting back to login.html or unauthorized.html
+        if (dest && (dest.includes('login') || dest.includes('unauthorized'))) {
+          dest = null;
+        }
+
+        // Loop breaker: check consecutive redirects to the same destination within 4 seconds
+        const now = Date.now();
+        const lastTarget = sessionStorage.getItem('hammer_last_redirect_target');
+        const lastTs = Number(sessionStorage.getItem('hammer_last_redirect_ts') || 0);
+        if (dest && lastTarget === dest && (now - lastTs < 4000)) {
+          console.warn('Infinite redirect loop detected on target:', dest, '— halting redirect.');
+          sessionStorage.removeItem('hammer_last_redirect_target');
+          if (errorEl) {
+            errorEl.textContent = 'Session could not be verified for that section. Please authenticate again.';
+            errorEl.classList.remove('hidden');
+          }
+          if (loginBtn) {
+            loginBtn.querySelector('span:first-child').textContent = 'AUTHENTICATE';
+            loginBtn.disabled = false;
+          }
+          return;
+        }
+
+        if (dest) {
+          sessionStorage.setItem('hammer_last_redirect_target', dest);
+          sessionStorage.setItem('hammer_last_redirect_ts', String(now));
+          if (dest.includes('auction-desk') && role !== 'auctioneer') {
             window.location.href = role === 'team_owner' ? '/team-console.html' : '/unauthorized.html';
             return;
           }
-          if (target.includes('team-console') && role !== 'team_owner') {
+          if (dest.includes('team-console') && role !== 'team_owner') {
             window.location.href = role === 'auctioneer' ? '/auction-desk.html' : '/unauthorized.html';
             return;
           }
-          window.location.href = target;
+          window.location.href = dest;
           return;
         }
+
         switch (role) {
           case 'auctioneer': window.location.href = '/auction-desk.html'; break;
           case 'team_owner': window.location.href = '/team-console.html'; break;

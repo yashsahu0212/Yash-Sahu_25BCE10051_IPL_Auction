@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
 
 const app = express();
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 const io = new Server(server, {
   pingInterval: 10000,
@@ -922,7 +923,14 @@ app.post('/api/auth/login', (req, res) => {
   const token = signSession(sessionData);
   sessions.set(token, sessionData);
 
-  res.cookie('hammer_token', token, { httpOnly: false, maxAge: 24 * 60 * 60 * 1000, path: '/', sameSite: 'lax' });
+  const isHttps = Boolean(req.secure || req.headers['x-forwarded-proto'] === 'https');
+  res.cookie('hammer_token', token, {
+    httpOnly: false,
+    maxAge: 24 * 60 * 60 * 1000,
+    path: '/',
+    sameSite: isHttps ? 'none' : 'lax',
+    secure: isHttps
+  });
   res.json({
     token,
     user: { id: user.id, username: user.username, role: user.role, teamId: user.teamId },
@@ -941,7 +949,12 @@ app.post('/api/auth/logout', (req, res) => {
     sessions.delete(req.cookies.hammer_token);
     revokedTokens.add(req.cookies.hammer_token);
   }
-  res.clearCookie('hammer_token', { path: '/' });
+  const isHttps = Boolean(req.secure || req.headers['x-forwarded-proto'] === 'https');
+  res.clearCookie('hammer_token', {
+    path: '/',
+    sameSite: isHttps ? 'none' : 'lax',
+    secure: isHttps
+  });
   res.json({ success: true });
 });
 

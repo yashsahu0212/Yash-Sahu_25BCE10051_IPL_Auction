@@ -300,6 +300,13 @@
 
     const user = Hammer.getUser();
     if (!user || user.role !== 'auctioneer') {
+      const now = Date.now();
+      const lastTs = Number(sessionStorage.getItem('al_bounce_ts') || 0);
+      if (now - lastTs < 3000) {
+        console.warn('Redirect bounce loop prevented on activity-log.html');
+        return;
+      }
+      sessionStorage.setItem('al_bounce_ts', String(now));
       window.location.replace(user ? '/unauthorized.html' : '/login.html?redirect=/activity-log.html');
       return;
     }

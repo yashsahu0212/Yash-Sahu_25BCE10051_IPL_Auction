@@ -414,6 +414,13 @@
         window.location.replace('/unauthorized.html');
         return;
       }
+      const now = Date.now();
+      const lastTs = Number(sessionStorage.getItem('tc_bounce_ts') || 0);
+      if (now - lastTs < 3000) {
+        console.warn('Redirect bounce loop prevented on team-console.html');
+        return;
+      }
+      sessionStorage.setItem('tc_bounce_ts', String(now));
       window.location.replace('/login.html?redirect=/team-console.html');
       return;
     }

@@ -596,6 +596,13 @@
         window.location.replace('/unauthorized.html');
         return;
       }
+      const now = Date.now();
+      const lastTs = Number(sessionStorage.getItem('ad_bounce_ts') || 0);
+      if (now - lastTs < 3000) {
+        console.warn('Redirect bounce loop prevented on auction-desk.html');
+        return;
+      }
+      sessionStorage.setItem('ad_bounce_ts', String(now));
       window.location.replace('/login.html?redirect=/auction-desk.html');
       return;
     }

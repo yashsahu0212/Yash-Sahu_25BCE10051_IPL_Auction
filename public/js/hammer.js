@@ -20,12 +20,14 @@
 
   function setCookie(name, val, maxAge = 86400) {
     if (typeof document === 'undefined') return;
-    document.cookie = `${name}=${encodeURIComponent(val)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    document.cookie = `${name}=${encodeURIComponent(val)}; path=/; max-age=${maxAge}; SameSite=${isHttps ? 'None' : 'Lax'}${isHttps ? '; Secure' : ''}`;
   }
 
   function clearCookie(name) {
     if (typeof document === 'undefined') return;
-    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=${isHttps ? 'None' : 'Lax'}${isHttps ? '; Secure' : ''}`;
   }
 
   let _token = null;
@@ -1177,8 +1179,8 @@
           throw new Error('Invalid user payload');
         }
       } catch (e) {
-        // ONLY invalidate session if server returned definitive 401 Unauthorized
-        if (e.status === 401 || (e.message && e.message.toLowerCase().includes('authenticated')) || (e.message && e.message.toLowerCase().includes('authentication required'))) {
+        // ONLY invalidate session if server returned definitive 401 Unauthorized or 403 Forbidden
+        if (e.status === 401 || e.status === 403 || (e.message && e.message.toLowerCase().includes('authenticated')) || (e.message && e.message.toLowerCase().includes('authentication required')) || (e.message && e.message.toLowerCase().includes('permissions'))) {
           _user = null;
           _token = null;
           _authState = 'UNAUTHENTICATED';
@@ -1508,6 +1510,7 @@
     getAuthState,
     getSession: () => _user,
     getToken,
+    clearCookie,
     isLoggedIn,
     isSupabaseMode,
     on,

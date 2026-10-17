@@ -60,11 +60,11 @@
 
   <!-- NAVIGATION -->
   <header class="fixed top-0 left-0 right-0 z-40 bg-hm-ink/95 backdrop-blur-sm border-b border-hm-border">
-    <div class="h-14 w-full px-4 lg:px-8 flex items-center justify-between">
-      <a href="index.html" class="flex items-center space-x-3 text-inherit no-underline group">
+    <div class="h-14 w-full px-3 sm:px-4 lg:px-8 flex items-center justify-between gap-2">
+      <a href="index.html" class="flex items-center space-x-2.5 sm:space-x-3 text-inherit no-underline group shrink-0">
         <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px] transition-transform group-hover:scale-95"><span class="material-symbols-outlined text-[18px] leading-none">gavel</span></div>
         <div class="flex flex-col">
-          <span class="font-display text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-display text-lg sm:text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
           <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">VITB MUN Club</span>
         </div>
       </a>
@@ -73,44 +73,149 @@
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="index.html">LIVE AUCTION</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="player-pool.html">PLAYER POOL</a>
         <a data-nav="team-console" class="hidden px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="team-console.html">TEAM CONSOLE</a>
-        <a data-nav="auction-desk" class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
+        <a data-nav="auction-desk" class="hidden px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="auction-desk.html">AUCTION DESK</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
         <a data-nav="activity" class="px-3 py-1.5 text-hm-text bg-hm-elevated border border-hm-border-s rounded-[4px] font-bold" href="activity-log.html">ACTIVITY</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
       </nav>
 
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-1.5 sm:space-x-2.5">
         <!-- CONNECTION INDICATOR -->
-        <div id="conn-indicator" class="flex items-center gap-1.5 px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-emerald">
+        <div id="conn-indicator" class="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 bg-hm-charcoal border border-hm-border-s rounded-[4px] font-mono text-[10px] uppercase tracking-wider text-hm-emerald">
           <span class="w-2 h-2 rounded-full bg-hm-emerald"></span>
-          <span id="conn-text">CONNECTED</span>
+          <span id="conn-text" class="hidden sm:inline">CONNECTED</span>
         </div>
 
         <span class="font-mono text-[10px] text-hm-faint tracking-wider uppercase hidden sm:inline" id="clock-tick"></span>
         <div data-nav="auth">
-          <a href="login.html" class="flex items-center gap-1.5 px-3 py-1 bg-hm-amber/10 border border-hm-amber/30 hover:border-hm-amber text-hm-amber transition-colors rounded-[4px]">
+          <a href="login.html" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 bg-hm-amber/10 border border-hm-amber/30 hover:border-hm-amber text-hm-amber transition-colors rounded-[4px]">
             <span class="material-symbols-outlined text-[14px]">login</span>
-            <span class="font-mono text-[11px] font-bold tracking-wider">LOGIN</span>
+            <span class="font-mono text-[11px] font-bold tracking-wider hidden sm:inline">LOGIN</span>
           </a>
         </div>
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobile-menu-toggle" type="button" class="xl:hidden inline-flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-hm-charcoal hover:bg-hm-elevated border border-hm-border hover:border-hm-border-strong text-hm-text rounded-[4px] transition-colors focus:outline-none focus:ring-1 focus:ring-hm-vermilion" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-nav-drawer">
+          <span class="material-symbols-outlined text-[20px] leading-none" id="mobile-menu-icon">menu</span>
+        </button>
       </div>
     </div>
   </header>
 
+  <!-- MOBILE NAVIGATION DRAWER & BACKDROP -->
+  <div id="mobile-nav-backdrop" class="fixed inset-0 bg-hm-ink/80 backdrop-blur-sm z-50 hidden opacity-0 pointer-events-none transition-opacity duration-300" aria-hidden="true"></div>
+
+  <aside id="mobile-nav-drawer" class="fixed top-0 right-0 bottom-0 w-[85vw] max-w-sm bg-hm-charcoal border-l border-hm-border-s z-50 transform translate-x-full pointer-events-none flex flex-col shadow-2xl overflow-hidden transition-transform duration-300 ease-out safe-pb" aria-label="Mobile Navigation" aria-hidden="true">
+    <!-- Drawer Header -->
+    <div class="h-14 px-4 bg-hm-panel border-b border-hm-border-s flex items-center justify-between shrink-0">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-7 h-7 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px]">
+          <span class="material-symbols-outlined text-[16px] leading-none">gavel</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display text-lg tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em]">VITB MUN Club</span>
+        </div>
+      </div>
+      <button id="mobile-nav-close" type="button" class="w-8 h-8 flex items-center justify-center bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s hover:border-hm-border-strong text-hm-muted hover:text-hm-text rounded-[4px] transition-colors focus:outline-none" aria-label="Close mobile navigation">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <!-- Drawer Content -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-5" style="scrollbar-width: thin;">
+      
+      <!-- Operator Identity / Auth Panel -->
+      <div class="bg-hm-panel border border-hm-border-s p-3 rounded-[6px]">
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-hm-border">
+          <span class="font-mono text-[9px] text-hm-faint uppercase tracking-widest font-bold">OPERATOR IDENTITY</span>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-hm-emerald"></span>
+            <span class="font-mono text-[9px] text-hm-emerald uppercase font-bold">SYNC ACTIVE</span>
+          </div>
+        </div>
+        <div data-nav="auth" class="w-full">
+          <a href="login.html" class="flex items-center justify-center gap-2 w-full py-2 bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text transition-colors rounded-[4px] font-mono text-[11px] uppercase tracking-wider font-bold shadow-sm">
+            <span class="material-symbols-outlined text-[15px]">login</span>
+            <span>AUTHENTICATE OPERATOR</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Section: Broadcast Stages -->
+      <div>
+        <span class="font-mono text-[9px] text-hm-faint tracking-[0.25em] uppercase font-bold px-1 block mb-2">BROADCAST STAGES</span>
+        <nav class="space-y-1 font-mono text-xs uppercase tracking-wider">
+          <a href="index.html" data-mobile-link="index" class="flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-hm-muted hover:text-hm-text hover:bg-hm-panel transition-all border border-transparent">
+            <span class="material-symbols-outlined text-[18px] text-hm-vermilion">live_tv</span>
+            <span class="font-bold flex-1">LIVE AUCTION</span>
+            <span class="font-mono text-[9px] text-hm-faint">STAGE</span>
+          </a>
+          <a href="player-pool.html" data-mobile-link="player-pool" class="flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-hm-muted hover:text-hm-text hover:bg-hm-panel transition-all border border-transparent">
+            <span class="material-symbols-outlined text-[18px] text-hm-amber">groups</span>
+            <span class="font-bold flex-1">PLAYER POOL</span>
+            <span class="font-mono text-[9px] text-hm-faint">CATALOGUE</span>
+          </a>
+          <a href="lot-replay.html" data-mobile-link="lot-replay" class="flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-hm-muted hover:text-hm-text hover:bg-hm-panel transition-all border border-transparent">
+            <span class="material-symbols-outlined text-[18px] text-hm-muted">replay</span>
+            <span class="font-bold flex-1">LOT REPLAY</span>
+            <span class="font-mono text-[9px] text-hm-faint">THEATRE</span>
+          </a>
+          <a href="final-squads.html" data-mobile-link="final-squads" class="flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-hm-muted hover:text-hm-text hover:bg-hm-panel transition-all border border-transparent">
+            <span class="material-symbols-outlined text-[18px] text-hm-emerald">military_tech</span>
+            <span class="font-bold flex-1">FINAL SQUADS</span>
+            <span class="font-mono text-[9px] text-hm-faint">ROSTERS</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Section: Operator Terminals (Role-Gated) -->
+      <div class="border-t border-hm-border-s pt-4">
+        <span class="font-mono text-[9px] text-hm-faint tracking-[0.25em] uppercase font-bold px-1 block mb-2">OPERATOR TERMINALS</span>
+        <nav class="space-y-1 font-mono text-xs uppercase tracking-wider">
+          <a href="team-console.html" data-nav="team-console" data-mobile-link="team-console" class="hidden flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-hm-muted hover:text-hm-text hover:bg-hm-panel transition-all border border-transparent">
+            <span class="material-symbols-outlined text-[18px] text-hm-amber">shield</span>
+            <span class="font-bold flex-1">TEAM CONSOLE</span>
+            <span class="font-mono text-[9px] px-1.5 py-0.5 bg-hm-amber/10 text-hm-amber border border-hm-amber/30 rounded">FRANCHISE</span>
+          </a>
+          <a href="auction-desk.html" data-nav="auction-desk" data-mobile-link="auction-desk" class="hidden flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-hm-muted hover:text-hm-text hover:bg-hm-panel transition-all border border-transparent">
+            <span class="material-symbols-outlined text-[18px] text-hm-vermilion">gavel</span>
+            <span class="font-bold flex-1">AUCTION DESK</span>
+            <span class="font-mono text-[9px] px-1.5 py-0.5 bg-hm-vermilion/10 text-hm-vermilion border border-hm-vermilion/30 rounded">AUCTIONEER</span>
+          </a>
+          <a href="activity-log.html" data-nav="activity" data-mobile-link="activity" class="flex items-center gap-3 px-3 py-2.5 rounded-[4px] text-hm-muted hover:text-hm-text hover:bg-hm-panel transition-all border border-transparent">
+            <span class="material-symbols-outlined text-[18px] text-hm-muted">history</span>
+            <span class="font-bold flex-1">ACTIVITY LOG</span>
+            <span class="font-mono text-[9px] px-1.5 py-0.5 bg-hm-elevated text-hm-muted border border-hm-border-s rounded">ACTIVE</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="p-3 bg-hm-panel border-t border-hm-border-s shrink-0 font-mono text-[10px] text-hm-faint flex items-center justify-between">
+      <div class="flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-hm-vermilion"></span>
+        <span class="uppercase tracking-widest">IPL MEGA AUCTION 2026</span>
+      </div>
+      <span class="font-bold text-hm-muted" id="mobile-drawer-clock">--:--:--</span>
+    </div>
+  </aside>
+
   <!-- MAIN -->
   <main class="w-full flex-1 pt-14">
-    <div class="max-w-[1440px] mx-auto px-4 lg:px-8 py-8">
+    <div class="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8">
 
       <!-- HEADER -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-4 border-b border-hm-border-s">
         <div>
-          <h1 class="font-display text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
+          <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl uppercase tracking-wide text-hm-text leading-none">
             ACTIVITY LOG
           </h1>
         </div>
 
         <!-- ACTIONS & EXPORTS -->
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <a href="/api/export/activity?format=csv" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-hm-elevated hover:bg-hm-surface border border-hm-border-s text-hm-text font-mono text-[11px] uppercase tracking-wider font-bold rounded-[4px] transition-colors">
             <span class="material-symbols-outlined text-[14px]">download</span>
             EXPORT CSV
@@ -126,14 +231,14 @@
       </div>
 
       <!-- FILTER BAR & LIVE STATS -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-hm-panel border border-hm-border-s p-3 rounded-[6px]">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-hm-panel border border-hm-border-s p-2.5 sm:p-3 rounded-[6px]">
         <!-- FILTERS -->
-        <div class="flex flex-wrap items-center gap-1.5 font-mono text-[11px] uppercase">
-          <button class="filter-btn px-3 py-1 bg-hm-vermilion text-hm-text font-bold rounded-[3px] border border-hm-vermilion" data-filter="all">ALL EVENTS</button>
-          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s" data-filter="bids">BIDS</button>
-          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s" data-filter="lots">LOT OPENINGS</button>
-          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s" data-filter="hammer">HAMMER / SETTLEMENT</button>
-          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s" data-filter="system">SYSTEM & TIMERS</button>
+        <div class="flex items-center gap-1.5 font-mono text-[11px] uppercase overflow-x-auto no-scrollbar touch-scroll pb-1 sm:pb-0">
+          <button class="filter-btn px-3 py-1 bg-hm-vermilion text-hm-text font-bold rounded-[3px] border border-hm-vermilion shrink-0" data-filter="all">ALL EVENTS</button>
+          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s shrink-0" data-filter="bids">BIDS</button>
+          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s shrink-0" data-filter="lots">LOT OPENINGS</button>
+          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s shrink-0" data-filter="hammer">HAMMER / SETTLEMENT</button>
+          <button class="filter-btn px-3 py-1 bg-hm-elevated text-hm-muted hover:text-hm-text rounded-[3px] border border-hm-border-s shrink-0" data-filter="system">SYSTEM & TIMERS</button>
         </div>
 
         <!-- STATS -->
@@ -320,9 +425,9 @@
         : `<span class="text-hm-dim">—</span>`;
 
       return `
-        <div class="px-4 py-3 hover:bg-hm-charcoal/50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs entry-animate" data-type="${ev.event_type}">
-          <div class="flex items-center gap-4 flex-1">
-            <div class="flex flex-col font-mono text-[10px] text-hm-faint w-16">
+        <div class="px-3 sm:px-4 py-3 hover:bg-hm-charcoal/50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3 text-xs entry-animate" data-type="${ev.event_type}">
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4 flex-1 min-w-0">
+            <div class="flex flex-col font-mono text-[10px] text-hm-faint w-16 shrink-0">
               <span class="font-bold text-hm-dim">#${ev.event_sequence || '—'}</span>
               <span>${timeStr}</span>
             </div>
@@ -332,16 +437,16 @@
             <div class="font-mono text-xs text-hm-dim shrink-0">
               <span class="px-1.5 py-0.5 bg-hm-elevated border border-hm-border-s rounded-[2px] text-hm-text font-bold text-[10px]">${lotLabel}</span>
             </div>
-            <div class="flex-1 text-sm">
+            <div class="flex-1 min-w-0 text-sm">
               ${detailsHtml}
             </div>
           </div>
 
-          <div class="flex items-center justify-between md:justify-end gap-6 font-mono text-xs shrink-0 pl-20 md:pl-0 border-t md:border-t-0 border-hm-border/50 pt-2 md:pt-0">
-            <div class="w-24 text-right">
+          <div class="flex items-center justify-between md:justify-end gap-3 sm:gap-6 font-mono text-xs shrink-0 border-t md:border-t-0 border-hm-border/50 pt-2 md:pt-0">
+            <div class="w-24 text-left sm:text-right">
               ${ev.amount_lakh > 0 ? `<span class="font-bold ${ev.event_type === 'LOT_SOLD' ? 'text-hm-vermilion font-display text-lg' : 'text-hm-text'}">${Hammer.formatCurrency(ev.amount_lakh)}</span>` : '<span class="text-hm-dim">—</span>'}
             </div>
-            <div class="w-20 text-center">
+            <div class="w-20 text-right sm:text-center">
               ${replayBtn}
             </div>
           </div>

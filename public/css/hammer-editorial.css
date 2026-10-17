@@ -268,3 +268,60 @@ html, body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Mobile Navigation Drawer & Touch Optimization ── */
+#mobile-nav-drawer {
+  will-change: transform;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+}
+
+#mobile-nav-backdrop {
+  will-change: opacity;
+  transition: opacity 0.25s ease-out;
+}
+
+/* Remove tap highlight on mobile buttons and links */
+a, button, input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth touch momentum scrolling on iOS and Android */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbars while allowing touch scrolling */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Safe area padding utilities */
+.safe-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-pt {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Responsive table container */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Minimum accessible touch target helper */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+

@@ -1478,10 +1478,10 @@
 
           container.innerHTML = `
             <div class="inline-flex items-center gap-1.5 whitespace-nowrap">
-              <span class="font-mono text-[10px] px-2 py-0.5 border rounded-[3px] font-bold" style="${badgeStyle}">${roleLabel}</span>
-              <button onclick="Hammer.logout()" title="Sign Out of HAMMER (${user?.username || ''})" class="inline-flex items-center gap-1 px-2.5 py-1 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s hover:border-hm-border text-hm-muted hover:text-hm-ruby transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
+              <span class="font-mono text-[10px] px-2 py-0.5 border rounded-[3px] font-bold max-w-[75px] sm:max-w-none truncate inline-block" style="${badgeStyle}" title="${roleLabel}">${roleLabel}</span>
+              <button onclick="Hammer.logout()" title="Sign Out of HAMMER (${user?.username || ''})" class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s hover:border-hm-border text-hm-muted hover:text-hm-ruby transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
                 <span class="material-symbols-outlined text-[13px]">logout</span>
-                <span>LOGOUT</span>
+                <span class="hidden sm:inline">LOGOUT</span>
               </button>
             </div>
           `;

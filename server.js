@@ -8,15 +8,30 @@ const cookieParser = require('cookie-parser');
 
 const app = express();
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
 const server = http.createServer(app);
 const io = new Server(server, {
   pingInterval: 10000,
   pingTimeout: 30000,
-  cors: { origin: '*' }
+  cors: {
+    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+    methods: ['GET', 'POST']
+  }
 });
 
-// MIDDLEWARE
-app.use(express.json());
+// SECURITY HEADERS MIDDLEWARE
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
+// BODY PARSER (Enforce strict 100kb limit against JSON payload DoS)
+app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
 
 // Force no-store caching for all API endpoints to guarantee zero desync across devices and tab shifts
@@ -30,18 +45,114 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-// Block direct access to server files, sensitive data, and environment configs
+// IN-MEMORY RATE LIMITING (Brute-Force & Flooding Defense)
+const loginFailures = new Map(); // ip -> { count, firstFailTime, lockedUntil }
+const bidRateLimits = new Map(); // teamId -> [timestamps]
+const apiRateLimits = new Map(); // ip -> [timestamps]
+
+// Background cleanup of stale rate-limit trackers every 2 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of loginFailures.entries()) {
+    if ((data.lockedUntil && data.lockedUntil < now) || (now - data.firstFailTime > 15 * 60 * 1000)) {
+      loginFailures.delete(ip);
+    }
+  }
+  for (const [key, timestamps] of bidRateLimits.entries()) {
+    const valid = timestamps.filter(t => now - t < 5000);
+    if (valid.length === 0) bidRateLimits.delete(key);
+    else bidRateLimits.set(key, valid);
+  }
+  for (const [ip, timestamps] of apiRateLimits.entries()) {
+    const valid = timestamps.filter(t => now - t < 60000);
+    if (valid.length === 0) apiRateLimits.delete(ip);
+    else apiRateLimits.set(ip, valid);
+  }
+}, 2 * 60 * 1000).unref();
+
+function getClientIp(req) {
+  return (req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1').split(',')[0].trim();
+}
+
+function checkLoginRateLimit(req, res, next) {
+  const ip = getClientIp(req);
+  const now = Date.now();
+  const record = loginFailures.get(ip);
+  if (record && record.lockedUntil && record.lockedUntil > now) {
+    const remainingSec = Math.ceil((record.lockedUntil - now) / 1000);
+    return res.status(429).json({
+      error: `Too many failed login attempts. IP temporarily locked. Please retry in ${remainingSec} seconds.`,
+      code: 'TOO_MANY_REQUESTS',
+      retryAfter: remainingSec
+    });
+  }
+  next();
+}
+
+function recordLoginFailure(ip) {
+  const now = Date.now();
+  const record = loginFailures.get(ip) || { count: 0, firstFailTime: now, lockedUntil: 0 };
+  record.count++;
+  if (record.count >= 15) {
+    record.lockedUntil = now + 5 * 60 * 1000; // 5-minute lockout after 15 consecutive failed logins
+  }
+  loginFailures.set(ip, record);
+}
+
+function recordLoginSuccess(ip) {
+  loginFailures.delete(ip);
+}
+
+function checkBidRateLimit(teamId) {
+  if (!teamId) return true;
+  const now = Date.now();
+  const key = String(teamId).trim().toUpperCase();
+  const timestamps = bidRateLimits.get(key) || [];
+  const recent = timestamps.filter(t => now - t < 1000);
+  if (recent.length >= 30) { // Max 30 bids per second per team (burst protection)
+    return false;
+  }
+  recent.push(now);
+  bidRateLimits.set(key, recent);
+  return true;
+}
+
+// General API rate limiter (protects against high-rate scraping / endpoint exhaustion)
+app.use('/api', (req, res, next) => {
+  const ip = getClientIp(req);
+  const now = Date.now();
+  const timestamps = apiRateLimits.get(ip) || [];
+  const recent = timestamps.filter(t => now - t < 60000);
+  if (recent.length >= 600) {
+    return res.status(429).json({ error: 'API rate limit exceeded. Please slow down.', code: 'RATE_LIMIT_EXCEEDED' });
+  }
+  recent.push(now);
+  apiRateLimits.set(ip, recent);
+  next();
+});
+
+// PATH TRAVERSAL & SENSITIVE FILE PROTECTION
 const SENSITIVE_PATTERNS = [
-  /^\/\.env/i,
-  /^\/server\.js/i,
-  /^\/package.*\.json/i,
-  /^\/data(\/|$)/i,
-  /^\/backend(\/|$)/i,
-  /^\/test_.*\.js/i,
-  /^\/\.git/i
+  /^\/\..*/i,                           // Any dotfile or hidden directory (.env, .git, etc.)
+  /^\/server\.js(\.|$)/i,                // Server code
+  /^\/package.*\.json/i,                // Package files
+  /^\/node_modules(\/|$)/i,             // Dependencies
+  /^\/tests?(\/|$)/i,                   // Tests
+  /^\/backend(\/|$)/i,                 // Backend source / migrations
+  /^\/data(\/|$)/i,                    // Data files
+  /^\/scratch(\/|$)/i,                 // Scratch directory
+  /\.(sql|ts|md|env|log|bak|tmp)($|\?)/i // Database, typescript, markdown, env files
 ];
+
 app.use((req, res, next) => {
-  if (SENSITIVE_PATTERNS.some(p => p.test(req.path))) {
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(req.path);
+  } catch (e) {
+    return res.status(400).json({ error: 'Malformed URL path' });
+  }
+  const normalized = path.posix.normalize(decodedPath);
+  if (normalized.includes('..') || SENSITIVE_PATTERNS.some(p => p.test(normalized))) {
     return res.status(403).json({ error: 'Forbidden' });
   }
   next();
@@ -75,12 +186,27 @@ function updateAllTeamPurses() {
 
 updateAllTeamPurses();
 
-const sessions = new Map(); // token -> { userId, role, teamId, username }
+const sessions = new Map(); // token -> { userId, role, teamId, username, exp }
 const revokedTokens = new Set();
+const MAX_SESSIONS = 10000;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'hammer-authoritative-auction-secret-2026';
 
+// Periodic memory protection: clean up expired sessions every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [token, sess] of sessions.entries()) {
+    if (sess.exp && sess.exp < now) {
+      sessions.delete(token);
+    }
+  }
+  if (revokedTokens.size > 20000) {
+    revokedTokens.clear();
+  }
+}, 5 * 60 * 1000).unref();
+
 function signSession(data) {
-  const payload = Buffer.from(JSON.stringify({ ...data, exp: Date.now() + 24 * 60 * 60 * 1000 })).toString('base64url');
+  const exp = Date.now() + 24 * 60 * 60 * 1000;
+  const payload = Buffer.from(JSON.stringify({ ...data, exp })).toString('base64url');
   const sig = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
   return `hm.${payload}.${sig}`;
 }
@@ -93,18 +219,32 @@ function verifySignedSession(token) {
     if (parts.length !== 3) return null;
     const [, payloadB64, sig] = parts;
     const expectedSig = crypto.createHmac('sha256', SESSION_SECRET).update(payloadB64).digest('base64url');
-    if (crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
+    const sigBuf = Buffer.from(sig, 'utf8');
+    const expBuf = Buffer.from(expectedSig, 'utf8');
+    if (sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf)) {
       const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
       if (payload.exp && payload.exp < Date.now()) return null;
       return {
         userId: payload.userId,
         role: payload.role,
         teamId: payload.teamId,
-        username: payload.username
+        username: payload.username,
+        exp: payload.exp
       };
     }
   } catch (e) {}
   return null;
+}
+
+function safeComparePassword(inputPassword, storedPassword) {
+  if (typeof inputPassword !== 'string' || typeof storedPassword !== 'string') return false;
+  const inputBuf = Buffer.from(inputPassword, 'utf8');
+  const storedBuf = Buffer.from(storedPassword, 'utf8');
+  if (inputBuf.length !== storedBuf.length) {
+    crypto.timingSafeEqual(storedBuf, storedBuf);
+    return false;
+  }
+  return crypto.timingSafeEqual(inputBuf, storedBuf);
 }
 
 const USERS = [
@@ -208,20 +348,43 @@ function logAuctionEvent(eventType, payload = {}) {
   return event;
 }
 
-// ATOMIC FILE PERSISTENCE (Thread-safe & Crash-safe for rapid bidding)
+// ATOMIC FILE PERSISTENCE (Thread-safe, Crash-safe, & OneDrive/Windows lock resilient)
 function atomicWriteJson(filePath, data) {
-  const content = JSON.stringify(data, null, 2);
+  let content;
+  try {
+    content = JSON.stringify(data, null, 2);
+  } catch (serErr) {
+    console.error(`Serialization error in atomicWriteJson for ${filePath}:`, serErr);
+    return;
+  }
   const tmpPath = `${filePath}.tmp.${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  let written = false;
   try {
     fs.writeFileSync(tmpPath, content, 'utf8');
-    fs.renameSync(tmpPath, filePath);
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        fs.renameSync(tmpPath, filePath);
+        written = true;
+        break;
+      } catch (renameErr) {
+        if (attempt < 2) {
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 30);
+        }
+      }
+    }
   } catch (err) {
+    // If tmp write failed, fallback directly
+  } finally {
     try {
-      if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+      if (!written && fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
     } catch (_) {}
-    fs.writeFile(filePath, content, 'utf8', wErr => {
-      if (wErr) console.error(`Error saving ${path.basename(filePath)}:`, wErr);
-    });
+  }
+  if (!written) {
+    try {
+      fs.writeFileSync(filePath, content, 'utf8');
+    } catch (wErr) {
+      console.error(`Error saving ${path.basename(filePath)}:`, wErr);
+    }
   }
 }
 
@@ -269,19 +432,25 @@ function getPlayer(id) {
 
 function decodeSupabaseJwt(token) {
   if (!token || typeof token !== 'string') return null;
+  // SECURITY CONTRACT: Unverified external JWTs must NEVER be accepted without signature verification!
+  const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+  if (!jwtSecret) {
+    return null; // Reject forged/unverified external tokens when secret is not configured
+  }
   try {
     const parts = token.split('.');
     if (parts.length === 3) {
-      if (process.env.SUPABASE_JWT_SECRET) {
-        const expectedSig = crypto
-          .createHmac('sha256', process.env.SUPABASE_JWT_SECRET)
-          .update(parts[0] + '.' + parts[1])
-          .digest('base64url');
-        if (expectedSig !== parts[2]) {
-          return null;
-        }
+      const [headerB64, payloadB64, sig] = parts;
+      const expectedSig = crypto
+        .createHmac('sha256', jwtSecret)
+        .update(headerB64 + '.' + payloadB64)
+        .digest('base64url');
+      const sigBuf = Buffer.from(sig, 'utf8');
+      const expBuf = Buffer.from(expectedSig, 'utf8');
+      if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+        return null;
       }
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+      const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
       if (payload && payload.exp && payload.exp * 1000 < Date.now()) return null;
       const email = payload.email || '';
       const username = payload.user_metadata?.username || email.split('@')[0] || 'user';
@@ -300,7 +469,8 @@ function decodeSupabaseJwt(token) {
         userId: payload.sub,
         role,
         teamId,
-        username
+        username,
+        exp: payload.exp ? payload.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000
       };
     }
   } catch (e) {}
@@ -311,14 +481,32 @@ function checkToken(token) {
   if (!token || revokedTokens.has(token)) return null;
   const cleanToken = typeof token === 'string' ? token.trim().replace(/^["']|["']$/g, '') : null;
   if (!cleanToken || cleanToken === 'null' || cleanToken === 'undefined') return null;
-  if (sessions.has(cleanToken)) return sessions.get(cleanToken);
+
+  if (sessions.has(cleanToken)) {
+    const s = sessions.get(cleanToken);
+    if (s.exp && s.exp < Date.now()) {
+      sessions.delete(cleanToken);
+      return null;
+    }
+    return s;
+  }
+
   const signed = verifySignedSession(cleanToken);
   if (signed) {
+    if (sessions.size >= MAX_SESSIONS) {
+      const firstKey = sessions.keys().next().value;
+      if (firstKey) sessions.delete(firstKey);
+    }
     sessions.set(cleanToken, signed);
     return signed;
   }
+
   const decoded = decodeSupabaseJwt(cleanToken);
   if (decoded) {
+    if (sessions.size >= MAX_SESSIONS) {
+      const firstKey = sessions.keys().next().value;
+      if (firstKey) sessions.delete(firstKey);
+    }
     sessions.set(cleanToken, decoded);
     return decoded;
   }
@@ -479,17 +667,18 @@ function resetTimer(seconds) {
 
 // AUCTION ENGINE
 function startAuctionForPlayer(playerId) {
-  const player = getPlayer(playerId);
+  const normId = playerId != null ? parseInt(playerId, 10) : null;
+  const player = getPlayer(normId != null && !isNaN(normId) ? normId : playerId);
   if (!player) return { error: 'Player not found' };
   if (player.status === 'sold') return { error: 'Player already sold to franchise', code: 'ALREADY_SOLD' };
 
   // If this exact player is already on the hammer, reject duplicate start
-  if ((auction.status === 'live' || auction.status === 'paused') && auction.currentPlayerId === player.id) {
+  if ((auction.status === 'live' || auction.status === 'paused') && String(auction.currentPlayerId) === String(player.id)) {
     return { error: 'Player is already active on the hammer', code: 'ALREADY_ACTIVE' };
   }
 
   // If another lot was active or paused but expired without bids or was idle, clean it up
-  if ((auction.status === 'live' || auction.status === 'paused') && auction.currentPlayerId !== playerId) {
+  if ((auction.status === 'live' || auction.status === 'paused') && String(auction.currentPlayerId) !== String(player.id)) {
     if (auction.timer <= 0 && !auction.leadingTeamId) {
       markUnsold();
     } else {
@@ -553,8 +742,13 @@ function placeBid(teamId, expectedBid) {
     return { error: 'Team not found', code: 'TEAM_NOT_FOUND' };
   }
 
-  // RULE 7: LEADING TEAM CANNOT RE-BID ON SAME LOT
-  if (auction.leadingTeamId === teamId) {
+  // Bid rate limiter defense against rapid automated flooding
+  if (!checkBidRateLimit(team.id)) {
+    return { error: 'Bid rate limit exceeded. Please wait a moment before placing another bid.', code: 'RATE_LIMITED' };
+  }
+
+  // RULE 7: LEADING TEAM CANNOT RE-BID ON SAME LOT (Case-insensitive check)
+  if (auction.leadingTeamId && String(auction.leadingTeamId).trim().toUpperCase() === String(team.id).trim().toUpperCase()) {
     return { error: 'Leading team cannot outbid itself on the same lot.', code: 'ALREADY_LEADING' };
   }
 
@@ -565,6 +759,9 @@ function placeBid(teamId, expectedBid) {
 
   // Anti-race-condition check: if client specified expected bid, ensure it matches
   if (expectedBid != null) {
+    if (typeof expectedBid !== 'number' && typeof expectedBid !== 'string') {
+      return { error: 'Invalid expected bid amount format', code: 'INVALID_BID' };
+    }
     const expectedNum = Number(expectedBid);
     if (isNaN(expectedNum) || !isFinite(expectedNum) || expectedNum <= 0) {
       return { error: 'Invalid expected bid amount', code: 'INVALID_BID' };
@@ -587,8 +784,10 @@ function placeBid(teamId, expectedBid) {
   // - Maximum 15 players
   // - At least 1 Wicketkeeper
   // - At least 3 Bowlers
+  // - Maximum 8 Overseas players
+  const currentSquad = team.players || team.squad || [];
   const maxSlots = team.maxSlots || 15;
-  if (team.filledSlots >= maxSlots) {
+  if (currentSquad.length >= maxSlots) {
     return { error: `Squad is full (maximum ${maxSlots} players reached)`, code: 'SQUAD_FULL' };
   }
 
@@ -600,14 +799,23 @@ function placeBid(teamId, expectedBid) {
     };
   }
 
-  const currentSquad = team.players || team.squad || [];
   const currentWk = currentSquad.filter(p => p.role === 'wicketkeeper').length;
   const currentBowlers = currentSquad.filter(p => p.role === 'bowler').length;
+  const currentOverseas = currentSquad.filter(p => p.overseas).length;
 
   const currentLotPlayer = getPlayer(auction.currentPlayerId);
+
+  // Overseas player quota constraint: maximum 8 overseas players per squad
+  if (currentLotPlayer && currentLotPlayer.overseas && currentOverseas >= 8) {
+    return {
+      error: `Overseas player quota reached: Maximum 8 overseas players allowed per franchise (currently ${currentOverseas}/8).`,
+      code: 'OVERSEAS_LIMIT_REACHED'
+    };
+  }
+
   const nextWk = currentWk + (currentLotPlayer && currentLotPlayer.role === 'wicketkeeper' ? 1 : 0);
   const nextBowlers = currentBowlers + (currentLotPlayer && currentLotPlayer.role === 'bowler' ? 1 : 0);
-  const nextFilledSlots = team.filledSlots + 1;
+  const nextFilledSlots = currentSquad.length + 1;
   const remainingOpenSlots = maxSlots - nextFilledSlots;
 
   const wkNeeded = Math.max(0, 1 - nextWk);
@@ -635,7 +843,7 @@ function placeBid(teamId, expectedBid) {
 
   // Atomically apply the bid
   auction.currentBid = newBid;
-  auction.leadingTeamId = teamId;
+  auction.leadingTeamId = team.id;
   auction.bidIncrement = getBidIncrement(newBid);
 
   const bidRecord = {
@@ -914,12 +1122,24 @@ function resumeAuction() {
 }
 
 // AUTH ROUTES
-app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body;
-  const user = USERS.find(u => u.username.toLowerCase() === (username || '').trim().toLowerCase() && u.password === password);
-  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+app.post('/api/auth/login', checkLoginRateLimit, (req, res) => {
+  const { username, password } = req.body || {};
+  if (!username || typeof username !== 'string' || !password || typeof password !== 'string') {
+    recordLoginFailure(getClientIp(req));
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
 
-  const sessionData = { userId: user.id, role: user.role, teamId: user.teamId, username: user.username };
+  const cleanUser = username.trim().toLowerCase();
+  const user = USERS.find(u => u.username.toLowerCase() === cleanUser && safeComparePassword(password, u.password));
+  if (!user) {
+    recordLoginFailure(getClientIp(req));
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  recordLoginSuccess(getClientIp(req));
+
+  const exp = Date.now() + 24 * 60 * 60 * 1000;
+  const sessionData = { userId: user.id, role: user.role, teamId: user.teamId, username: user.username, exp };
   const token = signSession(sessionData);
   sessions.set(token, sessionData);
 
@@ -1104,11 +1324,17 @@ app.get('/api/auction/activity', requireAuth(['auctioneer']), (req, res) => {
   res.json({ events, total, page, totalPages, limit, latestSequence: eventSequenceCounter });
 });
 
-// AUTHORITATIVE EXPORT ENGINE
+// AUTHORITATIVE EXPORT ENGINE (Formula Injection Hardened - CWE-1236)
 function toCSV(headers, rows) {
+  const FORMULA_CHARS = ['=', '+', '@', '\t', '\r'];
   const escapeCell = (v) => {
     if (v == null) return '""';
-    const s = String(v).replace(/"/g, '""');
+    let s = String(v);
+    // Neutralize spreadsheet formula execution (CWE-1236)
+    if (FORMULA_CHARS.some(char => s.startsWith(char)) || (s.startsWith('-') && !s.startsWith('- (') && !/^-\s*\d/.test(s))) {
+      s = "'" + s;
+    }
+    s = s.replace(/"/g, '""');
     return `"${s}"`;
   };
   const headerLine = headers.map(escapeCell).join(',');
@@ -1364,13 +1590,19 @@ app.post('/api/teams/create', requireAuth(['auctioneer']), (req, res) => {
     return res.status(400).json({ error: 'Maximum franchise limit reached (15 franchises maximum allowed).' });
   }
 
-  const { name, shortName, code, color, purse } = req.body;
-  if (!name || !String(name).trim()) return res.status(400).json({ error: 'Franchise name is required.' });
+  const { name, shortName, code, color, purse } = req.body || {};
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({ error: 'Franchise name is required.' });
+  }
 
-  const cleanName = String(name).replace(/<[^>]*>?/gm, '').trim().toUpperCase();
-  if (!cleanName) return res.status(400).json({ error: 'Franchise name contains invalid characters.' });
+  const cleanName = name.replace(/[<>'"&]/g, '').trim().toUpperCase();
+  if (!cleanName || cleanName.length < 2 || cleanName.length > 50) {
+    return res.status(400).json({ error: 'Franchise name must be between 2 and 50 characters.' });
+  }
 
-  const cleanCode = (code || shortName || cleanName.slice(0, 3)).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const rawCode = (code || shortName || cleanName.slice(0, 3));
+  if (typeof rawCode !== 'string') return res.status(400).json({ error: 'Invalid franchise code format.' });
+  const cleanCode = rawCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (!cleanCode || cleanCode.length < 2 || cleanCode.length > 5) {
     return res.status(400).json({ error: 'Franchise code must be between 2 and 5 alphanumeric characters.' });
   }
@@ -1379,9 +1611,13 @@ app.post('/api/teams/create', requireAuth(['auctioneer']), (req, res) => {
     return res.status(400).json({ error: `A franchise with code ${cleanCode} already exists.` });
   }
 
-  const startingPurse = parseInt(purse) || 12500;
+  const startingPurse = purse !== undefined ? parseInt(purse, 10) : 12500;
+  if (isNaN(startingPurse) || startingPurse < 100 || startingPurse > 50000) {
+    return res.status(400).json({ error: 'Starting purse must be between 100 and 50,000 lakhs (₹1.00 Cr to ₹500.00 Cr).' });
+  }
+
   const currentMaxSlots = teams[0]?.maxSlots || 15;
-  const teamColor = color && /^#[0-9A-Fa-f]{6}$/.test(color.trim()) ? color.trim() : '#C74632';
+  const teamColor = color && typeof color === 'string' && /^#[0-9A-Fa-f]{6}$/.test(color.trim()) ? color.trim() : '#C74632';
 
   const newTeam = {
     id: cleanCode,
@@ -1449,7 +1685,10 @@ app.post('/api/teams/create', requireAuth(['auctioneer']), (req, res) => {
 // Auctioneer extends timer by N seconds
 app.post('/api/auction/timer/add', requireAuth(['auctioneer']), (req, res) => {
   if (auction.status !== 'live') return res.status(400).json({ error: 'Auction is not live' });
-  const seconds = parseInt(req.body.seconds) || 10;
+  const seconds = parseInt(req.body?.seconds, 10) || 10;
+  if (isNaN(seconds) || seconds < 1 || seconds > 60) {
+    return res.status(400).json({ error: 'Invalid seconds parameter. Must be an integer between 1 and 60 seconds.' });
+  }
   auction.timer = Math.min(auction.timer + seconds, 120);
   if (!timerInterval && auction.timer > 0) {
     startTimer(true);
@@ -1464,7 +1703,10 @@ app.post('/api/auction/timer/reset', requireAuth(['auctioneer']), (req, res) => 
   if (auction.status !== 'live' && auction.status !== 'paused') {
     return res.status(400).json({ error: 'Auction is not active' });
   }
-  const seconds = parseInt(req.body.seconds) || auction.maxTimer || 15;
+  const seconds = req.body?.seconds !== undefined ? parseInt(req.body.seconds, 10) : (auction.maxTimer || 15);
+  if (isNaN(seconds) || seconds < 1 || seconds > 120) {
+    return res.status(400).json({ error: 'Invalid seconds parameter. Must be an integer between 1 and 120 seconds.' });
+  }
   auction.timer = seconds;
   if (auction.status === 'live' && (!timerInterval || auction.timer > 0)) {
     startTimer(true);
@@ -1613,13 +1855,13 @@ app.post('/api/auction/gavel', requireAuth(['auctioneer']), (req, res) => {
   if (auction.status !== 'live' && auction.status !== 'paused') {
     return res.status(400).json({ error: 'Auction is not active' });
   }
-  const stage = parseInt(req.body.stage);
-  if (stage >= 0 && stage <= 3) {
+  const stage = parseInt(req.body?.stage, 10);
+  if (Number.isInteger(stage) && stage >= 0 && stage <= 3) {
     auction.gavelStage = stage;
     io.emit('auction:timer', { timer: auction.timer, gavelStage: auction.gavelStage });
     res.json({ success: true, gavelStage: auction.gavelStage });
   } else {
-    res.status(400).json({ error: 'Invalid gavel stage' });
+    res.status(400).json({ error: 'Invalid gavel stage. Must be an integer between 0 and 3.' });
   }
 });
 
@@ -1682,8 +1924,8 @@ app.post('/api/auction/reset', requireAuth(['auctioneer']), (req, res) => {
     t.squad = [];
   });
   logAuctionEvent('AUCTION_RESET', {
-    actor_role: req.user?.role || 'auctioneer',
-    actor_user_id: req.user?.userId || 'auctioneer',
+    actor_role: req.session?.role || 'auctioneer',
+    actor_user_id: req.session?.userId || 'auctioneer',
     metadata: { note: 'Auction reset executed. All sold players returned to available pool, team budgets restored.' }
   });
   saveData();
@@ -1739,8 +1981,8 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
     }
   }
   logAuctionEvent('AUCTION_RESET', {
-    actor_role: req.user?.role || 'auctioneer',
-    actor_user_id: req.user?.userId || 'auctioneer',
+    actor_role: req.session?.role || 'auctioneer',
+    actor_user_id: req.session?.userId || 'auctioneer',
     metadata: { note: 'Complete auction reset. All sold players returned to available pool, team budgets restored.' }
   });
   saveData();
@@ -1762,11 +2004,13 @@ io.on('connection', (socket) => {
 
   // Handle explicit auth message from client
   socket.on('auth', (data, ack) => {
-    const s = checkToken(data?.token);
+    const token = data && typeof data === 'object' ? data.token : data;
+    const s = checkToken(token);
     if (s) {
       socket.session = s;
       if (typeof ack === 'function') ack({ success: true, session: s });
     } else {
+      socket.session = null;
       if (typeof ack === 'function') ack({ success: false, error: 'Invalid or missing authentication token' });
     }
   });
@@ -1789,8 +2033,14 @@ io.on('connection', (socket) => {
 
   // Handle bid via socket (for instant low-latency bidding)
   const handleBid = (data, ack) => {
-    if (socket.session?.role !== 'team_owner') {
+    if (!socket.session || socket.session.role !== 'team_owner' || !socket.session.teamId) {
       const err = { error: 'Only franchise team owners can place bids from their consoles', code: 'UNAUTHORIZED' };
+      if (typeof ack === 'function') ack(err);
+      return socket.emit('error', { message: err.error, code: err.code });
+    }
+
+    if (data != null && typeof data !== 'object') {
+      const err = { error: 'Invalid bid payload format', code: 'INVALID_PAYLOAD' };
       if (typeof ack === 'function') ack(err);
       return socket.emit('error', { message: err.error, code: err.code });
     }
@@ -1809,7 +2059,7 @@ io.on('connection', (socket) => {
   socket.on('bid:place', handleBid);
 
   socket.on('disconnect', () => {
-    // cleanup if needed
+    socket.session = null;
   });
 });
 
@@ -1962,6 +2212,27 @@ app.use((req, res) => {
   </div>
 </body>
 </html>`);
+});
+
+// CENTRALIZED ERROR HANDLER (Prevents unhandled crashes and info leaks)
+app.use((err, req, res, next) => {
+  console.error('Unhandled server error:', err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  const isApi = req.path.startsWith('/api');
+  if (isApi) {
+    return res.status(500).json({ error: 'Internal Server Error', code: 'SERVER_ERROR' });
+  }
+  res.status(500).send('500 - Internal Server Error');
+});
+
+// PROCESS CRASH SAFETY NET
+process.on('uncaughtException', (err) => {
+  console.error('CRITICAL: Uncaught Exception intercepted by process guard:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('CRITICAL: Unhandled Promise Rejection at:', promise, 'reason:', reason);
 });
 
 // START SERVER

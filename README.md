@@ -165,6 +165,7 @@ flowchart TD
 │   ├── test_timer_and_resolution.js    # Timer expiration, bid cutoff, auto-sold/unsold, and CSV BOM
 │   ├── test_captain_retention.js       # IPL 2026 Captain Retention, squad locks, & hammer guards
 │   ├── test_supabase_architecture.js   # Supabase RLS, FOR UPDATE locking, & Edge Functions
+│   ├── test_security_and_backend_hardening.js # Security headers, RBAC, JWT verification & quota enforcement
 │   ├── test_final_audit.js             # Route security, RBAC guards, and data integrity
 │   ├── test_ipl_rules_demo.js          # Tiered increments, Rule 7, & purse deduction rules
 │   └── ...                             # Full E2E & concurrency test scripts

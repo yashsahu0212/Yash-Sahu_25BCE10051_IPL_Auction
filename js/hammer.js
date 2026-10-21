@@ -236,6 +236,9 @@
 
       _token = data.session.access_token;
       localStorage.setItem('hammer_token', _token);
+      try {
+        document.cookie = 'hammer_token=' + encodeURIComponent(_token) + '; path=/; max-age=86400; SameSite=Lax';
+      } catch (e) {}
       return { token: _token, user: _user };
     },
 
@@ -244,6 +247,12 @@
       if (sb) {
         try { await sb.auth.signOut(); } catch (e) { /* ignore */ }
       }
+      _token = null;
+      _user = null;
+      localStorage.removeItem('hammer_token');
+      try {
+        document.cookie = 'hammer_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      } catch (e) {}
     },
 
     async me() {

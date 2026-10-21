@@ -2056,6 +2056,33 @@ app.post('/api/supabase/sync', requireAuth(['auctioneer']), async (req, res) => 
   res.json({ success: true, message: 'Supabase database synchronized successfully', status });
 });
 
+// PRODUCTION HEALTH CHECK ENDPOINTS
+const getHealthStatus = () => {
+  const mem = process.memoryUsage();
+  return {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: Math.round(process.uptime() * 10) / 10,
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'production',
+    supabase: {
+      configured: supabaseService.isConfigured(),
+      connected: supabaseService.isConnected
+    },
+    connections: {
+      activeSockets: io ? (io.engine?.clientsCount || 0) : 0
+    },
+    memory: {
+      rssMB: Math.round(mem.rss / 1024 / 1024 * 10) / 10,
+      heapUsedMB: Math.round(mem.heapUsed / 1024 / 1024 * 10) / 10
+    }
+  };
+};
+
+app.get(['/health', '/api/health'], (req, res) => {
+  res.json(getHealthStatus());
+});
+
 // SOCKET.IO
 io.on('connection', (socket) => {
   // Authenticate socket connection
@@ -2295,6 +2322,24 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, promise) => {
   console.error('CRITICAL: Unhandled Promise Rejection at:', promise, 'reason:', reason);
 });
+
+// GRACEFUL SHUTDOWN (DOCKER / CLOUD CONTAINER SAFETY)
+function gracefulShutdown(signal) {
+  console.log(`\n[SHUTDOWN] Intercepted ${signal}. Flushing atomic data stores...`);
+  stopTimer();
+  saveData();
+  server.close(() => {
+    console.log('[SHUTDOWN] HTTP server closed gracefully.');
+    process.exit(0);
+  });
+  setTimeout(() => {
+    console.error('[SHUTDOWN] Forced shutdown after timeout.');
+    process.exit(1);
+  }, 5000).unref();
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // START SERVER
 const PORT = process.env.PORT || 3000;

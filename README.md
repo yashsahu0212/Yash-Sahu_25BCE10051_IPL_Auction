@@ -196,6 +196,34 @@ cp .env.example .env
 
 ---
 
+## 🗄️ Supabase Production Database Setup (Schema Visualizer, Triggers & Realtime)
+
+HAMMER includes a unified, production-grade PostgreSQL migration that creates the complete relational database, triggers, stored procedures, RLS policies, and realtime broadcast pipelines.
+
+### Option A: One-Click Supabase Dashboard Setup (Recommended)
+1. Open your Supabase Project: **[https://supabase.com/dashboard](https://supabase.com/dashboard)**
+2. Navigate to the **SQL Editor** in the left sidebar.
+3. Open `backend/master_production_schema.sql` from this repository, copy the entire SQL script, and paste it into the SQL Editor.
+4. Click **Run**.
+5. Once completed:
+   - **Schema Visualizer** (`Database -> Schema Visualizer`): Visualizes all 8 interconnected tables with foreign key relationship arrows (`teams`, `profiles`, `players`, `auctions`, `bids`, `team_squads`, `auction_history`, `auction_events`).
+   - **Database Triggers** (`Database -> Triggers`): 8 active triggers automate timestamp updates, team purse/slot recalculation on squad edits, real-time bid audit logging, lot status transition auditing, and user profile creation.
+   - **Functions / Stored Procedures** (`Database -> Functions`): 17 stored procedures enforce BCCI auction business logic, pessimistic row locks (`SELECT FOR UPDATE`), and atomic resolutions.
+   - **Table Editor** (`Table Editor`): Populated with all 10 IPL franchises (₹125 Cr purse), active auction state, and all 73 official IPL cricketers with reserve prices and match statistics.
+
+### Option B: Automatic Sync & Background Persistence via Node.js
+If `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (or `SUPABASE_ANON_KEY`) are present in `.env`:
+```bash
+# Check current database status and row counts
+npm run db:status
+
+# Synchronize 10 franchises and 73 player profiles directly to Supabase
+npm run db:push
+```
+When running the server (`npm start`), the background service (`backend/supabase-service.js`) automatically persists every live bid, lot opening, hammer resolution (SOLD / UNSOLD), and captain retention directly to Supabase tables in the background with zero lag to WebSocket clients.
+
+---
+
 ## 🏃 Quick Start & How to Run
 
 ### Step 1: Clone the Repository

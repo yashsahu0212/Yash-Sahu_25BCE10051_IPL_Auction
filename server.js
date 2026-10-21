@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -5,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
+const supabaseService = require('./backend/supabase-service');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -716,6 +718,13 @@ function startAuctionForPlayer(playerId) {
     }
   });
 
+  supabaseService.recordLotStarted({
+    player,
+    timer: auction.timer,
+    maxTimer: auction.maxTimer,
+    lotIndex: auction.lotIndex
+  });
+
   io.emit('auction:started', state);
   io.emit('auction:state', state);
   io.emit('auction:timer', {
@@ -877,6 +886,14 @@ function placeBid(teamId, expectedBid) {
     }
   });
 
+  supabaseService.recordBid({
+    playerId: auction.currentPlayerId,
+    teamId,
+    amount: newBid,
+    timer: auction.timer,
+    bidIncrement: auction.bidIncrement
+  });
+
   io.emit('auction:timer', {
     timer: auction.timer,
     maxTimer: auction.maxTimer,
@@ -964,6 +981,13 @@ function markSold() {
   auction.timer = 0;
 
   saveData();
+  supabaseService.recordLotSold({
+    player,
+    winnerTeamId: team.id,
+    amount: player.soldPrice,
+    bidHistory: auctionHistory[auctionHistory.length - 1]?.bidHistory || [],
+    lotIndex: player.lotNumber || auction.lotIndex
+  });
   const state = getPublicAuctionState();
 
   logAuctionEvent('LOT_SOLD', {
@@ -1055,6 +1079,11 @@ function markUnsold() {
   auction.timer = 0;
 
   saveData();
+  supabaseService.recordLotUnsold({
+    player,
+    bidHistory: auctionHistory[auctionHistory.length - 1]?.bidHistory || [],
+    lotIndex: player ? player.lotNumber : auction.lotIndex
+  });
   const state = getPublicAuctionState();
 
   logAuctionEvent('LOT_UNSOLD', {
@@ -1089,6 +1118,7 @@ function pauseAuction() {
   });
   io.emit('auction:paused', state);
   io.emit('auction:state', state);
+  supabaseService.recordPauseResume('paused');
   io.emit('auction:timer', {
     timer: auction.timer,
     maxTimer: auction.maxTimer,
@@ -1109,6 +1139,7 @@ function resumeAuction() {
     player_id: auction.currentPlayerId,
     actor_role: 'auctioneer'
   });
+  supabaseService.recordPauseResume('live');
   io.emit('auction:resumed', state);
   io.emit('auction:state', state);
   io.emit('auction:timer', {
@@ -1785,6 +1816,13 @@ function toggleCaptainRetention(enable) {
         if (!team.players) team.players = [];
         team.players.push(item);
         team.squad = team.players;
+
+        supabaseService.recordCaptainRetention({
+          teamId: team.id,
+          playerId: player.id,
+          price: cap.price,
+          player
+        });
       }
     } else {
       if (player && (player.isRetained || player.isCaptain)) {
@@ -1929,6 +1967,7 @@ app.post('/api/auction/reset', requireAuth(['auctioneer']), (req, res) => {
     metadata: { note: 'Auction reset executed. All sold players returned to available pool, team budgets restored.' }
   });
   saveData();
+  supabaseService.recordReset();
   const state = getPublicAuctionState();
   io.emit('auction:reset', state);
   io.emit('auction:state', state);
@@ -1986,6 +2025,7 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
     metadata: { note: 'Complete auction reset. All sold players returned to available pool, team budgets restored.' }
   });
   saveData();
+  supabaseService.recordReset();
   const state = getPublicAuctionState();
   io.emit('auction:reset', state);
   io.emit('auction:state', state);
@@ -1993,6 +2033,27 @@ app.post('/api/auction/reset-all', requireAuth(['auctioneer']), (req, res) => {
   io.emit('teams:update', teams);
   io.emit('players:update', players);
   res.json({ success: true, state });
+});
+
+// SUPABASE DATABASE CLOUD SYNC & CONFIG ENDPOINTS
+app.get('/api/config/supabase', (req, res) => {
+  res.json({
+    url: process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || null,
+    anonKey: process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || null,
+    isConfigured: supabaseService.isConfigured(),
+    isConnected: supabaseService.isConnected
+  });
+});
+
+app.get('/api/supabase/status', async (req, res) => {
+  const status = await supabaseService.getStatus();
+  res.json(status);
+});
+
+app.post('/api/supabase/sync', requireAuth(['auctioneer']), async (req, res) => {
+  await supabaseService.seedFromLocalFiles();
+  const status = await supabaseService.getStatus();
+  res.json({ success: true, message: 'Supabase database synchronized successfully', status });
 });
 
 // SOCKET.IO

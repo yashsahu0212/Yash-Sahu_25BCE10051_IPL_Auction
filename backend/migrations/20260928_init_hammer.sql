@@ -692,6 +692,137 @@ BEGIN
 END;
 $$;
 
+-- 7. CAPTAIN RETENTION ENGINE
+CREATE OR REPLACE FUNCTION public.fn_retain_captain(p_team_id TEXT, p_player_id INT, p_retention_price INT DEFAULT 200)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_player RECORD;
+BEGIN
+    SELECT * INTO v_player FROM public.players WHERE id = p_player_id;
+    IF v_player IS NULL THEN
+        RAISE EXCEPTION 'Player #% not found', p_player_id;
+    END IF;
+
+    -- Add to team squad
+    INSERT INTO public.team_squads (team_id, player_id, sold_price)
+    VALUES (p_team_id, p_player_id, p_retention_price)
+    ON CONFLICT (team_id, player_id) DO UPDATE SET sold_price = EXCLUDED.sold_price;
+
+    -- Mark player as sold
+    UPDATE public.players
+    SET status = 'sold', sold_to = p_team_id, sold_price = p_retention_price, updated_at = now()
+    WHERE id = p_player_id;
+
+    RETURN jsonb_build_object('success', true, 'team_id', p_team_id, 'player_id', p_player_id, 'price', p_retention_price);
+END;
+$$;
+
+-- 8. TRIGGER FUNCTIONS & AUTOMATIC AUDIT TRAILS
+CREATE OR REPLACE FUNCTION public.fn_update_timestamp()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.fn_sync_team_metrics()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_team_id TEXT;
+    v_total_spent INT;
+    v_slots_count INT;
+    v_starting_purse INT := 12500;
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        v_team_id := OLD.team_id;
+    ELSE
+        v_team_id := NEW.team_id;
+    END IF;
+
+    SELECT COALESCE(SUM(sold_price), 0), COUNT(*)
+    INTO v_total_spent, v_slots_count
+    FROM public.team_squads
+    WHERE team_id = v_team_id;
+
+    UPDATE public.teams
+    SET spent = v_total_spent,
+        remaining = v_starting_purse - v_total_spent,
+        purse = v_starting_purse - v_total_spent,
+        filled_slots = v_slots_count,
+        updated_at = now()
+    WHERE id = v_team_id;
+
+    RETURN NULL;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.fn_handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_username TEXT;
+    v_role TEXT;
+    v_team_id TEXT;
+BEGIN
+    v_username := COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1));
+    v_role := COALESCE(NEW.raw_user_meta_data->>'role', 'viewer');
+    v_team_id := NEW.raw_user_meta_data->>'teamId';
+
+    INSERT INTO public.profiles (id, email, username, role, team_id)
+    VALUES (NEW.id, NEW.email, v_username, v_role, v_team_id)
+    ON CONFLICT (id) DO UPDATE SET
+        email = EXCLUDED.email,
+        username = EXCLUDED.username,
+        role = EXCLUDED.role,
+        team_id = EXCLUDED.team_id,
+        updated_at = now();
+
+    RETURN NEW;
+END;
+$$;
+
+-- DATABASE TRIGGERS
+DROP TRIGGER IF EXISTS trg_teams_updated_at ON public.teams;
+CREATE TRIGGER trg_teams_updated_at
+BEFORE UPDATE ON public.teams
+FOR EACH ROW EXECUTE FUNCTION public.fn_update_timestamp();
+
+DROP TRIGGER IF EXISTS trg_players_updated_at ON public.players;
+CREATE TRIGGER trg_players_updated_at
+BEFORE UPDATE ON public.players
+FOR EACH ROW EXECUTE FUNCTION public.fn_update_timestamp();
+
+DROP TRIGGER IF EXISTS trg_auctions_updated_at ON public.auctions;
+CREATE TRIGGER trg_auctions_updated_at
+BEFORE UPDATE ON public.auctions
+FOR EACH ROW EXECUTE FUNCTION public.fn_update_timestamp();
+
+DROP TRIGGER IF EXISTS trg_profiles_updated_at ON public.profiles;
+CREATE TRIGGER trg_profiles_updated_at
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW EXECUTE FUNCTION public.fn_update_timestamp();
+
+DROP TRIGGER IF EXISTS trg_sync_team_metrics_mod ON public.team_squads;
+CREATE TRIGGER trg_sync_team_metrics_mod
+AFTER INSERT OR UPDATE OR DELETE ON public.team_squads
+FOR EACH ROW EXECUTE FUNCTION public.fn_sync_team_metrics();
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.fn_handle_new_user();
+
 -- Realtime publication registration
 DO $$
 BEGIN

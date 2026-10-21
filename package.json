@@ -7,7 +7,9 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test": "node tests/test_timer_and_resolution.js && node tests/test_captain_retention.js && node tests/test_supabase_architecture.js && node tests/test_security_and_backend_hardening.js",
-    "test:audit": "node tests/test_supabase_architecture.js"
+    "test:audit": "node tests/test_supabase_architecture.js && node tests/test_production_supabase_engine.js",
+    "db:status": "node backend/apply-supabase.js status",
+    "db:push": "node backend/apply-supabase.js sync"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

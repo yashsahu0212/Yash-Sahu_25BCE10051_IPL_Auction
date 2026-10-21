@@ -58,6 +58,21 @@
   // Attempt initial client creation
   initClient();
 
+  // Auto-discover credentials from backend if unconfigured in browser
+  if (!SUPABASE_CONFIG.isConfigured() && typeof fetch === 'function') {
+    fetch('/api/config/supabase')
+      .then(res => res.ok ? res.json() : null)
+      .then(cfg => {
+        if (cfg && cfg.url && cfg.anonKey && cfg.isConfigured) {
+          SUPABASE_CONFIG.url = cfg.url;
+          SUPABASE_CONFIG.anonKey = cfg.anonKey;
+          initClient();
+          console.log('[HAMMER] Supabase auto-configured from backend credentials.');
+        }
+      })
+      .catch(() => {});
+  }
+
   window.SUPABASE_CONFIG = SUPABASE_CONFIG;
   window.getSupabaseClient = function() {
     if (!client) client = initClient();

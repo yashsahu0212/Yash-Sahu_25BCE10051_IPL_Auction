@@ -110,7 +110,78 @@ BEGIN
 END;
 $$;
 
--- 6. ADD TO SUPABASE REALTIME REPLICATION (For instant broadcast)
+-- 6. AUTOMATIC EVENT AUDIT TRIGGERS
+CREATE OR REPLACE FUNCTION public.fn_audit_bid_placed()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    INSERT INTO public.auction_events (
+        auction_id,
+        player_id,
+        event_type,
+        actor_team_id,
+        actor_role,
+        amount_lakh,
+        metadata
+    ) VALUES (
+        NEW.auction_id,
+        NEW.player_id,
+        'BID_PLACED',
+        NEW.team_id,
+        'team_owner',
+        NEW.amount,
+        jsonb_build_object('bid_id', NEW.id, 'placed_at', NEW.created_at)
+    );
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.fn_audit_player_status_change()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    IF NEW.status = 'on_hammer' AND (OLD.status IS NULL OR OLD.status != 'on_hammer') THEN
+        INSERT INTO public.auction_events (
+            auction_id, lot_id, player_id, event_type, actor_role, amount_lakh, metadata
+        ) VALUES (
+            1, NEW.lot_number, NEW.id, 'LOT_OPENED', 'auctioneer', NEW.base_price,
+            jsonb_build_object('name', NEW.name, 'role', NEW.role, 'basePrice', NEW.base_price)
+        );
+    ELSIF NEW.status = 'sold' AND (OLD.status IS NULL OR OLD.status != 'sold') THEN
+        INSERT INTO public.auction_events (
+            auction_id, lot_id, player_id, event_type, actor_team_id, actor_role, amount_lakh, metadata
+        ) VALUES (
+            1, NEW.lot_number, NEW.id, 'LOT_SOLD', NEW.sold_to, 'auctioneer', COALESCE(NEW.sold_price, 0),
+            jsonb_build_object('name', NEW.name, 'soldTo', NEW.sold_to, 'soldPrice', NEW.sold_price)
+        );
+    ELSIF NEW.status = 'unsold' AND (OLD.status IS NULL OR OLD.status != 'unsold') THEN
+        INSERT INTO public.auction_events (
+            auction_id, lot_id, player_id, event_type, actor_role, amount_lakh, metadata
+        ) VALUES (
+            1, NEW.lot_number, NEW.id, 'LOT_UNSOLD', 'auctioneer', NEW.base_price,
+            jsonb_build_object('name', NEW.name, 'basePrice', NEW.base_price)
+        );
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_audit_bid ON public.bids;
+CREATE TRIGGER trg_audit_bid
+AFTER INSERT ON public.bids
+FOR EACH ROW EXECUTE FUNCTION public.fn_audit_bid_placed();
+
+DROP TRIGGER IF EXISTS trg_audit_player_status ON public.players;
+CREATE TRIGGER trg_audit_player_status
+AFTER UPDATE OF status ON public.players
+FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status)
+EXECUTE FUNCTION public.fn_audit_player_status_change();
+
+-- 7. ADD TO SUPABASE REALTIME REPLICATION (For instant broadcast)
 DO $$
 BEGIN
     IF EXISTS (
@@ -125,3 +196,4 @@ BEGIN
         END;
     END IF;
 END $$;
+

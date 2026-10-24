@@ -286,16 +286,16 @@ let auction = {
 
 // OFFICIAL 2026 FRANCHISE CAPTAINS & MARQUEE LEADERS
 const FRANCHISE_CAPTAINS_2026 = [
-  { teamId: 'CSK', playerId: 12, playerName: 'MS DHONI', role: 'wicketkeeper', roleLabel: 'WICKETKEEPER BATTER', overseas: false, price: 200, lotNumber: 12 },
-  { teamId: 'MI',  playerId: 13, playerName: 'HARDIK PANDYA', role: 'allrounder', roleLabel: 'SEAM-BOWLING ALLROUNDER', overseas: false, price: 200, lotNumber: 13 },
-  { teamId: 'RCB', playerId: 1,  playerName: 'VIRAT KOHLI', role: 'batter', roleLabel: 'TOP-ORDER BATTER', overseas: false, price: 200, lotNumber: 1 },
-  { teamId: 'GT',  playerId: 4,  playerName: 'SHUBMAN GILL', role: 'batter', roleLabel: 'OPENING BATTER', overseas: false, price: 200, lotNumber: 4 },
-  { teamId: 'RR',  playerId: 9,  playerName: 'SANJU SAMSON', role: 'wicketkeeper', roleLabel: 'WICKETKEEPER TOP-ORDER', overseas: false, price: 200, lotNumber: 9 },
-  { teamId: 'SRH', playerId: 20, playerName: 'PAT CUMMINS', role: 'bowler', roleLabel: 'PACE BOWLING CAPTAIN', overseas: true, price: 200, lotNumber: 20 },
-  { teamId: 'DC',  playerId: 18, playerName: 'AXAR PATEL', role: 'allrounder', roleLabel: 'SPIN-BOWLING ALLROUNDER', overseas: false, price: 200, lotNumber: 18 },
-  { teamId: 'LSG', playerId: 11, playerName: 'NICHOLAS POORAN', role: 'wicketkeeper', roleLabel: 'EXPLOSIVE WICKETKEEPER', overseas: true, price: 200, lotNumber: 11 },
-  { teamId: 'KKR', playerId: 29, playerName: 'RINKU SINGH', role: 'batter', roleLabel: 'MIDDLE-ORDER FINISHER', overseas: false, price: 200, lotNumber: 38 },
-  { teamId: 'PBKS', playerId: 24, playerName: 'ARSHDEEP SINGH', role: 'bowler', roleLabel: 'LEFT-ARM SPEEDSTER', overseas: false, price: 200, lotNumber: 24 }
+  { teamId: 'CSK', teamCode: 'CSK', playerId: 12, playerName: 'MS DHONI', role: 'wicketkeeper', roleLabel: 'WICKETKEEPER BATTER', overseas: false, price: 200, lotNumber: 12 },
+  { teamId: 'MI',  teamCode: 'MI',  playerId: 13, playerName: 'HARDIK PANDYA', role: 'allrounder', roleLabel: 'SEAM-BOWLING ALLROUNDER', overseas: false, price: 200, lotNumber: 13 },
+  { teamId: 'RCB', teamCode: 'RCB', playerId: 1,  playerName: 'VIRAT KOHLI', role: 'batter', roleLabel: 'TOP-ORDER BATTER', overseas: false, price: 200, lotNumber: 1 },
+  { teamId: 'GT',  teamCode: 'GT',  playerId: 4,  playerName: 'SHUBMAN GILL', role: 'batter', roleLabel: 'OPENING BATTER', overseas: false, price: 200, lotNumber: 4 },
+  { teamId: 'RR',  teamCode: 'RR',  playerId: 9,  playerName: 'SANJU SAMSON', role: 'wicketkeeper', roleLabel: 'WICKETKEEPER TOP-ORDER', overseas: false, price: 200, lotNumber: 9 },
+  { teamId: 'SRH', teamCode: 'SRH', playerId: 20, playerName: 'PAT CUMMINS', role: 'bowler', roleLabel: 'PACE BOWLING CAPTAIN', overseas: true, price: 200, lotNumber: 20 },
+  { teamId: 'DC',  teamCode: 'DC',  playerId: 18, playerName: 'AXAR PATEL', role: 'allrounder', roleLabel: 'SPIN-BOWLING ALLROUNDER', overseas: false, price: 200, lotNumber: 18 },
+  { teamId: 'LSG', teamCode: 'LSG', playerId: 11, playerName: 'NICHOLAS POORAN', role: 'wicketkeeper', roleLabel: 'EXPLOSIVE WICKETKEEPER', overseas: true, price: 200, lotNumber: 11 },
+  { teamId: 'KKR', teamCode: 'KKR', playerId: 29, playerName: 'RINKU SINGH', role: 'batter', roleLabel: 'MIDDLE-ORDER FINISHER', overseas: false, price: 200, lotNumber: 38 },
+  { teamId: 'PBKS', teamCode: 'PBKS', playerId: 24, playerName: 'ARSHDEEP SINGH', role: 'bowler', roleLabel: 'LEFT-ARM SPEEDSTER', overseas: false, price: 200, lotNumber: 24 }
 ];
 
 let auctionHistory = [];    // completed lots: { player, soldTo, soldPrice, bidHistory, timestamp }
@@ -423,7 +423,13 @@ try {
 
 function getPlayer(id) {
   if (id == null) return null;
-  const p = players.find(x => String(x.id) === String(id) || String(x.lotNumber) === String(id));
+  const strId = String(id).trim();
+  // Primary lookup: exact match on player id (prevents collision where player id matches another player's lotNumber)
+  let p = players.find(x => String(x.id) === strId);
+  // Secondary fallback: lookup by lotNumber if no exact id match exists
+  if (!p) {
+    p = players.find(x => String(x.lotNumber) === strId);
+  }
   if (p && !p.image) {
     p.image = playerImageMap[p.name] || playerImageMap[p.displayName] || null;
     p.imageUrl = p.image;
@@ -960,14 +966,16 @@ function markSold() {
   updateAllTeamPurses();
 
   // Record history
+  const bidsCount = auction.bidHistory.length;
+  const lotBidHistory = [...auction.bidHistory];
   auctionHistory.push({
     player: { id: player.id, name: player.name, role: player.role, lotNumber: player.lotNumber },
     result: 'sold',
     soldTo: { id: team.id, name: team.name, shortName: team.shortName },
     soldPrice: auction.currentBid,
     basePrice: auction.basePrice,
-    bidCount: auction.bidHistory.length,
-    bidHistory: [...auction.bidHistory],
+    bidCount: bidsCount,
+    bidHistory: lotBidHistory,
     timestamp: Date.now()
   });
 
@@ -985,7 +993,7 @@ function markSold() {
     player,
     winnerTeamId: team.id,
     amount: player.soldPrice,
-    bidHistory: auctionHistory[auctionHistory.length - 1]?.bidHistory || [],
+    bidHistory: lotBidHistory,
     lotIndex: player.lotNumber || auction.lotIndex
   });
   const state = getPublicAuctionState();
@@ -1001,7 +1009,7 @@ function markSold() {
     previous_amount_lakh: auction.basePrice,
     metadata: {
       soldTo: team.shortName,
-      bidsCount: playerItem.price ? auctionHistory[auctionHistory.length - 1]?.bidCount : 0
+      bidsCount: bidsCount
     }
   });
 
@@ -1056,6 +1064,8 @@ function markUnsold() {
   }
 
   // Record history
+  const bidsCount = auction.bidHistory.length;
+  const lotBidHistory = [...auction.bidHistory];
   if (player) {
     auctionHistory.push({
       player: { id: player.id, name: player.name, role: player.role, lotNumber: player.lotNumber },
@@ -1063,8 +1073,8 @@ function markUnsold() {
       soldTo: null,
       soldPrice: null,
       basePrice: auction.basePrice,
-      bidCount: auction.bidHistory.length,
-      bidHistory: [...auction.bidHistory],
+      bidCount: bidsCount,
+      bidHistory: lotBidHistory,
       timestamp: Date.now()
     });
   }
@@ -1081,7 +1091,7 @@ function markUnsold() {
   saveData();
   supabaseService.recordLotUnsold({
     player,
-    bidHistory: auctionHistory[auctionHistory.length - 1]?.bidHistory || [],
+    bidHistory: lotBidHistory,
     lotIndex: player ? player.lotNumber : auction.lotIndex
   });
   const state = getPublicAuctionState();
@@ -1093,7 +1103,7 @@ function markUnsold() {
     actor_role: 'auctioneer',
     amount_lakh: auction.basePrice,
     metadata: {
-      bidsCount: auction.bidHistory ? auction.bidHistory.length : 0
+      bidsCount: bidsCount
     }
   });
 

@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "HAMMER Auction",
+    "slug": "hammer-auction",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#211C17",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hammer.auction"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#211C17"
+      },
+      "package": "com.hammer.auction"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

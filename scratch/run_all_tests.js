@@ -34,7 +34,8 @@ async function main() {
       'tests/test_pause_resume_squad_and_rbac.js',
       'tests/test_competition_features_e2e.js',
       'tests/test_team_console_auth_matrix.js',
-      'tests/test_final_audit.js'
+      'tests/test_final_audit.js',
+      'tests/test_mobile_realtime_sync.js'
     ];
 
     for (const testFile of testFiles) {

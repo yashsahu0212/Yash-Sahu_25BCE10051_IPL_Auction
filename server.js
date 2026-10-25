@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const os = require('os');
 const cookieParser = require('cookie-parser');
 const supabaseService = require('./backend/supabase-service');
 
@@ -20,6 +21,17 @@ const io = new Server(server, {
     origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
     methods: ['GET', 'POST']
   }
+});
+
+// CORS SUPPORT (Enables seamless Mobile App, React Native, and cross-device communication)
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
 });
 
 // SECURITY HEADERS MIDDLEWARE
@@ -1907,6 +1919,7 @@ app.post('/api/auction/gavel', requireAuth(['auctioneer']), (req, res) => {
   if (Number.isInteger(stage) && stage >= 0 && stage <= 3) {
     auction.gavelStage = stage;
     io.emit('auction:timer', { timer: auction.timer, gavelStage: auction.gavelStage });
+    io.emit('auction:state', getPublicAuctionState());
     res.json({ success: true, gavelStage: auction.gavelStage });
   } else {
     res.status(400).json({ error: 'Invalid gavel stage. Must be an integer between 0 and 3.' });
@@ -2089,6 +2102,31 @@ const getHealthStatus = () => {
   };
 };
 
+function getNetworkIp() {
+  try {
+    const nets = os.networkInterfaces();
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          return net.address;
+        }
+      }
+    }
+  } catch (e) {}
+  return 'localhost';
+}
+
+app.get(['/api/network-info', '/api/network'], (req, res) => {
+  const ip = getNetworkIp();
+  res.json({
+    ip,
+    port: PORT,
+    localUrl: `http://localhost:${PORT}`,
+    networkUrl: `http://${ip}:${PORT}`,
+    mobileAppUrl: `http://${ip}:${PORT}/mobile`
+  });
+});
+
 app.get(['/health', '/api/health'], (req, res) => {
   res.json(getHealthStatus());
 });
@@ -2233,7 +2271,12 @@ const teamConsoleGuard = (req, res) => {
 };
 app.get(['/team-console', '/team-console.html'], teamConsoleGuard);
 
-// 8. Profile / Avatar Routing
+// 8. Mobile App Client (Native-feel touch interface for Mobile / PWA)
+app.get(['/mobile', '/mobile.html', '/app'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'mobile.html'));
+});
+
+// 9. Profile / Avatar Routing
 const profileHandler = (req, res) => {
   const session = getSession(req);
   if (!session) {
@@ -2354,20 +2397,23 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 // START SERVER
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`\n  ╔══════════════════════════════════════════════╗`);
-  console.log(`  ║  HAMMER — REALTIME AUCTION CONTROL ENGINE    ║`);
-  console.log(`  ║  Server running on http://localhost:${PORT}      ║`);
-  console.log(`  ╠══════════════════════════════════════════════╣`);
-  console.log(`  ║  Live Board:    http://localhost:${PORT}/          ║`);
-  console.log(`  ║  Player Pool:   http://localhost:${PORT}/player-pool.html ║`);
-  console.log(`  ║  Auction Desk:  http://localhost:${PORT}/auction-desk.html║`);
-  console.log(`  ║  Team Console:  http://localhost:${PORT}/team-console.html║`);
-  console.log(`  ║  Lot Replay:    http://localhost:${PORT}/lot-replay.html  ║`);
-  console.log(`  ║  Activity Log:  http://localhost:${PORT}/activity-log.html║`);
-  console.log(`  ║  Final Squads:  http://localhost:${PORT}/final-squads.html║`);
-  console.log(`  ║  Login:         http://localhost:${PORT}/login.html       ║`);
-  console.log(`  ╠══════════════════════════════════════════════╣`);
-  console.log(`  ║  Players loaded: ${players.length.toString().padEnd(27)}║`);
-  console.log(`  ║  Teams loaded:   ${teams.length.toString().padEnd(27)}║`);
-  console.log(`  ╚══════════════════════════════════════════════╝\n`);
+  const netIp = getNetworkIp();
+  console.log(`\n  ╔══════════════════════════════════════════════════════════╗`);
+  console.log(`  ║  HAMMER — REALTIME AUCTION CONTROL ENGINE                ║`);
+  console.log(`  ║  Local Server:  http://localhost:${PORT}                      ║`);
+  console.log(`  ║  Network LAN:   http://${netIp}:${PORT}               ║`);
+  console.log(`  ╠══════════════════════════════════════════════════════════╣`);
+  console.log(`  ║  Live Board:    http://localhost:${PORT}/                      ║`);
+  console.log(`  ║  Mobile App:    http://${netIp}:${PORT}/mobile            ║`);
+  console.log(`  ║  Player Pool:   http://localhost:${PORT}/player-pool.html      ║`);
+  console.log(`  ║  Auction Desk:  http://localhost:${PORT}/auction-desk.html    ║`);
+  console.log(`  ║  Team Console:  http://localhost:${PORT}/team-console.html    ║`);
+  console.log(`  ║  Lot Replay:    http://localhost:${PORT}/lot-replay.html      ║`);
+  console.log(`  ║  Activity Log:  http://localhost:${PORT}/activity-log.html    ║`);
+  console.log(`  ║  Final Squads:  http://localhost:${PORT}/final-squads.html    ║`);
+  console.log(`  ║  Login:         http://localhost:${PORT}/login.html           ║`);
+  console.log(`  ╠══════════════════════════════════════════════════════════╣`);
+  console.log(`  ║  Players loaded: ${players.length.toString().padEnd(39)}║`);
+  console.log(`  ║  Teams loaded:   ${teams.length.toString().padEnd(39)}║`);
+  console.log(`  ╚══════════════════════════════════════════════════════════╝\n`);
 });

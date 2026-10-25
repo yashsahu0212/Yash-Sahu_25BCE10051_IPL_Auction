@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="theme-color" content="#161310"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <title>HAMMER • IPL Auction Mobile</title>
+
+  <!-- Google Fonts: Newsreader (Editorial Serif) & Courier Prime (Monospace Ledger) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400..800;1,6..72,400..700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg: #161310;
+      --surface: #201B16;
+      --surface-high: #2B241E;
+      --surface-card: #251F19;
+      --border: #3F352A;
+      --border-light: #594B3B;
+      --gold: #D4AF37;
+      --gold-muted: #A88647;
+      --gold-dark: #74571D;
+      --crimson: #A13D3B;
+      --crimson-muted: #8F302F;
+      --green: #2E7D32;
+      --paused: #D48806;
+      --text: #FBF5EE;
+      --text-sec: #D1C5B4;
+      --text-muted: #948777;
+      --text-inv: #161310;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Courier Prime', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-bottom: 65px;
+    }
+
+    /* TOP HEADER */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .live-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #14110E;
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 2px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #EF4444;
+    }
+
+    .live-dot.connected {
+      background: #10B981;
+    }
+
+    .live-text {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-sec);
+      letter-spacing: 0.5px;
+    }
+
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .user-tag {
+      background: var(--surface-high);
+      border: 1px solid var(--gold-muted);
+      color: var(--gold);
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 800;
+      border-radius: 2px;
+    }
+
+    /* BOTTOM NAVIGATION */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 58px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 50;
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .nav-btn.active {
+      color: var(--gold);
+      border-top: 2px solid var(--gold);
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .nav-icon {
+      font-size: 17px;
+      margin-bottom: 2px;
+    }
+
+    .nav-label {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    /* SCREENS CONTAINER */
+    .screen {
+      display: none;
+      padding: 12px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* ARENA SCREEN */
+    .stage-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      border-radius: 2px;
+      background: var(--surface-high);
+      color: #FFF;
+      border: 1px solid var(--border-light);
+    }
+
+    .status-badge.live {
+      background: var(--crimson);
+      border-color: var(--crimson);
+    }
+
+    .status-badge.paused {
+      background: var(--paused);
+      border-color: var(--paused);
+    }
+
+    .stage-title {
+      font-family: 'Newsreader', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-top: 3px;
+    }
+
+    /* TIMER CLOCK */
+    .timer-circle {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 3px solid var(--gold);
+      background: #14110E;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .timer-circle.urgent {
+      border-color: var(--crimson);
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.04); }
+    }
+
+    .timer-seconds {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 24px;
+    }
+
+    .timer-circle.urgent .timer-seconds {
+      color: var(--crimson);
+    }
+
+    .timer-sub {
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    /* PLAYER DOSSIER */
+    .player-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .player-top-strip {
+      background: #161310;
+      border-bottom: 1px solid var(--border);
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+    }
+
+    .lot-no {
+      background: var(--gold-dark);
+      color: #FFF;
+      padding: 2px 6px;
+      font-weight: 900;
+      border-radius: 2px;
+    }
+
+    .lot-set {
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .base-res {
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    .player-main {
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .player-photo {
+      width: 76px;
+      height: 86px;
+      border-radius: 2px;
+      background: #1E1914;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .player-details {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .player-name {
+      font-family: 'Newsreader', serif;
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .role-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .role-chip {
+      border: 1px solid var(--gold-muted);
+      color: var(--gold);
+      padding: 1px 6px;
+      font-size: 9px;
+      font-weight: 800;
+      border-radius: 2px;
+    }
+
+    .country-chip {
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .stats-ledger {
+      display: flex;
+      border-top: 1px solid var(--border);
+      background: #1A1612;
+    }
+
+    .stat-cell {
+      flex: 1;
+      text-align: center;
+      padding: 6px 2px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat-cell:last-child {
+      border-right: none;
+    }
+
+    .stat-v {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .stat-l {
+      font-size: 8px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* CURRENT HIGH BID BANNER */
+    .high-bid-banner {
+      background: #161310;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .high-bid-val {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 26px;
+    }
+
+    .team-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface-high);
+      border: 1px solid var(--gold-muted);
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-top: 3px;
+    }
+
+    .team-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .team-name {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    /* BIDDING PADDLE CONSOLE */
+    .paddle-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .purse-ledger {
+      display: flex;
+      background: #161310;
+      border: 1px solid var(--border);
+      padding: 8px;
+      border-radius: 2px;
+      margin-bottom: 10px;
+    }
+
+    .purse-box {
+      flex: 1;
+      text-align: center;
+    }
+
+    .purse-box:first-child {
+      border-right: 1px solid var(--border);
+    }
+
+    .purse-lbl {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .purse-num {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+
+    .increment-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .inc-btn {
+      flex: 1;
+      background: var(--surface-high);
+      border: 1px solid var(--border-light);
+      color: var(--text-sec);
+      padding: 8px 0;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .inc-btn:active {
+      background: var(--gold-muted);
+      color: var(--text-inv);
+    }
+
+    .main-bid-paddle {
+      width: 100%;
+      background: var(--gold);
+      border: 1px solid #E8C17C;
+      color: var(--text-inv);
+      padding: 14px 0;
+      border-radius: 2px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.1s;
+    }
+
+    .main-bid-paddle:active {
+      transform: scale(0.98);
+      background: #E8C17C;
+    }
+
+    .paddle-act {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+    }
+
+    .paddle-val {
+      font-size: 22px;
+      margin-top: 2px;
+    }
+
+    .paddle-disabled {
+      background: #352F28 !important;
+      border-color: #4A3E30 !important;
+      color: var(--text-muted) !important;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .banner-warning {
+      background: rgba(161, 61, 59, 0.15);
+      border: 1px solid var(--crimson);
+      color: var(--crimson);
+      padding: 7px;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: center;
+      border-radius: 2px;
+      margin-bottom: 8px;
+    }
+
+    .banner-leading {
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 7px;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: center;
+      border-radius: 2px;
+      margin-bottom: 8px;
+    }
+
+    /* AUCTIONEER GAVEL CONTROLS */
+    .gavel-panel {
+      background: var(--surface);
+      border: 1px solid var(--gold-muted);
+      border-radius: 2px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .gavel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .gavel-title {
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .gavel-btn-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .gavel-step-btn {
+      flex: 1;
+      background: var(--surface-high);
+      border: 1px solid var(--border-light);
+      color: var(--text);
+      padding: 7px 0;
+      font-size: 9px;
+      font-weight: 800;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .gavel-step-btn.active {
+      background: var(--gold-muted);
+      color: var(--text-inv);
+      border-color: var(--gold);
+    }
+
+    .resolution-btn-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .sold-btn {
+      flex: 2;
+      background: #1B3B22;
+      border: 1px solid #2E7D32;
+      color: #81C784;
+      padding: 10px 0;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .unsold-btn {
+      flex: 1;
+      background: #3B1F20;
+      border: 1px solid var(--crimson-muted);
+      color: #E57373;
+      padding: 10px 0;
+      font-size: 10px;
+      font-weight: 800;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .time-ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .time-btn {
+      flex: 1;
+      background: #161310;
+      border: 1px solid var(--border);
+      color: var(--text-sec);
+      padding: 5px 0;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    /* RECENT BID TICKER */
+    .history-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 10px;
+    }
+
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #1F1A15;
+      font-size: 11px;
+    }
+
+    .history-row:last-child {
+      border-bottom: none;
+    }
+
+    .history-team {
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .history-amount {
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    /* SEARCH & FILTER LISTS */
+    .search-bar {
+      width: 100%;
+      background: #161310;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 12px;
+      border-radius: 2px;
+      margin-bottom: 8px;
+      font-family: inherit;
+    }
+
+    .search-bar:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .chip-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+
+    .chip {
+      padding: 4px 9px;
+      background: #161310;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 9px;
+      font-weight: 800;
+      border-radius: 2px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: var(--gold-muted);
+      color: var(--text-inv);
+      border-color: var(--gold);
+    }
+
+    .item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* FLASH TOAST */
+    #toast-msg {
+      position: fixed;
+      top: 60px;
+      left: 14px;
+      right: 14px;
+      background: var(--gold-dark);
+      color: #FFF;
+      border: 1px solid var(--gold);
+      padding: 9px 14px;
+      border-radius: 2px;
+      font-size: 11px;
+      font-weight: 800;
+      text-align: center;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-logo">
+      <span class="header-title">HAMMER</span>
+      <div class="live-pill">
+        <div class="live-dot" id="socket-dot"></div>
+        <span class="live-text" id="socket-text">CONNECTING</span>
+      </div>
+    </div>
+
+    <div class="header-user" id="user-display">
+      <span class="user-tag" id="current-user-badge">FAN</span>
+    </div>
+  </header>
+
+  <div id="toast-msg"></div>
+
+  <!-- MAIN SCREENS -->
+
+  <!-- 1. LIVE ARENA -->
+  <main class="screen active" id="screen-arena">
+    <!-- Stage & Clock Card -->
+    <div class="stage-card">
+      <div>
+        <span class="status-badge live" id="stage-badge">● LIVE LOT</span>
+        <div class="stage-title">IPL 2026 MEGA AUCTION</div>
+        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;" id="gavel-stage-text">OPEN BIDDING</div>
+      </div>
+
+      <div class="timer-circle" id="timer-box">
+        <div class="timer-seconds" id="timer-sec">15</div>
+        <div class="timer-sub" id="timer-lbl">CLOCK</div>
+      </div>
+    </div>
+
+    <!-- Active Player Dossier -->
+    <div class="player-card" id="player-dossier">
+      <div class="player-top-strip">
+        <span class="lot-no" id="p-lot">LOT #1</span>
+        <span class="lot-set" id="p-set">SET 1 — MARQUEE</span>
+        <span class="base-res" id="p-base">BASE: ₹2.00 Cr</span>
+      </div>
+
+      <div class="player-main">
+        <img src="/players/csk/dhoni.png" class="player-photo" id="p-img" alt="Player"/>
+        <div class="player-details">
+          <div class="player-name" id="p-name">VIRAT KOHLI</div>
+          <div class="role-row">
+            <span class="role-chip" id="p-role">BATTER</span>
+            <span class="country-chip" id="p-country">INDIA</span>
+          </div>
+          <div style="font-size: 10px; color: var(--text-sec); font-style: italic; margin-top: 5px; line-height: 13px;" id="p-tactical">
+            "Anchor and high-strike-rate run machine"
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-ledger">
+        <div class="stat-cell"><div class="stat-v" id="s-mat">252</div><div class="stat-l">MAT</div></div>
+        <div class="stat-cell"><div class="stat-v" id="s-runs">8,004</div><div class="stat-l">RUNS</div></div>
+        <div class="stat-cell"><div class="stat-v" id="s-sr">131.9</div><div class="stat-l">S/R</div></div>
+        <div class="stat-cell"><div class="stat-v" id="s-wkts">4</div><div class="stat-l">WKTS</div></div>
+        <div class="stat-cell"><div class="stat-v" id="s-econ">8.2</div><div class="stat-l">ECON</div></div>
+      </div>
+    </div>
+
+    <!-- High Bid Display -->
+    <div class="high-bid-banner">
+      <div>
+        <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px;">LEADING BID</div>
+        <div class="high-bid-val" id="high-bid-val">₹2.00 Cr</div>
+      </div>
+
+      <div style="text-align: right;">
+        <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px;">FRANCHISE</div>
+        <div class="team-badge-pill" id="leader-pill">
+          <div class="team-dot" id="leader-dot"></div>
+          <span class="team-name" id="leader-name">RCB</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Franchise Bidding Paddle (For Team Owners) -->
+    <div class="paddle-container" id="bidding-paddle-container">
+      <div class="purse-ledger">
+        <div class="purse-box">
+          <div class="purse-lbl">REMAINING PURSE</div>
+          <div class="purse-num" id="user-purse">₹125.00 Cr</div>
+        </div>
+        <div class="purse-box">
+          <div class="purse-lbl">ROSTER SLOTS</div>
+          <div class="purse-num" id="user-slots">1 / 15</div>
+        </div>
+      </div>
+
+      <div id="rule7-banner" class="banner-leading" style="display: none;">
+        🏆 YOUR FRANCHISE HOLDS THE HIGH BID (Rule 7)
+      </div>
+
+      <div id="freeze-banner" class="banner-warning" style="display: none;">
+        BIDDING FROZEN (CLOCK EXPIRED)
+      </div>
+
+      <div class="increment-row">
+        <button class="inc-btn" id="btn-inc-min">+10L MIN</button>
+        <button class="inc-btn" id="btn-inc-20">+20L QUICK</button>
+        <button class="inc-btn" id="btn-inc-50">+50L POWER</button>
+      </div>
+
+      <button class="main-bid-paddle" id="btn-place-bid">
+        <span class="paddle-act">RAISE BID PADDLE</span>
+        <span class="paddle-val" id="paddle-price">₹2.20 Cr</span>
+      </button>
+    </div>
+
+    <!-- Auctioneer Quick Bar (If Auctioneer) -->
+    <div class="gavel-panel" id="auctioneer-quick-panel" style="display: none;">
+      <div class="gavel-head">
+        <span class="gavel-title">AUCTIONEER GAVEL</span>
+        <button id="btn-quick-pause" style="background:#382D1E; border:1px solid var(--paused); color:#FFF; font-size:10px; font-weight:800; padding:2px 7px; border-radius:2px; cursor:pointer;">⏸ PAUSE</button>
+      </div>
+
+      <div class="gavel-btn-row">
+        <button class="gavel-step-btn" id="btn-g1">1st CALL</button>
+        <button class="gavel-step-btn" id="btn-g2">2nd CALL</button>
+        <button class="gavel-step-btn" id="btn-g3">FAIR WARNING</button>
+      </div>
+
+      <div class="resolution-btn-row">
+        <button class="sold-btn" id="btn-sold">🔨 HAMMER SOLD</button>
+        <button class="unsold-btn" id="btn-unsold">PASS (UNSOLD)</button>
+      </div>
+
+      <div class="time-ctrl-row">
+        <span style="font-size: 9px; font-weight: 800; color: var(--text-muted);">CLOCK:</span>
+        <button class="time-btn" id="btn-time-5">+5s</button>
+        <button class="time-btn" id="btn-time-10">+10s</button>
+        <button class="time-btn" id="btn-time-reset">RESET</button>
+      </div>
+    </div>
+
+    <!-- Recent Lot Bids Stream -->
+    <div class="history-card">
+      <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 6px; display: flex; justify-content: space-between;">
+        <span>RECENT LOT BIDS</span>
+        <span id="bid-stream-count">0 BIDS</span>
+      </div>
+      <div id="lot-bids-feed">
+        <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 8px;">Awaiting bids...</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 2. GAVEL (Full Auctioneer Desk) -->
+  <main class="screen" id="screen-gavel">
+    <div style="font-size: 15px; font-weight: 900; color: var(--gold); letter-spacing: 1px; margin-bottom: 10px;">
+      AUCTIONEER MASTER CONTROL
+    </div>
+
+    <div class="gavel-panel">
+      <div class="gavel-head">
+        <span class="gavel-title">ACTIVE LOT HAMMER CONTROLS</span>
+      </div>
+      <div class="gavel-btn-row">
+        <button class="gavel-step-btn" onclick="sendGavel(1)">1st CALL</button>
+        <button class="gavel-step-btn" onclick="sendGavel(2)">2nd CALL</button>
+        <button class="gavel-step-btn" onclick="sendGavel(3)">FAIR WARNING</button>
+      </div>
+      <div class="resolution-btn-row">
+        <button class="sold-btn" onclick="sendSold()">🔨 HAMMER SOLD</button>
+        <button class="unsold-btn" onclick="sendUnsold()">PASS (UNSOLD)</button>
+      </div>
+    </div>
+
+    <!-- Special Actions -->
+    <div class="paddle-container">
+      <div style="font-size: 10px; font-weight: 800; color: var(--text-sec); margin-bottom: 8px;">SPECIAL ENGINES</div>
+      <button class="inc-btn" style="width: 100%; margin-bottom: 8px; padding: 10px 0; background: var(--gold-muted); color: var(--text-inv); font-weight: 900;" onclick="triggerCaptains()">
+        IPL 2026 CAPTAIN RETENTION ENGINE
+      </button>
+      <button class="inc-btn" style="width: 100%; padding: 10px 0; border-color: var(--crimson-muted); color: var(--crimson); font-weight: 900;" onclick="resetLot()">
+        EMERGENCY RESET LOT
+      </button>
+    </div>
+
+    <!-- Start Player on Hammer -->
+    <div class="paddle-container">
+      <div style="font-size: 10px; font-weight: 800; color: var(--text-sec); margin-bottom: 8px;">LAUNCH NEXT CRICKETER</div>
+      <input type="text" class="search-bar" id="gavel-player-search" placeholder="Search available players..." oninput="renderGavelAvailable()"/>
+      <div id="gavel-avail-list"></div>
+    </div>
+  </main>
+
+  <!-- 3. PLAYERS CATALOGUE -->
+  <main class="screen" id="screen-players">
+    <input type="text" class="search-bar" id="pool-search" placeholder="Search 73 IPL players by name..." oninput="renderPlayerPool()"/>
+
+    <div class="chip-scroll">
+      <button class="chip active" onclick="setRoleTab('ALL', this)">ALL</button>
+      <button class="chip" onclick="setRoleTab('batter', this)">BATTERS</button>
+      <button class="chip" onclick="setRoleTab('bowler', this)">BOWLERS</button>
+      <button class="chip" onclick="setRoleTab('allrounder', this)">ALL-ROUNDERS</button>
+      <button class="chip" onclick="setRoleTab('wicketkeeper', this)">WICKETKEEPERS</button>
+      <button class="chip" onclick="setRoleTab('overseas', this)">OVERSEAS</button>
+    </div>
+
+    <div id="player-pool-list"></div>
+  </main>
+
+  <!-- 4. SQUADS -->
+  <main class="screen" id="screen-squads">
+    <div style="font-size: 14px; font-weight: 900; color: var(--gold); margin-bottom: 10px;">
+      10 IPL FRANCHISES & PURSES
+    </div>
+    <div id="squads-list"></div>
+  </main>
+
+  <!-- 5. AUDIT LOG -->
+  <main class="screen" id="screen-audit">
+    <div style="font-size: 14px; font-weight: 900; color: var(--gold); margin-bottom: 10px;">
+      SEQUENTIAL REALTIME AUDIT LOG
+    </div>
+    <div id="audit-feed"></div>
+  </main>
+
+  <!-- 6. PORTAL / LOGIN -->
+  <main class="screen" id="screen-portal">
+    <div style="font-size: 15px; font-weight: 900; color: var(--gold); margin-bottom: 12px; text-align: center;">
+      FRANCHISE AUTHENTICATION
+    </div>
+
+    <!-- 1-Tap Quick Switcher -->
+    <div class="paddle-container">
+      <div style="font-size: 10px; font-weight: 800; color: var(--text-sec); margin-bottom: 10px;">1-TAP INSTANT LOGIN</div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+        <button class="inc-btn" onclick="quickLogin('auctioneer', 'hammer2026')">🔨 AUCTIONEER</button>
+        <button class="inc-btn" style="color:#FFFF00" onclick="quickLogin('csk', 'csk2026')">🦁 CSK</button>
+        <button class="inc-btn" style="color:#004BA0" onclick="quickLogin('mi', 'mi2026')">🌀 MI</button>
+        <button class="inc-btn" style="color:#EC1C24" onclick="quickLogin('rcb', 'rcb2026')">👑 RCB</button>
+        <button class="inc-btn" style="color:#F26522" onclick="quickLogin('srh', 'srh2026')">🦅 SRH</button>
+        <button class="inc-btn" style="color:#EA1A85" onclick="quickLogin('rr', 'rr2026')">🛡️ RR</button>
+        <button class="inc-btn" style="color:#3A225D" onclick="quickLogin('kkr', 'kkr2026')">⚔️ KKR</button>
+        <button class="inc-btn" style="color:#0078BC" onclick="quickLogin('dc', 'dc2026')">🐯 DC</button>
+        <button class="inc-btn" style="color:#1B2133" onclick="quickLogin('gt', 'gt2026')">⚡ GT</button>
+        <button class="inc-btn" style="color:#A72056" onclick="quickLogin('lsg', 'lsg2026')">🌟 LSG</button>
+        <button class="inc-btn" style="color:#ED1B24" onclick="quickLogin('pbks', 'pbks2026')">🦁 PBKS</button>
+        <button class="inc-btn" onclick="quickLogin('viewer', 'view2026')">👁️ VIEWER</button>
+      </div>
+    </div>
+
+    <div class="paddle-container" style="text-align: center;">
+      <button class="unsold-btn" style="width: 100%;" onclick="doLogout()">LOGOUT CURRENT SESSION</button>
+    </div>
+  </main>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('arena', this)">
+      <span class="nav-icon">⚡</span>
+      <span class="nav-label">ARENA</span>
+    </button>
+    <button class="nav-btn" id="nav-gavel-btn" style="display: none;" onclick="switchTab('gavel', this)">
+      <span class="nav-icon">🔨</span>
+      <span class="nav-label">GAVEL</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('players', this)">
+      <span class="nav-icon">🏏</span>
+      <span class="nav-label">PLAYERS</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('squads', this)">
+      <span class="nav-icon">🛡️</span>
+      <span class="nav-label">SQUADS</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('audit', this)">
+      <span class="nav-icon">📜</span>
+      <span class="nav-label">AUDIT</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('portal', this)">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">PORTAL</span>
+    </button>
+  </nav>
+
+  <!-- SOCKET.IO & HAMMER ENGINE -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/player-images.js"></script>
+  <script src="/js/hammer-ux.js"></script>
+  <script src="/js/hammer.js"></script>
+
+  <script>
+    // Audio synthesizer & haptics
+    function hapticTap(pattern = 30) {
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate(pattern); } catch (_) {}
+      }
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+
+    // Tab Navigation
+    function switchTab(tabName, btn) {
+      hapticTap(20);
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const target = document.getElementById('screen-' + tabName);
+      if (target) target.classList.add('active');
+      if (btn) btn.classList.add('active');
+
+      if (tabName === 'players') renderPlayerPool();
+      if (tabName === 'squads') renderSquads();
+      if (tabName === 'gavel') renderGavelAvailable();
+    }
+
+    // State
+    let currentAuction = {};
+    let allPlayers = [];
+    let allTeams = [];
+    let activeRoleTab = 'ALL';
+    let currentUser = null;
+    let currentTeam = null;
+
+    // Currency Formatter
+    function fmtPrice(lakhs) {
+      if (!lakhs || isNaN(lakhs)) return '₹0';
+      const n = Number(lakhs);
+      if (n >= 100) return '₹' + (n / 100).toFixed(2).replace(/\.00$/, '') + ' Cr';
+      return '₹' + n + ' Lakhs';
+    }
+
+    function getTeamColor(teamId) {
+      const colors = {
+        CSK: '#FFFF00', MI: '#004BA0', RCB: '#EC1C24', DC: '#0078BC',
+        GT: '#1B2133', KKR: '#3A225D', LSG: '#A72056', PBKS: '#ED1B24',
+        RR: '#EA1A85', SRH: '#F26522'
+      };
+      return colors[String(teamId || '').toUpperCase()] || '#D4AF37';
+    }
+
+    // Connect & Initialize
+    (async function init() {
+      // Connect to Socket.IO
+      const socket = io({
+        transports: ['websocket', 'polling']
+      });
+
+      socket.on('connect', () => {
+        document.getElementById('socket-dot').classList.add('connected');
+        document.getElementById('socket-text').textContent = 'LIVE';
+        const token = Hammer.getToken();
+        if (token) socket.emit('auth', { token });
+      });
+
+      socket.on('disconnect', () => {
+        document.getElementById('socket-dot').classList.remove('connected');
+        document.getElementById('socket-text').textContent = 'OFFLINE';
+      });
+
+      // Sync User
+      try {
+        const auth = await Hammer.getMe();
+        if (auth?.user) {
+          currentUser = auth.user;
+          currentTeam = auth.team;
+          updateAuthUI();
+        }
+      } catch (_) {}
+
+      // Fetch initial datasets
+      try {
+        const [st, pl, tm] = await Promise.all([
+          Hammer.getAuctionState(),
+          Hammer.getPlayers(),
+          Hammer.getTeams()
+        ]);
+        currentAuction = st || {};
+        allPlayers = pl || [];
+        allTeams = tm || [];
+        renderArena(currentAuction);
+      } catch (err) {
+        console.warn('Initial load error:', err);
+      }
+
+      // Realtime Events
+      socket.on('auction:state', (st) => {
+        currentAuction = st;
+        renderArena(st);
+      });
+
+      socket.on('auction:timer', ({ timer, isExpired, isUrgent }) => {
+        const secEl = document.getElementById('timer-sec');
+        const boxEl = document.getElementById('timer-box');
+        secEl.textContent = timer;
+        if (timer <= 5 && timer > 0) {
+          boxEl.classList.add('urgent');
+        } else {
+          boxEl.classList.remove('urgent');
+        }
+
+        const isFrozen = timer === 0;
+        document.getElementById('freeze-banner').style.display = isFrozen ? 'block' : 'none';
+        updateBidButtonState();
+      });
+
+      socket.on('auction:bid', (bidData) => {
+        hapticTap([40, 30, 40]);
+        if (window.HammerUX) HammerUX.playBidPing();
+        showToast(`⚡ BID ACCEPTED: ${bidData.team?.name || bidData.team} — ${fmtPrice(bidData.bid?.amount || bidData.bid)}`);
+      });
+
+      socket.on('auction:sold', (data) => {
+        hapticTap([100, 50, 100]);
+        if (window.HammerUX) HammerUX.playGavelStrike();
+        showToast(`🔨 SOLD to ${data.team?.name || data.team} for ${fmtPrice(data.price)}!`);
+      });
+
+      socket.on('auction:unsold', (data) => {
+        hapticTap(80);
+        showToast(`UNSOLD — ${data.player?.name || 'Lot'}`);
+      });
+
+      socket.on('teams:update', (tms) => {
+        allTeams = tms;
+        if (currentUser && currentUser.teamId) {
+          currentTeam = allTeams.find(t => t.id === currentUser.teamId || t.code === currentUser.teamId);
+          updateAuthUI();
+        }
+        renderSquads();
+      });
+
+      socket.on('auction:event', (ev) => {
+        prependAuditEvent(ev);
+      });
+    })();
+
+    function updateAuthUI() {
+      const badge = document.getElementById('current-user-badge');
+      const gavelNav = document.getElementById('nav-gavel-btn');
+      const quickPanel = document.getElementById('auctioneer-quick-panel');
+      const paddleContainer = document.getElementById('bidding-paddle-container');
+
+      if (!currentUser) {
+        badge.textContent = 'FAN';
+        gavelNav.style.display = 'none';
+        quickPanel.style.display = 'none';
+        paddleContainer.style.display = 'block';
+        return;
+      }
+
+      if (currentUser.role === 'auctioneer') {
+        badge.textContent = 'AUCTIONEER';
+        gavelNav.style.display = 'flex';
+        quickPanel.style.display = 'block';
+        paddleContainer.style.display = 'none';
+      } else if (currentUser.role === 'team_owner') {
+        badge.textContent = (currentTeam?.code || currentUser.teamId).toUpperCase();
+        gavelNav.style.display = 'none';
+        quickPanel.style.display = 'none';
+        paddleContainer.style.display = 'block';
+      }
+
+      if (currentTeam) {
+        const rem = currentTeam.remaining ?? (currentTeam.purse - (currentTeam.spent || 0));
+        document.getElementById('user-purse').textContent = fmtPrice(rem);
+        const slots = currentTeam.filledSlots || currentTeam.squad?.length || 0;
+        document.getElementById('user-slots').textContent = `${slots} / ${currentTeam.maxSlots || 15}`;
+      }
+    }
+
+    function renderArena(state) {
+      if (!state) return;
+      const isLive = state.status === 'live';
+      const isPaused = state.status === 'paused';
+
+      const sBadge = document.getElementById('stage-badge');
+      sBadge.className = 'status-badge ' + (isLive ? 'live' : isPaused ? 'paused' : '');
+      sBadge.textContent = isLive ? '● LIVE LOT' : isPaused ? '⏸ PAUSED' : 'AUCTION IDLE';
+
+      // Player details
+      const p = state.player || (state.currentPlayerId ? allPlayers.find(x => x.id === state.currentPlayerId) : null);
+      if (p) {
+        document.getElementById('p-lot').textContent = `LOT #${p.lotNumber || p.id}`;
+        document.getElementById('p-set').textContent = p.set || 'SET 1 — MARQUEE';
+        document.getElementById('p-base').textContent = `BASE: ${fmtPrice(p.basePrice)}`;
+        document.getElementById('p-name').textContent = p.name;
+        document.getElementById('p-role').textContent = (p.role || '').toUpperCase();
+        document.getElementById('p-country').textContent = (p.nationality || 'INDIA').toUpperCase() + (p.overseas ? ' ✈️' : '');
+        document.getElementById('p-tactical').textContent = p.tacticalProfile ? `"${p.tacticalProfile}"` : '';
+
+        // Stats
+        const s = typeof p.stats === 'string' ? JSON.parse(p.stats || '{}') : (p.stats || {});
+        document.getElementById('s-mat').textContent = s.matches ?? s.mat ?? '—';
+        document.getElementById('s-runs').textContent = s.runs ?? '—';
+        document.getElementById('s-sr').textContent = s.strikeRate ?? s.sr ?? '—';
+        document.getElementById('s-wkts').textContent = s.wickets ?? s.wkts ?? '—';
+        document.getElementById('s-econ').textContent = s.economy ?? s.econ ?? '—';
+
+        // Image
+        let imgUrl = p.image || p.imageUrl;
+        if (!imgUrl && window.getHammerPlayerImage) imgUrl = window.getHammerPlayerImage(p.name);
+        if (imgUrl) document.getElementById('p-img').src = imgUrl;
+      }
+
+      // High Bid
+      const curBid = Number(state.currentBid || 0);
+      document.getElementById('high-bid-val').textContent = curBid > 0 ? fmtPrice(curBid) : 'NO BIDS YET';
+
+      const leader = state.leadingTeamId;
+      const dot = document.getElementById('leader-dot');
+      const name = document.getElementById('leader-name');
+      if (leader) {
+        dot.style.backgroundColor = getTeamColor(leader);
+        name.textContent = leader;
+      } else {
+        dot.style.backgroundColor = '#6B7280';
+        name.textContent = 'NO BID';
+      }
+
+      // Next Bid Calculation
+      let inc = 10;
+      if (curBid >= 500) inc = 50;
+      else if (curBid >= 100) inc = 20;
+
+      const nextVal = (!curBid || !leader) ? (state.basePrice || 200) : (curBid + inc);
+      document.getElementById('paddle-price').textContent = fmtPrice(nextVal);
+      document.getElementById('btn-inc-min').textContent = `+${inc}L MIN`;
+
+      // Check Rule 7
+      const isLeaderMe = currentUser?.role === 'team_owner' && currentTeam && (leader === currentTeam.id || leader === currentTeam.code);
+      document.getElementById('rule7-banner').style.display = isLeaderMe ? 'block' : 'none';
+
+      // History
+      renderHistory(state.bidHistory || []);
+      updateBidButtonState();
+    }
+
+    function updateBidButtonState() {
+      const btn = document.getElementById('btn-place-bid');
+      const isLive = currentAuction.status === 'live';
+      const isPaused = currentAuction.status === 'paused';
+      const timer = Number(document.getElementById('timer-sec').textContent);
+      const isLeaderMe = currentUser?.role === 'team_owner' && currentTeam && (currentAuction.leadingTeamId === currentTeam.id || currentAuction.leadingTeamId === currentTeam.code);
+
+      if (!isLive || isPaused || timer === 0 || isLeaderMe || !currentUser || currentUser.role !== 'team_owner') {
+        btn.classList.add('paddle-disabled');
+      } else {
+        btn.classList.remove('paddle-disabled');
+      }
+    }
+
+    function renderHistory(hist) {
+      const container = document.getElementById('lot-bids-feed');
+      document.getElementById('bid-stream-count').textContent = `${hist.length} BIDS`;
+      if (!hist || hist.length === 0) {
+        container.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 8px;">Awaiting bids on active lot...</div>';
+        return;
+      }
+      container.innerHTML = hist.slice(0, 5).map(h => `
+        <div class="history-row">
+          <span class="history-team" style="color: ${getTeamColor(h.teamId)}">● ${h.teamName || h.teamId}</span>
+          <span class="history-amount">${fmtPrice(h.amount)}</span>
+        </div>
+      `).join('');
+    }
+
+    // Bid Button Handlers
+    document.getElementById('btn-place-bid').onclick = async function() {
+      hapticTap(40);
+      try {
+        await Hammer.placeBid();
+      } catch (e) {
+        alert(e.message || 'Bid rejected by server');
+      }
+    };
+
+    document.getElementById('btn-inc-min').onclick = () => document.getElementById('btn-place-bid').click();
+    document.getElementById('btn-inc-20').onclick = async () => {
+      hapticTap(40);
+      const curBid = Number(currentAuction.currentBid || 0);
+      try { await Hammer.placeBid(curBid + 20); } catch (e) { alert(e.message); }
+    };
+    document.getElementById('btn-inc-50').onclick = async () => {
+      hapticTap(40);
+      const curBid = Number(currentAuction.currentBid || 0);
+      try { await Hammer.placeBid(curBid + 50); } catch (e) { alert(e.message); }
+    };
+
+    // Quick Auctioneer controls
+    document.getElementById('btn-g1').onclick = () => sendGavel(1);
+    document.getElementById('btn-g2').onclick = () => sendGavel(2);
+    document.getElementById('btn-g3').onclick = () => sendGavel(3);
+    document.getElementById('btn-sold').onclick = () => sendSold();
+    document.getElementById('btn-unsold').onclick = () => sendUnsold();
+    document.getElementById('btn-quick-pause').onclick = async () => {
+      hapticTap(30);
+      if (currentAuction.status === 'paused') await Hammer.resumeAuction();
+      else await Hammer.pauseAuction();
+    };
+    document.getElementById('btn-time-5').onclick = () => Hammer.addTimer(5);
+    document.getElementById('btn-time-10').onclick = () => Hammer.addTimer(10);
+    document.getElementById('btn-time-reset').onclick = () => Hammer.resetTimer();
+
+    async function sendGavel(stage) {
+      hapticTap(30);
+      try { await Hammer.gavelAction(stage); } catch (e) { alert(e.message); }
+    }
+    async function sendSold() {
+      hapticTap([50, 50, 50]);
+      try { await Hammer.soldLot(); } catch (e) { alert(e.message); }
+    }
+    async function sendUnsold() {
+      hapticTap(50);
+      try { await Hammer.unsoldLot(); } catch (e) { alert(e.message); }
+    }
+    async function triggerCaptains() {
+      if (!confirm('Lock 2026 Captains into rosters at base price?')) return;
+      try {
+        await Hammer.apiPost('/api/auction/captain-retention');
+        showToast('Captains retained successfully!');
+      } catch (e) { alert(e.message); }
+    }
+    async function resetLot() {
+      if (!confirm('Reset current lot?')) return;
+      try {
+        await Hammer.apiPost('/api/auction/reset');
+        showToast('Lot reset.');
+      } catch (e) { alert(e.message); }
+    }
+
+    // Player Pool Screen
+    function setRoleTab(role, btn) {
+      activeRoleTab = role;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      renderPlayerPool();
+    }
+
+    function renderPlayerPool() {
+      const q = (document.getElementById('pool-search')?.value || '').toLowerCase();
+      const list = document.getElementById('player-pool-list');
+      const filtered = allPlayers.filter(p => {
+        if (q && !p.name.toLowerCase().includes(q)) return false;
+        if (activeRoleTab === 'overseas') return !!p.overseas;
+        if (activeRoleTab !== 'ALL' && p.role !== activeRoleTab) return false;
+        return true;
+      });
+
+      list.innerHTML = filtered.map(p => {
+        const isSold = p.status === 'sold';
+        return `
+          <div class="item-card">
+            <div>
+              <div style="font-weight: 800; font-size: 13px;">${p.name} ${p.overseas ? '✈️' : ''}</div>
+              <div style="font-size: 9px; color: var(--text-muted); margin-top: 2px;">
+                LOT #${p.lotNumber || p.id} • ${(p.role || '').toUpperCase()} • BASE: ${fmtPrice(p.basePrice)}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span class="status-badge ${isSold ? 'live' : ''}">${isSold ? 'SOLD (' + p.soldTo + ')' : p.status === 'unsold' ? 'UNSOLD' : 'AVAILABLE'}</span>
+              ${isSold ? `<div style="font-size: 10px; font-weight: 900; color: var(--gold); margin-top: 2px;">${fmtPrice(p.soldPrice)}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Gavel available players
+    function renderGavelAvailable() {
+      const q = (document.getElementById('gavel-player-search')?.value || '').toLowerCase();
+      const list = document.getElementById('gavel-avail-list');
+      const avail = allPlayers.filter(p => (!p.status || p.status === 'available') && (!q || p.name.toLowerCase().includes(q)));
+      list.innerHTML = avail.slice(0, 10).map(p => `
+        <div class="item-card">
+          <div>
+            <div style="font-weight: 800; font-size: 12px;">${p.name}</div>
+            <div style="font-size: 9px; color: var(--text-muted);">LOT #${p.lotNumber || p.id} • ${fmtPrice(p.basePrice)}</div>
+          </div>
+          <button class="inc-btn" style="padding: 4px 10px; background: var(--gold); color: var(--text-inv);" onclick="startPlayerLot(${p.id})">CALL</button>
+        </div>
+      `).join('');
+    }
+
+    async function startPlayerLot(id) {
+      hapticTap(40);
+      try {
+        await Hammer.startAuction(id);
+        switchTab('arena', document.querySelector('.bottom-nav button:first-child'));
+      } catch (e) { alert(e.message); }
+    }
+
+    // Squads Screen
+    function renderSquads() {
+      const list = document.getElementById('squads-list');
+      list.innerHTML = allTeams.map(t => {
+        const squad = t.squad || t.players || [];
+        const rem = t.remaining ?? (t.purse - (t.spent || 0));
+        return `
+          <div class="paddle-container" style="margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 6px;">
+              <span style="font-weight: 900; font-size: 13px; color: ${getTeamColor(t.id)}">● ${t.name}</span>
+              <span style="font-weight: 900; color: var(--gold);">${fmtPrice(rem)}</span>
+            </div>
+            <div style="font-size: 10px; color: var(--text-muted);">
+              ROSTER: ${squad.length} / ${t.maxSlots || 15} SLOTS • SPENT: ${fmtPrice(t.spent || 0)}
+            </div>
+            ${squad.length > 0 ? `
+              <div style="margin-top: 6px; font-size: 10px; line-height: 16px; color: var(--text-sec);">
+                ${squad.map(p => `• ${p.name || p.displayName} (${fmtPrice(p.soldPrice || p.price)})`).join('<br/>')}
+              </div>
+            ` : '<div style="font-size: 10px; font-style: italic; color: var(--text-muted); margin-top: 4px;">No players acquired yet</div>'}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Audit Stream
+    function prependAuditEvent(ev) {
+      const feed = document.getElementById('audit-feed');
+      const div = document.createElement('div');
+      div.className = 'item-card';
+      div.innerHTML = `
+        <div>
+          <span class="status-badge">${ev.event_type}</span>
+          <div style="font-weight: 800; font-size: 12px; margin-top: 4px;">${ev.player_name || 'Auction Session'}</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 11px; font-weight: 900; color: var(--gold);">${ev.amount_lakh > 0 ? fmtPrice(ev.amount_lakh) : ''}</div>
+          <div style="font-size: 9px; color: var(--text-muted);">${ev.actor_team_id || ''}</div>
+        </div>
+      `;
+      feed.insertBefore(div, feed.firstChild);
+    }
+
+    // Auth actions
+    async function quickLogin(u, p) {
+      hapticTap(30);
+      try {
+        const res = await Hammer.login(u, p);
+        currentUser = res.user;
+        currentTeam = res.team;
+        updateAuthUI();
+        showToast(`Logged in as ${u.toUpperCase()}`);
+        switchTab('arena', document.querySelector('.bottom-nav button:first-child'));
+      } catch (e) {
+        alert(e.message || 'Login failed');
+      }
+    }
+
+    async function doLogout() {
+      await Hammer.logout();
+      currentUser = null;
+      currentTeam = null;
+      updateAuthUI();
+      showToast('Logged out');
+      switchTab('arena', document.querySelector('.bottom-nav button:first-child'));
+    }
+  </script>
+</body>
+</html>

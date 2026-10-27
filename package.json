@@ -11,7 +11,8 @@
     "test:mobile": "node tests/test_mobile_realtime_sync.js",
     "test:audit": "node tests/test_supabase_architecture.js && node tests/test_production_supabase_engine.js",
     "db:status": "node backend/apply-supabase.js status",
-    "db:push": "node backend/apply-supabase.js sync"
+    "db:push": "node backend/apply-supabase.js sync",
+    "build:apk": "cd mobile && npx eas-cli build -p android --profile preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

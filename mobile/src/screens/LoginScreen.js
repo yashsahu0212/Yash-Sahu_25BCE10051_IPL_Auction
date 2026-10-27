@@ -97,7 +97,7 @@ export default function LoginScreen({ onClose }) {
             style={styles.urlInput}
             value={urlInput}
             onChangeText={setUrlInput}
-            placeholder="http://192.168.1.7:3000"
+            placeholder="https://your-server.onrender.com"
             placeholderTextColor={Colors.textMuted}
             autoCapitalize="none"
           />
@@ -136,7 +136,7 @@ export default function LoginScreen({ onClose }) {
         </View>
 
         <Text style={styles.urlHelp}>
-          Physical phones: use PC Wi-Fi IP (http://192.168.1.7:3000). Both devices must be on same network.
+          🌐 LIVE WORLDWIDE: Enter your public cloud URL (e.g. https://hammer.onrender.com) to connect over 4G/5G/cellular from any phone anywhere.
         </Text>
       </View>
 

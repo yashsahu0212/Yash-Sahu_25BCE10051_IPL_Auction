@@ -7,18 +7,27 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "splash": {
-      "backgroundColor": "#211C17",
-      "resizeMode": "contain"
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#161310"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.hammer.auction"
     },
     "android": {
+      "package": "com.hammer.auction",
+      "versionCode": 1,
       "adaptiveIcon": {
-        "backgroundColor": "#211C17"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#161310"
       },
-      "package": "com.hammer.auction"
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "VIBRATE"
+      ],
+      "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

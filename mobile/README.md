@@ -1,6 +1,6 @@
 # HAMMER Mobile App — Realtime Cricket Player Auction
 
-Cross-platform mobile application (iOS & Android) for the **HAMMER IPL Player Auction System**. Communicates in real time with the same Node.js & Socket.IO backend as the web broadcast and franchise consoles with zero latency.
+Cross-platform mobile application (iOS & Android) for the **HAMMER IPL Player Auction System**. Communicates in real time with the Node.js & Socket.IO backend as well as the Supabase Cloud database with zero latency.
 
 ---
 
@@ -32,66 +32,76 @@ Cross-platform mobile application (iOS & Android) for the **HAMMER IPL Player Au
 
 ---
 
-## 🚀 How to Run & Download
+## 📦 How to Build & Download Standalone Android APK
 
-You can use the mobile app in **two ways**:
+You can build a standalone `.apk` file that anyone can download and install on any Android phone (no Expo Go or development environment required for end-users):
 
-### Option 1: Instant Zero-Install Mobile PWA (Fastest & Recommended)
-You do **not** need to install Expo or any build tools to run on your phone:
-1. Start the server on your computer:
-   ```bash
-   npm start
-   ```
-2. Note your computer's Wi-Fi LAN IP printed in the console banner, e.g. `http://192.168.1.7:3000`.
-3. Open Safari (iOS) or Chrome (Android) on your phone and go to:
-   ```
-   http://192.168.1.7:3000/mobile
-   ```
-4. **Install as App**:
-   - **iPhone (Safari)**: Tap the Share button (square with arrow up) ➔ Tap **"Add to Home Screen"**.
-   - **Android (Chrome)**: Tap the 3 dots menu ➔ Tap **"Install App"** or **"Add to Home screen"**.
-   - It will open as a fullscreen, native-feeling app directly from your phone's home screen!
+### Step 1: Install EAS CLI & Log In
+```bash
+npm install -g eas-cli
+eas login
+```
+*(If you do not have an Expo account yet, create one for free at [expo.dev/signup](https://expo.dev/signup) — no credit card needed).*
+
+### Step 2: Trigger the Cloud APK Build
+From the `mobile` directory or workspace root:
+```bash
+# From mobile/
+cd mobile
+npx eas-cli build -p android --profile preview
+
+# Or from workspace root:
+npm run build:apk
+```
+
+### Step 3: Download & Install APK on Any Phone
+1. Expo's cloud build servers will compile the standalone `.apk` (takes ~3–5 minutes).
+2. When completed, EAS provides a **direct download URL** and a **QR code** in the terminal:
+   `https://expo.dev/artifacts/eas/.../hammer-auction.apk`
+3. Open this URL or scan the QR code on any Android device to download `hammer-auction.apk`.
+4. Tap the downloaded file to install it directly on your phone!
 
 ---
 
-### Option 2: Native React Native / Expo Mobile App
+## 🌐 Connecting to a Live Worldwide Server (No Local Run)
 
-#### Prerequisites
-- Node.js (v18+)
-- Phone connected to the same Wi-Fi as your computer
-- Install the free **Expo Go** app on your phone:
-  - [Expo Go for Android (Google Play)](https://play.google.com/store/apps/details?id=host.exp.exponent)
-  - [Expo Go for iOS (App Store)](https://apps.apple.com/app/expo-go/id982107779)
+To run the live auction on any phone on 4G/5G/cellular anywhere in the world without being restricted to your local Wi-Fi, host your backend online:
 
-#### Step 1: Start Backend Server
-From the project root:
+### Option A: 1-Click Free Deploy on Render.com (Recommended)
+1. Push this repository to your GitHub account.
+2. Go to **[https://render.com](https://render.com)** and click **New + ➔ Web Service**.
+3. Select your GitHub repository (`Yash-Sahu_25BCE10051_IPL_Auction`).
+4. Render will automatically detect [`render.yaml`](../render.yaml) or select:
+   - **Environment**: Node
+   - **Build Command**: `npm install`
+   - **Start Command**: `node server.js`
+5. Click **Create Web Service**. Render gives you a permanent, free public HTTPS URL:
+   `https://hammer-auction.onrender.com`
+6. In the mobile app:
+   - Open the app, tap the **LIVE/OFFLINE** pill or **CONNECT**.
+   - Enter your public URL (e.g. `https://hammer-auction.onrender.com`) and tap **CONNECT**.
+   - The app saves this URL permanently — now **any phone on any network** anywhere connects directly to the live auction!
+
+### Option B: Instant Public Tunnel via LocalTunnel (Zero Setup)
+If you want to run your local server but make it accessible worldwide right now:
 ```bash
+# Terminal 1: Run server
 npm start
-```
-Your computer's Wi-Fi address will be displayed (e.g. `http://192.168.1.7:3000`).
 
-#### Step 2: Install Mobile Dependencies & Start
-Open a second terminal window:
-```bash
-cd mobile
-npm install
-npx expo start
+# Terminal 2: Expose to the world
+npx localtunnel --port 3000
 ```
+This prints a public internet URL (e.g. `https://hammer-live.loca.lt`). Enter this URL into the mobile app's server input and tap **CONNECT**!
 
-#### Step 3: Open on Your Phone
-1. Open the **Expo Go** app on your phone.
-2. **Android**: Scan the QR code in your terminal directly inside Expo Go.
-   **iPhone**: Open the default Camera app, point at the QR code, and tap the prompt to open in Expo Go.
-3. In the mobile app:
-   - Tap **CONNECT** or the **LIVE/OFFLINE** pill at the top.
-   - Tap the **"WI-FI (192.168.1.7)"** button (or tap **🔍 AUTO-DETECT** to automatically detect your server).
-   - Tap any franchise button (e.g., `CSK`, `MI`, `RCB`) or `AUCTIONEER` to log in instantly with 1 tap!
+---
 
-#### Run in Web Browser
-```bash
-cd mobile
-npx expo start --web
-```
+## 📲 Alternative: Instant Zero-Install Mobile PWA
+
+You can also run the mobile app without downloading an APK:
+1. Open `http://<your-server-url>/mobile` in Safari (iOS) or Chrome (Android).
+2. **iPhone (Safari)**: Tap Share ➔ **"Add to Home Screen"**.
+3. **Android (Chrome)**: Tap 3 dots ➔ **"Install App"** / **"Add to Home screen"**.
+4. Opens as a fullscreen standalone app directly on your phone.
 
 ---
 

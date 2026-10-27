@@ -41,6 +41,9 @@ export const ApiService = {
 
   async setServerUrl(url) {
     let clean = url ? url.trim() : getInitialDefaultUrl();
+    if (clean && !clean.startsWith('http://') && !clean.startsWith('https://')) {
+      clean = `https://${clean}`;
+    }
     if (clean.endsWith('/')) clean = clean.slice(0, -1);
     currentServerUrl = clean;
     await AsyncStorage.setItem('hammer_server_url', clean);

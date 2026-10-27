@@ -259,26 +259,35 @@ Open your browser and navigate to:
 
 ---
 
-## 📱 Running & Downloading the Mobile App
+## 📱 Production Mobile App (APK Download & Live Server)
 
-### Method 1: Instant Mobile Web App / PWA (Recommended — Zero Downloads)
-1. Start the server with `npm start`. Note your PC's IP from the console (e.g. `http://192.168.1.7:3000`).
-2. On your phone (iPhone or Android), open Chrome or Safari and visit:
-   ```
-   http://192.168.1.7:3000/mobile
-   ```
-3. Tap **"Add to Home Screen"** in Safari / Chrome. It installs instantly as a native app on your phone with zero app store downloads!
-
-### Method 2: Native React Native Mobile App (Expo)
-1. In a new terminal window:
+### 📦 Building & Downloading Standalone Android APK
+You can generate a direct `.apk` file that installs on any Android smartphone:
+1. Log into your free Expo account:
    ```bash
-   cd mobile
-   npm install
-   npx expo start
+   npx eas-cli login
    ```
-2. Scan the QR code using **Expo Go** (available free on iOS App Store & Android Play Store).
-3. Tap the **"WI-FI (192.168.1.7)"** button in the mobile app or tap **"🔍 AUTO-DETECT"** to connect to your live auction server!
-4. For complete mobile details, see [mobile/README.md](mobile/README.md).
+2. Build the `.apk`:
+   ```bash
+   npm run build:apk
+   ```
+3. Expo builds the app in the cloud and outputs a **direct download link** (`.apk`) and QR code. Scan or open the link on any phone to install!
+
+### 🌐 Connecting to a Live Cloud Server (Worldwide Access)
+To let anyone with the app connect to your live auction over cellular/4G/5G anywhere:
+1. **Deploy Free on Render.com**:
+   - Push this repo to GitHub.
+   - Go to [render.com](https://render.com) ➔ New ➔ Web Service ➔ Select this repository.
+   - Render automatically reads [`render.yaml`](render.yaml) and deploys your live Node.js + WebSocket server with a permanent HTTPS link (e.g. `https://hammer-auction.onrender.com`).
+2. **Connect in App**:
+   - In the mobile app, tap the **LIVE/OFFLINE** pill at the top.
+   - Enter your public cloud URL (`https://hammer-auction.onrender.com`) and tap **CONNECT**.
+   - The app saves this URL permanently — anyone on any network now bids in realtime with zero latency!
+
+### 📲 Instant Mobile Web App / PWA (Zero Install Option)
+- Open `http://<your-server-url>/mobile` in Safari or Chrome.
+- Tap **"Add to Home Screen"** to install as a standalone native app icon.
+- See [mobile/README.md](mobile/README.md) for complete mobile documentation.
 
 ---
 

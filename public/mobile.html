@@ -351,30 +351,70 @@
         </div>
         <h2 class="font-display text-2xl tracking-wide text-hm-text leading-none">AUCTIONEER TERMINAL</h2>
       </div>
-      <span class="font-mono text-[10px] text-hm-emerald bg-hm-emerald/10 border border-hm-emerald/30 px-2 py-0.5 rounded-[3px] font-bold">OPERATOR ACTIVE</span>
+      <span class="font-mono text-[10px] text-hm-emerald bg-hm-emerald/10 border border-hm-emerald/30 px-2 py-0.5 rounded-[3px] font-bold" id="gavel-auth-badge">OPERATOR ACTIVE</span>
     </div>
 
-    <!-- Active Lot Control Panel -->
-    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-3">
-      <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">AUTHORITATIVE LOT HAMMER</span>
-      <div class="grid grid-cols-3 gap-2 mb-2 font-mono text-xs">
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-text" onclick="sendGavel(1)">1ST CALL</button>
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-text" onclick="sendGavel(2)">2ND CALL</button>
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-vermilion" onclick="sendGavel(3)">FAIR WARNING</button>
+    <!-- Quick Role Switch Banner if not logged in as auctioneer -->
+    <div id="gavel-login-prompt" class="hidden bg-hm-amber/10 border border-hm-amber/40 rounded-[6px] p-2.5 mb-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="material-symbols-outlined text-hm-amber text-[18px] shrink-0">admin_panel_settings</span>
+        <div class="truncate font-mono text-[11px] text-hm-text">
+          <span class="font-bold">GAVEL LOCKED</span> • Authenticate as Auctioneer to execute hammer calls
+        </div>
       </div>
-      <div class="grid grid-cols-2 gap-2 font-mono">
-        <button class="bg-hm-emerald/20 hover:bg-hm-emerald/30 border border-hm-emerald text-hm-emerald py-3 rounded-[4px] text-xs font-bold tracking-wider flex items-center justify-center gap-1.5" onclick="sendSold()">
+      <button class="bg-hm-amber hover:bg-hm-amber/90 text-hm-ink font-mono text-[10px] font-bold px-3 py-1.5 rounded-[3px] shrink-0 uppercase tracking-wider" onclick="quickLogin('auctioneer', 'hammer2026')">
+        ACTIVATE
+      </button>
+    </div>
+
+    <!-- Live Lot Gavel Desk Card -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-3">
+      <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-hm-border font-mono">
+        <span class="text-[10px] text-hm-faint uppercase tracking-wider font-bold">ACTIVE LOT ON STAGE</span>
+        <span id="gavel-lot-status" class="text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-emerald/10 border border-hm-emerald/40 text-hm-emerald uppercase">STAGE IDLE</span>
+      </div>
+
+      <!-- Active Cricketer Mini-Dossier -->
+      <div id="gavel-active-lot-info" class="flex items-center justify-between gap-3 mb-3 bg-hm-charcoal p-2.5 rounded-[4px] border border-hm-border">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <img id="gavel-p-img" src="/players/rcb/virat-kohli.png" class="w-10 h-12 object-cover object-top rounded-[3px] bg-hm-surface border border-hm-border shrink-0" alt="Current Player"/>
+          <div class="min-w-0 truncate">
+            <div id="gavel-p-name" class="font-ui font-bold text-xs text-hm-text truncate">NO CRICKETER ON STAGE</div>
+            <div id="gavel-p-role" class="font-mono text-[9px] text-hm-faint">SELECT A CRICKETER BELOW TO PUT ON BID</div>
+          </div>
+        </div>
+        <div class="text-right shrink-0 font-mono">
+          <span class="text-[8px] text-hm-faint uppercase block">CURRENT HIGH BID</span>
+          <span id="gavel-p-bid" class="font-bold text-sm text-hm-amber">—</span>
+          <span id="gavel-p-leader" class="text-[9px] text-hm-muted block font-bold">STAGE OPEN</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mb-2 font-mono text-xs">
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-text active:scale-95 transition-transform" onclick="sendGavel(1)">1ST CALL</button>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-text active:scale-95 transition-transform" onclick="sendGavel(2)">2ND CALL</button>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-vermilion active:scale-95 transition-transform" onclick="sendGavel(3)">FAIR WARNING</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 font-mono mb-2">
+        <button class="bg-hm-emerald/20 hover:bg-hm-emerald/30 border border-hm-emerald text-hm-emerald py-3 rounded-[4px] text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-transform" onclick="sendSold()">
           <span class="material-symbols-outlined text-[16px]">gavel</span>
           HAMMER SOLD
         </button>
-        <button class="bg-hm-vermilion/20 hover:bg-hm-vermilion/30 border border-hm-vermilion text-hm-vermilion py-3 rounded-[4px] text-xs font-bold tracking-wider flex items-center justify-center gap-1.5" onclick="sendUnsold()">
+        <button class="bg-hm-vermilion/20 hover:bg-hm-vermilion/30 border border-hm-vermilion text-hm-vermilion py-3 rounded-[4px] text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 active:scale-95 transition-transform" onclick="sendUnsold()">
           <span class="material-symbols-outlined text-[16px]">block</span>
           PASS (UNSOLD)
         </button>
       </div>
+
+      <div class="grid grid-cols-3 gap-1.5 font-mono text-[10px]">
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-1.5 rounded-[3px] text-hm-muted font-bold" onclick="Hammer.addTimer(5); showToast('+5s added');">+5s TIMER</button>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-1.5 rounded-[3px] text-hm-muted font-bold" onclick="Hammer.addTimer(10); showToast('+10s added');">+10s TIMER</button>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-1.5 rounded-[3px] text-hm-muted font-bold" onclick="Hammer.resetTimer(); showToast('Timer reset');">RESET TIMER</button>
+      </div>
     </div>
 
-    <!-- Special Administrative Engines -->
+    <!-- Administrative Engines -->
     <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-3">
       <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">ADMINISTRATIVE ENGINES</span>
       <button class="w-full bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-amber py-2.5 rounded-[4px] font-mono text-xs font-bold mb-2 flex items-center justify-center gap-2" onclick="triggerCaptains()">
@@ -389,12 +429,29 @@
 
     <!-- Launch Player on Hammer with Player Photo Thumbnails -->
     <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3">
-      <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">CALL AVAILABLE LOT ONTO STAGE</span>
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider font-bold">CALL CRICKETER ONTO HAMMER</span>
+        <span class="font-mono text-[10px] text-hm-amber font-bold" id="gavel-count-tag">73 AVAILABLE</span>
+      </div>
+
+      <!-- Search Input -->
       <div class="relative mb-2">
         <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-hm-faint text-[18px]">search</span>
-        <input type="text" class="w-full bg-hm-charcoal border border-hm-border rounded-[4px] pl-9 pr-3 py-2 font-mono text-xs text-hm-text placeholder-hm-faint focus:outline-none focus:border-hm-border-strong" id="gavel-player-search" placeholder="Search available players..." oninput="renderGavelAvailable()"/>
+        <input type="text" class="w-full bg-hm-charcoal border border-hm-border rounded-[4px] pl-9 pr-3 py-2 font-mono text-xs text-hm-text placeholder-hm-faint focus:outline-none focus:border-hm-border-strong" id="gavel-player-search" placeholder="Search available cricketers..." oninput="renderGavelAvailable()"/>
       </div>
-      <div id="gavel-avail-list" class="space-y-1.5 max-h-72 overflow-y-auto"></div>
+
+      <!-- Category Filter Chips -->
+      <div class="flex gap-1.5 overflow-x-auto pb-2 mb-2" style="scrollbar-width: none;">
+        <button class="gavel-filter-chip active shrink-0 font-mono text-[9px] font-bold px-2.5 py-1 rounded-[3px] bg-hm-vermilion text-hm-text" onclick="setGavelFilter('ALL', this)">ALL</button>
+        <button class="gavel-filter-chip shrink-0 font-mono text-[9px] font-bold px-2.5 py-1 rounded-[3px] bg-hm-charcoal border border-hm-border text-hm-muted" onclick="setGavelFilter('batter', this)">BATTERS</button>
+        <button class="gavel-filter-chip shrink-0 font-mono text-[9px] font-bold px-2.5 py-1 rounded-[3px] bg-hm-charcoal border border-hm-border text-hm-muted" onclick="setGavelFilter('bowler', this)">BOWLERS</button>
+        <button class="gavel-filter-chip shrink-0 font-mono text-[9px] font-bold px-2.5 py-1 rounded-[3px] bg-hm-charcoal border border-hm-border text-hm-muted" onclick="setGavelFilter('allrounder', this)">ALL-ROUNDERS</button>
+        <button class="gavel-filter-chip shrink-0 font-mono text-[9px] font-bold px-2.5 py-1 rounded-[3px] bg-hm-charcoal border border-hm-border text-hm-muted" onclick="setGavelFilter('wicketkeeper', this)">WICKETKEEPERS</button>
+        <button class="gavel-filter-chip shrink-0 font-mono text-[9px] font-bold px-2.5 py-1 rounded-[3px] bg-hm-charcoal border border-hm-border text-hm-muted" onclick="setGavelFilter('overseas', this)">OVERSEAS</button>
+      </div>
+
+      <!-- Cricketers list -->
+      <div id="gavel-avail-list" class="space-y-1.5 max-h-80 overflow-y-auto pr-0.5"></div>
     </div>
   </main>
 
@@ -416,6 +473,14 @@
     <div class="relative mb-2.5">
       <span class="material-symbols-outlined absolute left-3 top-2.5 text-hm-faint text-[18px]">search</span>
       <input type="text" class="w-full bg-hm-panel border border-hm-border rounded-[4px] pl-9 pr-3 py-2 font-mono text-xs text-hm-text placeholder-hm-faint focus:outline-none focus:border-hm-border-strong" id="pool-search" placeholder="Search cricket players by name..." oninput="renderPlayerPool()"/>
+    </div>
+
+    <!-- Status Tabs (ALL, AVAILABLE, SOLD, UNSOLD) -->
+    <div class="flex gap-1.5 overflow-x-auto pb-1 mb-2 font-mono text-[9px] font-bold" style="scrollbar-width: none;">
+      <button class="pool-status-chip active px-2.5 py-1 rounded-[3px] bg-hm-amber text-hm-ink shrink-0" onclick="setPoolStatusTab('ALL', this)">ALL STATUS</button>
+      <button class="pool-status-chip px-2.5 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted shrink-0" onclick="setPoolStatusTab('available', this)">AVAILABLE ONLY</button>
+      <button class="pool-status-chip px-2.5 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted shrink-0" onclick="setPoolStatusTab('sold', this)">SOLD ROSTER</button>
+      <button class="pool-status-chip px-2.5 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted shrink-0" onclick="setPoolStatusTab('unsold', this)">UNSOLD</button>
     </div>
 
     <!-- Role Filter Pills -->
@@ -613,7 +678,7 @@
       <span class="material-symbols-outlined text-[20px] mb-0.5">stadium</span>
       <span class="font-mono text-[9px] font-bold tracking-wider">ARENA</span>
     </button>
-    <button class="nav-tab-btn flex-1 h-full flex flex-col items-center justify-center text-hm-muted transition-colors cursor-pointer hidden" id="nav-gavel-btn" onclick="switchTab('gavel', this)">
+    <button class="nav-tab-btn flex-1 h-full flex flex-col items-center justify-center text-hm-muted transition-colors cursor-pointer" id="nav-gavel-btn" onclick="switchTab('gavel', this)">
       <span class="material-symbols-outlined text-[20px] mb-0.5">gavel</span>
       <span class="font-mono text-[9px] font-bold tracking-wider">GAVEL</span>
     </button>
@@ -653,9 +718,11 @@
 
     function showToast(msg) {
       const el = document.getElementById('toast-msg');
+      if (!el) return;
       el.textContent = msg;
       el.classList.remove('hidden');
-      setTimeout(() => { el.classList.add('hidden'); }, 3000);
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => { el.classList.add('hidden'); }, 3000);
     }
 
     function switchTab(tabName, btn) {
@@ -666,15 +733,19 @@
       if (target) target.classList.add('active');
       if (btn) btn.classList.add('active');
 
+      if (tabName === 'arena') renderArena(currentAuction);
       if (tabName === 'players') renderPlayerPool();
       if (tabName === 'squads') renderSquads();
       if (tabName === 'gavel') renderGavelAvailable();
     }
 
+    let socket = null;
     let currentAuction = {};
     let allPlayers = [];
     let allTeams = [];
     let activeRoleTab = 'ALL';
+    let activePoolStatusTab = 'ALL';
+    let activeGavelFilter = 'ALL';
     let currentUser = null;
     let currentTeam = null;
 
@@ -719,76 +790,126 @@
       return '/players/rcb/virat-kohli.png';
     }
 
+    // Refresh all core datasets from server
+    async function refreshAllData() {
+      try {
+        const [st, plRes, tmRes] = await Promise.all([
+          Hammer.getAuctionState().catch(() => ({})),
+          Hammer.getPlayers({ limit: 500 }).catch(() => ({ players: [] })),
+          Hammer.getTeams().catch(() => [])
+        ]);
+        currentAuction = st || {};
+        allPlayers = Array.isArray(plRes) ? plRes : (plRes?.players || []);
+        allTeams = Array.isArray(tmRes) ? tmRes : [];
+        renderArena(currentAuction);
+        renderPlayerPool();
+        renderSquads();
+        renderGavelAvailable();
+      } catch (err) {
+        console.warn('Dataset load error:', err);
+      }
+    }
+
+    // Auto-elevate to auctioneer if executing gavel actions
+    async function ensureAuctioneerAuth() {
+      if (currentUser && currentUser.role === 'auctioneer') return true;
+      const res = await Hammer.login('auctioneer', 'hammer2026');
+      currentUser = res.user;
+      currentTeam = null;
+      if (socket && res.token) socket.emit('auth', { token: res.token });
+      updateAuthUI();
+      showToast('ROLE: AUCTIONEER OPERATOR ACTIVE');
+      return true;
+    }
+
     // Connect & Initialize
     (async function init() {
-      const socket = io({ transports: ['websocket', 'polling'] });
+      socket = io({ transports: ['websocket', 'polling'] });
 
       socket.on('connect', () => {
         const dot = document.getElementById('socket-dot');
-        dot.className = 'w-2 h-2 rounded-full bg-hm-emerald';
-        document.getElementById('socket-text').textContent = 'LIVE STAGE';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-hm-emerald';
+        const txt = document.getElementById('socket-text');
+        if (txt) txt.textContent = 'LIVE STAGE';
         const token = Hammer.getToken();
         if (token) socket.emit('auth', { token });
       });
 
       socket.on('disconnect', () => {
         const dot = document.getElementById('socket-dot');
-        dot.className = 'w-2 h-2 rounded-full bg-hm-vermilion';
-        document.getElementById('socket-text').textContent = 'OFFLINE';
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-hm-vermilion';
+        const txt = document.getElementById('socket-text');
+        if (txt) txt.textContent = 'OFFLINE';
       });
 
-      // Sync User Profile
+      // Synchronize User Authentication Session
       try {
-        const auth = await Hammer.getMe();
+        const auth = await Hammer.checkAuth();
         if (auth?.user) {
           currentUser = auth.user;
-          currentTeam = auth.team;
-          updateAuthUI();
+          currentTeam = auth.team || allTeams.find(t => t.id === auth.user.teamId);
+        } else {
+          const saved = localStorage.getItem('hammer_user');
+          if (saved) {
+            currentUser = JSON.parse(saved);
+            currentTeam = currentUser.team || allTeams.find(t => t.id === currentUser.teamId);
+          }
+        }
+      } catch (_) {}
+      updateAuthUI();
+
+      // Initial Datasets Load (guaranteed array & full pool of 73 players)
+      await refreshAllData();
+
+      // Initial Audit Log Fetch
+      try {
+        const auditRes = await fetch('/api/activity-log?limit=30').then(r => r.json()).catch(() => []);
+        const events = Array.isArray(auditRes) ? auditRes : (auditRes?.events || auditRes?.data || []);
+        const feed = document.getElementById('audit-feed');
+        if (events && events.length > 0 && feed) {
+          feed.innerHTML = '';
+          events.forEach(ev => appendAuditEvent(ev));
         }
       } catch (_) {}
 
-      // Fetch Initial Datasets
-      try {
-        const [st, pl, tm] = await Promise.all([
-          Hammer.getAuctionState(),
-          Hammer.getPlayers(),
-          Hammer.getTeams()
-        ]);
-        currentAuction = st || {};
-        allPlayers = pl || [];
-        allTeams = tm || [];
-        renderArena(currentAuction);
-        renderPlayerPool();
-        renderSquads();
-      } catch (err) {
-        console.warn('Initial load error:', err);
-      }
-
       // Realtime Event Listeners
       socket.on('auction:state', (st) => {
+        if (!st) return;
         currentAuction = st;
         renderArena(st);
+        renderGavelAvailable();
+        renderPlayerPool();
       });
 
-      socket.on('auction:timer', ({ timer }) => {
+      socket.on('auction:timer', ({ timer, gavelStage }) => {
         const secEl = document.getElementById('timer-sec');
         const boxEl = document.getElementById('timer-box');
-        secEl.textContent = timer;
-        if (timer <= 5 && timer > 0) {
-          boxEl.classList.add('timer-urgent');
-        } else {
-          boxEl.classList.remove('timer-urgent');
+        if (secEl) secEl.textContent = timer;
+        if (boxEl) {
+          if (timer <= 5 && timer > 0) {
+            boxEl.classList.add('timer-urgent');
+          } else {
+            boxEl.classList.remove('timer-urgent');
+          }
         }
 
         const isFrozen = timer === 0;
-        document.getElementById('freeze-banner').classList.toggle('hidden', !isFrozen);
+        const frz = document.getElementById('freeze-banner');
+        if (frz) frz.classList.toggle('hidden', !isFrozen);
         updateBidButtonState();
+
+        if (gavelStage !== undefined && currentAuction) {
+          currentAuction.gavelStage = gavelStage;
+        }
       });
 
       socket.on('auction:started', (st) => {
         if (st) {
           currentAuction = st;
           renderArena(st);
+          renderGavelAvailable();
+          renderPlayerPool();
+          showToast(`LOT OPENED: ${st.currentPlayer?.name || 'Cricketer'}`);
         }
       });
 
@@ -798,6 +919,7 @@
         if (bidData?.state) {
           currentAuction = bidData.state;
           renderArena(bidData.state);
+          renderGavelAvailable();
         }
         showToast(`BID ACCEPTED: ${bidData.team?.name || bidData.team} — ${fmtPrice(bidData.bid?.amount || bidData.bid)}`);
       });
@@ -810,7 +932,7 @@
           renderArena(data.state);
         }
         showToast(`SOLD: ${data.player?.name || 'Player'} to ${data.team?.name || data.team} for ${fmtPrice(data.price)}`);
-        renderPlayerPool();
+        refreshAllData();
       });
 
       socket.on('auction:unsold', (data) => {
@@ -819,8 +941,8 @@
           currentAuction = data.state;
           renderArena(data.state);
         }
-        showToast(`UNSOLD: ${data.player?.name || 'Lot'} passed to accelerated pool`);
-        renderPlayerPool();
+        showToast(`UNSOLD: ${data.player?.name || 'Lot'} passed`);
+        refreshAllData();
       });
 
       socket.on('auction:paused', (st) => {
@@ -842,6 +964,8 @@
           currentAuction = st;
           renderArena(st);
         }
+        refreshAllData();
+        showToast('Auction stage reset');
       });
 
       socket.on('teams:update', (tms) => {
@@ -861,25 +985,34 @@
     function updateAuthUI() {
       const userLogo = document.getElementById('header-user-logo');
       const userName = document.getElementById('header-user-name');
-      const gavelNav = document.getElementById('nav-gavel-btn');
       const quickPanel = document.getElementById('auctioneer-quick-panel');
       const paddleContainer = document.getElementById('bidding-paddle-container');
+      const gavelBadge = document.getElementById('gavel-auth-badge');
+      const gavelPrompt = document.getElementById('gavel-login-prompt');
 
       if (!currentUser) {
         userName.textContent = 'FAN';
         userLogo.classList.add('hidden');
-        gavelNav.classList.add('hidden');
         quickPanel.classList.add('hidden');
         paddleContainer.classList.remove('hidden');
+        if (gavelBadge) {
+          gavelBadge.textContent = 'READ-ONLY (FAN)';
+          gavelBadge.className = 'font-mono text-[10px] text-hm-amber bg-hm-amber/10 border border-hm-amber/40 px-2 py-0.5 rounded-[3px] font-bold';
+        }
+        if (gavelPrompt) gavelPrompt.classList.remove('hidden');
         return;
       }
 
       if (currentUser.role === 'auctioneer') {
         userName.textContent = 'AUCTIONEER';
         userLogo.classList.add('hidden');
-        gavelNav.classList.remove('hidden');
         quickPanel.classList.remove('hidden');
         paddleContainer.classList.add('hidden');
+        if (gavelBadge) {
+          gavelBadge.textContent = 'OPERATOR ACTIVE';
+          gavelBadge.className = 'font-mono text-[10px] text-hm-emerald bg-hm-emerald/10 border border-hm-emerald/30 px-2 py-0.5 rounded-[3px] font-bold';
+        }
+        if (gavelPrompt) gavelPrompt.classList.add('hidden');
       } else if (currentUser.role === 'team_owner') {
         const tCode = (currentTeam?.code || currentUser.teamId).toUpperCase();
         userName.textContent = tCode;
@@ -888,16 +1021,22 @@
           userLogo.src = logo;
           userLogo.classList.remove('hidden');
         }
-        gavelNav.classList.add('hidden');
         quickPanel.classList.add('hidden');
         paddleContainer.classList.remove('hidden');
+        if (gavelBadge) {
+          gavelBadge.textContent = `READ-ONLY (${tCode})`;
+          gavelBadge.className = 'font-mono text-[10px] text-hm-muted bg-hm-surface border border-hm-border px-2 py-0.5 rounded-[3px] font-bold';
+        }
+        if (gavelPrompt) gavelPrompt.classList.remove('hidden');
       }
 
       if (currentTeam) {
         const rem = currentTeam.remaining ?? (currentTeam.purse - (currentTeam.spent || 0));
-        document.getElementById('user-purse').textContent = fmtPrice(rem);
+        const up = document.getElementById('user-purse');
+        if (up) up.textContent = fmtPrice(rem);
         const slots = currentTeam.filledSlots || currentTeam.squad?.length || 0;
-        document.getElementById('user-slots').textContent = `${slots} / ${currentTeam.maxSlots || 15}`;
+        const us = document.getElementById('user-slots');
+        if (us) us.textContent = `${slots} / ${currentTeam.maxSlots || 15}`;
       }
     }
 
@@ -907,15 +1046,17 @@
       const isPaused = state.status === 'paused';
 
       const sBadge = document.getElementById('stage-badge');
-      if (isLive) {
-        sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-emerald/10 border border-hm-emerald/40 text-hm-emerald uppercase';
-        sBadge.textContent = 'LIVE LOT';
-      } else if (isPaused) {
-        sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-amber/10 border border-hm-amber/40 text-hm-amber uppercase';
-        sBadge.textContent = 'PAUSED';
-      } else {
-        sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-surface border border-hm-border-s text-hm-muted uppercase';
-        sBadge.textContent = 'AUCTION IDLE';
+      if (sBadge) {
+        if (isLive) {
+          sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-emerald/10 border border-hm-emerald/40 text-hm-emerald uppercase';
+          sBadge.textContent = 'LIVE LOT';
+        } else if (isPaused) {
+          sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-amber/10 border border-hm-amber/40 text-hm-amber uppercase';
+          sBadge.textContent = 'PAUSED';
+        } else {
+          sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-surface border border-hm-border-s text-hm-muted uppercase';
+          sBadge.textContent = 'AUCTION IDLE';
+        }
       }
 
       // Player details
@@ -998,6 +1139,35 @@
         leaderSub.textContent = 'STAGE OPEN';
       }
 
+      // Update Gavel screen active lot info as well
+      const gImg = document.getElementById('gavel-p-img');
+      const gName = document.getElementById('gavel-p-name');
+      const gRole = document.getElementById('gavel-p-role');
+      const gBid = document.getElementById('gavel-p-bid');
+      const gLeader = document.getElementById('gavel-p-leader');
+      const gStatus = document.getElementById('gavel-lot-status');
+
+      if (p) {
+        if (gImg) gImg.src = resolvePlayerImage(p);
+        if (gName) gName.textContent = p.name;
+        if (gRole) gRole.textContent = `LOT #${p.lotNumber || p.id} • ${(p.role || '').toUpperCase()} • BASE: ${fmtPrice(p.basePrice)}`;
+        if (gBid) gBid.textContent = curBid > 0 ? fmtPrice(curBid) : `BASE: ${fmtPrice(p.basePrice)}`;
+        if (gLeader) gLeader.textContent = leader ? `HIGH BIDDER: ${leader}` : 'NO BIDS YET';
+        if (gStatus) {
+          gStatus.textContent = isLive ? 'LIVE ON HAMMER' : isPaused ? 'PAUSED' : 'IDLE';
+          gStatus.className = isLive ? 'text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-emerald/10 border border-hm-emerald/40 text-hm-emerald uppercase' : 'text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-amber/10 border border-hm-amber/40 text-hm-amber uppercase';
+        }
+      } else {
+        if (gName) gName.textContent = 'NO CRICKETER ON STAGE';
+        if (gRole) gRole.textContent = 'SELECT A CRICKETER BELOW TO PUT ON BID';
+        if (gBid) gBid.textContent = '—';
+        if (gLeader) gLeader.textContent = 'STAGE OPEN';
+        if (gStatus) {
+          gStatus.textContent = 'STAGE IDLE';
+          gStatus.className = 'text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-surface border border-hm-border text-hm-muted uppercase';
+        }
+      }
+
       // Next Bid Calculation
       let inc = 10;
       if (curBid >= 500) inc = 50;
@@ -1018,9 +1188,10 @@
 
     function updateBidButtonState() {
       const btn = document.getElementById('btn-place-bid');
+      if (!btn) return;
       const isLive = currentAuction.status === 'live';
       const isPaused = currentAuction.status === 'paused';
-      const timer = Number(document.getElementById('timer-sec').textContent);
+      const timer = Number(document.getElementById('timer-sec')?.textContent || 15);
       const isLeaderMe = currentUser?.role === 'team_owner' && currentTeam && (currentAuction.leadingTeamId === currentTeam.id || currentAuction.leadingTeamId === currentTeam.code);
 
       if (!isLive || isPaused || timer === 0 || isLeaderMe || !currentUser || currentUser.role !== 'team_owner') {
@@ -1032,6 +1203,7 @@
 
     function renderHistory(hist) {
       const container = document.getElementById('lot-bids-feed');
+      if (!container) return;
       document.getElementById('bid-stream-count').textContent = `${hist.length} BIDS`;
       if (!hist || hist.length === 0) {
         container.innerHTML = '<div class="font-mono text-xs text-hm-faint text-center py-2">Awaiting bids on active lot...</div>';
@@ -1056,8 +1228,19 @@
     // Bid Button Handlers
     document.getElementById('btn-place-bid').onclick = async function() {
       hapticTap(40);
+      if (!currentUser || currentUser.role !== 'team_owner') {
+        showToast('Select a franchise in PORTAL to place bids');
+        switchTab('portal', document.querySelectorAll('.nav-tab-btn')[5]);
+        return;
+      }
       try {
-        await Hammer.placeBid();
+        const curBid = Number(currentAuction.currentBid || 0);
+        let inc = 10;
+        if (curBid >= 500) inc = 50;
+        else if (curBid >= 100) inc = 20;
+        const nextVal = (!curBid || !currentAuction.leadingTeamId) ? (currentAuction.basePrice || 200) : (curBid + inc);
+
+        await Hammer.placeBid(nextVal);
       } catch (e) {
         showToast(e.message || 'Bid rejected by server');
       }
@@ -1071,12 +1254,17 @@
     document.getElementById('btn-unsold').onclick = () => sendUnsold();
     document.getElementById('btn-quick-pause').onclick = async () => {
       hapticTap(30);
-      if (currentAuction.status === 'paused') {
-        await Hammer.resumeAuction();
-        document.getElementById('pause-btn-text').textContent = 'PAUSE';
-      } else {
-        await Hammer.pauseAuction();
-        document.getElementById('pause-btn-text').textContent = 'RESUME';
+      try {
+        await ensureAuctioneerAuth();
+        if (currentAuction.status === 'paused') {
+          await Hammer.resumeAuction();
+          document.getElementById('pause-btn-text').textContent = 'PAUSE';
+        } else {
+          await Hammer.pauseAuction();
+          document.getElementById('pause-btn-text').textContent = 'RESUME';
+        }
+      } catch (e) {
+        showToast(e.message || 'Pause failed');
       }
     };
     document.getElementById('btn-time-5').onclick = () => Hammer.addTimer(5);
@@ -1085,32 +1273,71 @@
 
     async function sendGavel(stage) {
       hapticTap(30);
-      try { await Hammer.gavelAction(stage); } catch (e) { showToast(e.message); }
-    }
-    async function sendSold() {
-      hapticTap([50, 50, 50]);
-      try { await Hammer.soldLot(); } catch (e) { showToast(e.message); }
-    }
-    async function sendUnsold() {
-      hapticTap(50);
-      try { await Hammer.unsoldLot(); } catch (e) { showToast(e.message); }
-    }
-    async function triggerCaptains() {
-      if (!confirm('Lock 2026 Captains into rosters at base price?')) return;
       try {
-        await Hammer.apiPost('/api/auction/captain-retention');
-        showToast('Captains retained successfully!');
-      } catch (e) { showToast(e.message); }
-    }
-    async function resetLot() {
-      if (!confirm('Reset current lot?')) return;
-      try {
-        await Hammer.apiPost('/api/auction/reset');
-        showToast('Lot reset.');
-      } catch (e) { showToast(e.message); }
+        await ensureAuctioneerAuth();
+        await Hammer.setGavelStage(stage);
+        showToast(`Gavel Call: ${stage === 1 ? '1ST CALL' : stage === 2 ? '2ND CALL' : 'FAIR WARNING'}`);
+      } catch (e) {
+        showToast(e.message || 'Gavel call failed');
+      }
     }
 
-    // Player Pool Screen With Athlete Photos & Buyer Team Logos
+    async function sendSold() {
+      hapticTap([50, 50, 50]);
+      try {
+        await ensureAuctioneerAuth();
+        await Hammer.sellPlayer();
+      } catch (e) {
+        showToast(e.message || 'Hammer sold failed');
+      }
+    }
+
+    async function sendUnsold() {
+      hapticTap(50);
+      try {
+        await ensureAuctioneerAuth();
+        await Hammer.unsoldPlayer();
+      } catch (e) {
+        showToast(e.message || 'Pass lot failed');
+      }
+    }
+
+    async function triggerCaptains() {
+      if (!confirm('Lock 2026 Captains into rosters at base price?')) return;
+      hapticTap(40);
+      try {
+        await ensureAuctioneerAuth();
+        await Hammer.setCaptainRetention(true);
+        showToast('Captains retained in rosters!');
+        await refreshAllData();
+      } catch (e) {
+        showToast(e.message || 'Captain retention failed');
+      }
+    }
+
+    async function resetLot() {
+      if (!confirm('Reset current lot? All bids on this lot will be cleared.')) return;
+      hapticTap(40);
+      try {
+        await ensureAuctioneerAuth();
+        await Hammer.resetAuction();
+        showToast('Auction stage reset');
+        await refreshAllData();
+      } catch (e) {
+        showToast(e.message || 'Reset failed');
+      }
+    }
+
+    // Player Pool Screen With Athlete Photos & Direct "Put on Bid"
+    function setPoolStatusTab(status, btn) {
+      activePoolStatusTab = status;
+      document.querySelectorAll('.pool-status-chip').forEach(c => {
+        c.className = 'pool-status-chip px-2.5 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted shrink-0';
+      });
+      btn.className = 'pool-status-chip px-2.5 py-1 rounded-[3px] bg-hm-amber text-hm-ink shrink-0 font-bold';
+      renderPlayerPool();
+    }
+
     function setRoleTab(role, btn) {
       activeRoleTab = role;
       document.querySelectorAll('.role-chip').forEach(c => {
@@ -1123,24 +1350,44 @@
     function renderPlayerPool() {
       const q = (document.getElementById('pool-search')?.value || '').toLowerCase();
       const list = document.getElementById('player-pool-list');
+      if (!list) return;
+
       const filtered = allPlayers.filter(p => {
-        if (q && !p.name.toLowerCase().includes(q)) return false;
-        if (activeRoleTab === 'overseas') return !!p.overseas;
-        if (activeRoleTab !== 'ALL' && p.role !== activeRoleTab) return false;
+        if (q && !p.name.toLowerCase().includes(q) && !(p.nationality && p.nationality.toLowerCase().includes(q))) return false;
+        if (activeRoleTab === 'overseas') {
+          if (!p.overseas) return false;
+        } else if (activeRoleTab !== 'ALL' && p.role !== activeRoleTab) {
+          return false;
+        }
+        if (activePoolStatusTab === 'available') {
+          if (p.status === 'sold' || p.status === 'unsold') return false;
+        } else if (activePoolStatusTab === 'sold') {
+          if (p.status !== 'sold') return false;
+        } else if (activePoolStatusTab === 'unsold') {
+          if (p.status !== 'unsold') return false;
+        }
         return true;
       });
 
-      document.getElementById('pool-count-tag').textContent = `${filtered.length} PLAYERS`;
+      const countEl = document.getElementById('pool-count-tag');
+      if (countEl) countEl.textContent = `${filtered.length} / ${allPlayers.length} PLAYERS`;
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="font-mono text-xs text-hm-faint text-center py-10 bg-hm-panel rounded-[6px] border border-hm-border">No cricketers match search & filter parameters.</div>';
+        return;
+      }
 
       list.innerHTML = filtered.map(p => {
         const isSold = p.status === 'sold';
+        const isUnsold = p.status === 'unsold';
+        const isCurrent = currentAuction && (currentAuction.currentPlayerId === p.id || currentAuction.currentPlayer?.id === p.id);
         const imgUrl = resolvePlayerImage(p);
         const buyerTheme = (isSold && p.soldTo && window.getTeamTheme) ? window.getTeamTheme(p.soldTo) : null;
         const buyerLogo = buyerTheme?.logo || (isSold && p.soldTo ? getTeamLogoUrl(p.soldTo) : null);
         const inits = (p.name || '').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
 
         return `
-          <div class="bg-hm-panel border border-hm-border rounded-[6px] p-2.5 flex items-center justify-between gap-3 hover:border-hm-border-strong transition-colors">
+          <div class="bg-hm-panel border ${isCurrent ? 'border-hm-vermilion' : 'border-hm-border'} rounded-[6px] p-2.5 flex items-center justify-between gap-3 hover:border-hm-border-strong transition-colors">
             <div class="flex items-center gap-3 min-w-0">
               <!-- Player Photo Portrait -->
               <div class="w-12 h-14 rounded-[4px] bg-hm-charcoal border border-hm-border overflow-hidden shrink-0 relative flex items-center justify-center">
@@ -1155,7 +1402,7 @@
                   ${p.overseas ? '<span class="material-symbols-outlined text-[13px] text-hm-amber shrink-0" title="Overseas">public</span>' : ''}
                 </div>
                 <div class="font-mono text-[9px] text-hm-faint mt-0.5 truncate">
-                  LOT #${p.lotNumber || p.id} • ${(p.role || '').toUpperCase()}
+                  LOT #${p.lotNumber || p.id} • ${(p.role || '').toUpperCase()} • ${p.nationality || 'INDIA'}
                 </div>
                 <div class="font-mono text-[10px] text-hm-muted mt-0.5 font-bold">
                   BASE: ${fmtPrice(p.basePrice)}
@@ -1163,22 +1410,34 @@
               </div>
             </div>
 
-            <!-- Status & Price with Team Logo if Sold -->
-            <div class="text-right font-mono shrink-0">
+            <!-- Status & Action (Put on Bid or Sold Badge) -->
+            <div class="text-right font-mono shrink-0 flex flex-col items-end gap-1.5">
               ${isSold ? `
                 <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] border" style="background-color: ${buyerTheme?.badgeBg || 'rgba(45,139,90,0.15)'}; border-color: ${buyerTheme?.badgeBorder || '#2D8B5A'};">
                   ${buyerLogo ? `<img src="${buyerLogo}" class="w-3.5 h-3.5 object-contain" alt="${p.soldTo}" onerror="this.style.display='none'"/>` : ''}
                   <span class="text-[9px] font-bold uppercase" style="color: ${buyerTheme?.contrastText || '#2D8B5A'};">SOLD (${p.soldTo})</span>
                 </div>
-                <div class="text-xs font-bold text-hm-amber mt-1">${fmtPrice(p.soldPrice)}</div>
-              ` : p.status === 'unsold' ? `
+                <div class="text-xs font-bold text-hm-amber">${fmtPrice(p.soldPrice)}</div>
+              ` : isCurrent ? `
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-vermilion/20 border border-hm-vermilion text-hm-vermilion uppercase animate-pulse">
+                  ON HAMMER
+                </span>
+              ` : isUnsold ? `
                 <span class="text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-vermilion/10 border border-hm-vermilion/30 text-hm-vermilion uppercase">
                   UNSOLD
                 </span>
+                <button class="bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text px-2.5 py-1 rounded-[3px] font-mono text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 active:scale-95 transition-transform" onclick="startPlayerLot(${p.id})">
+                  <span class="material-symbols-outlined text-[12px]">gavel</span>
+                  <span>RE-CALL</span>
+                </button>
               ` : `
                 <span class="text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-elevated border border-hm-border-s text-hm-muted uppercase">
                   AVAILABLE
                 </span>
+                <button class="bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text px-2.5 py-1 rounded-[3px] font-mono text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 active:scale-95 transition-transform shadow-sm" onclick="startPlayerLot(${p.id})">
+                  <span class="material-symbols-outlined text-[12px]">gavel</span>
+                  <span>PUT ON BID</span>
+                </button>
               `}
             </div>
           </div>
@@ -1186,23 +1445,72 @@
       }).join('');
     }
 
-    // Gavel available players with Player Photo Thumbnails
+    // Gavel available players with Category Chips and "PUT ON BID"
+    function setGavelFilter(role, btn) {
+      activeGavelFilter = role;
+      document.querySelectorAll('.gavel-filter-chip').forEach(c => {
+        c.className = 'gavel-filter-chip shrink-0 font-mono text-[9px] font-bold px-2.5 py-1 rounded-[3px] bg-hm-charcoal border border-hm-border text-hm-muted';
+      });
+      btn.className = 'gavel-filter-chip shrink-0 font-mono text-[9px] font-bold px-2.5 py-1 rounded-[3px] bg-hm-vermilion text-hm-text';
+      renderGavelAvailable();
+    }
+
     function renderGavelAvailable() {
       const q = (document.getElementById('gavel-player-search')?.value || '').toLowerCase();
       const list = document.getElementById('gavel-avail-list');
-      const avail = allPlayers.filter(p => (!p.status || p.status === 'available') && (!q || p.name.toLowerCase().includes(q)));
-      list.innerHTML = avail.slice(0, 10).map(p => {
+      if (!list) return;
+
+      const filtered = allPlayers.filter(p => {
+        if (q && !p.name.toLowerCase().includes(q) && !(p.nationality && p.nationality.toLowerCase().includes(q))) return false;
+        if (activeGavelFilter === 'overseas') return !!p.overseas;
+        if (activeGavelFilter !== 'ALL' && p.role !== activeGavelFilter) return false;
+        return true;
+      });
+
+      const availCount = allPlayers.filter(p => !p.status || p.status === 'available').length;
+      const countEl = document.getElementById('gavel-count-tag');
+      if (countEl) countEl.textContent = `${availCount} AVAILABLE / ${allPlayers.length} TOTAL`;
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="font-mono text-xs text-hm-faint text-center py-6">No matching cricketers found.</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(p => {
         const imgUrl = resolvePlayerImage(p);
+        const isCurrent = currentAuction && (currentAuction.currentPlayerId === p.id || currentAuction.currentPlayer?.id === p.id);
+        const isSold = p.status === 'sold';
+        const isUnsold = p.status === 'unsold';
+
         return `
-          <div class="bg-hm-charcoal border border-hm-border rounded-[4px] p-2 flex items-center justify-between gap-2.5">
+          <div class="bg-hm-charcoal border ${isCurrent ? 'border-hm-vermilion bg-hm-vermilion/5' : 'border-hm-border'} rounded-[4px] p-2 flex items-center justify-between gap-2.5 hover:border-hm-border-strong transition-colors">
             <div class="flex items-center gap-2.5 min-w-0">
-              <img src="${imgUrl}" class="w-9 h-11 object-cover object-top rounded-[3px] bg-hm-surface border border-hm-border shrink-0" alt="${p.name}" onerror="this.src='/players/rcb/virat-kohli.png'"/>
+              <img src="${imgUrl}" class="w-10 h-12 object-cover object-top rounded-[3px] bg-hm-surface border border-hm-border shrink-0" alt="${p.name}" onerror="this.src='/players/rcb/virat-kohli.png'"/>
               <div class="truncate">
-                <div class="font-ui font-bold text-xs text-hm-text truncate">${p.name}</div>
-                <div class="font-mono text-[9px] text-hm-faint">LOT #${p.lotNumber || p.id} • ${fmtPrice(p.basePrice)}</div>
+                <div class="font-ui font-bold text-xs text-hm-text truncate flex items-center gap-1">
+                  ${p.name}
+                  ${p.overseas ? '<span class="material-symbols-outlined text-[12px] text-hm-amber" title="Overseas">public</span>' : ''}
+                </div>
+                <div class="font-mono text-[9px] text-hm-faint">
+                  LOT #${p.lotNumber || p.id} • ${(p.role || '').toUpperCase()} • BASE ${fmtPrice(p.basePrice)}
+                </div>
+                <div class="font-mono text-[9px] mt-0.5">
+                  ${isSold ? `<span class="text-hm-emerald font-bold">SOLD to ${p.soldTo} (${fmtPrice(p.soldPrice)})</span>` : isUnsold ? '<span class="text-hm-vermilion">UNSOLD (ACCELERATED)</span>' : isCurrent ? '<span class="text-hm-vermilion font-bold animate-pulse">ON HAMMER STAGE</span>' : '<span class="text-hm-muted">AVAILABLE IN REGISTRY</span>'}
+                </div>
               </div>
             </div>
-            <button class="bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text px-3 py-1.5 rounded-[3px] font-mono text-[10px] font-bold shrink-0" onclick="startPlayerLot(${p.id})">CALL</button>
+            <div class="shrink-0">
+              ${isCurrent ? `
+                <button class="bg-hm-vermilion/20 border border-hm-vermilion text-hm-vermilion px-2.5 py-1.5 rounded-[3px] font-mono text-[10px] font-bold cursor-default">ACTIVE</button>
+              ` : isSold ? `
+                <span class="font-mono text-[9px] text-hm-muted px-2 py-1 bg-hm-surface rounded-[2px] block text-center">SOLD</span>
+              ` : `
+                <button class="bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text px-3 py-1.5 rounded-[3px] font-mono text-[10px] font-bold uppercase tracking-wider active:scale-95 transition-transform flex items-center gap-1 shadow-sm" onclick="startPlayerLot(${p.id})">
+                  <span class="material-symbols-outlined text-[13px]">gavel</span>
+                  <span>PUT ON BID</span>
+                </button>
+              `}
+            </div>
           </div>
         `;
       }).join('');
@@ -1211,14 +1519,42 @@
     async function startPlayerLot(id) {
       hapticTap(40);
       try {
-        await Hammer.startAuction(id);
+        await ensureAuctioneerAuth();
+        const currentState = currentAuction || Hammer.getState();
+        if (currentState && (currentState.status === 'live' || currentState.status === 'paused')) {
+          if (currentState.currentPlayer?.id === id || currentState.currentPlayerId === id) {
+            showToast('This cricketer is already on the hammer stage!');
+            switchTab('arena', document.querySelector('.nav-tab-btn:first-child'));
+            return;
+          }
+          if (currentState.timer <= 0 && !currentState.leadingTeamId) {
+            try { await Hammer.unsoldPlayer(); } catch (_) {}
+          } else {
+            const proceed = confirm(`Another lot is currently active on the hammer. Pass current lot and bring this player to the stage?`);
+            if (!proceed) return;
+            try { await Hammer.unsoldPlayer(); } catch (_) {}
+          }
+        }
+        const res = await Hammer.startAuction(id);
+        const p = allPlayers.find(x => x.id === id);
+        if (p) p.status = 'on_hammer';
+        showToast(`${p?.name || 'Lot'} brought onto hammer!`);
+        if (res && res.state) {
+          currentAuction = res.state;
+          renderArena(res.state);
+        }
+        renderGavelAvailable();
+        renderPlayerPool();
         switchTab('arena', document.querySelector('.nav-tab-btn:first-child'));
-      } catch (e) { showToast(e.message); }
+      } catch (e) {
+        showToast(e.message || 'Failed to bring player onto hammer');
+      }
     }
 
     // Squads Screen with Official Team Logos and Player Photos
     function renderSquads() {
       const list = document.getElementById('squads-list');
+      if (!list) return;
       list.innerHTML = allTeams.map(t => {
         const squad = t.squad || t.players || [];
         const rem = t.remaining ?? (t.purse - (t.spent || 0));
@@ -1274,8 +1610,7 @@
     }
 
     // Audit Stream with Team Logos
-    function prependAuditEvent(ev) {
-      const feed = document.getElementById('audit-feed');
+    function createAuditNode(ev) {
       const div = document.createElement('div');
       div.className = 'bg-hm-panel border border-hm-border rounded-[4px] p-2.5 flex items-center justify-between font-mono text-xs';
       const theme = ev.actor_team_id && window.getTeamTheme ? window.getTeamTheme(ev.actor_team_id) : null;
@@ -1283,7 +1618,7 @@
 
       div.innerHTML = `
         <div>
-          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-[2px] bg-hm-charcoal border border-hm-border text-hm-muted uppercase">${ev.event_type}</span>
+          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-[2px] bg-hm-charcoal border border-hm-border text-hm-muted uppercase">${ev.event_type || 'EVENT'}</span>
           <div class="font-bold text-hm-text mt-1 flex items-center gap-1.5">
             ${logo ? `<img src="${logo}" class="w-3.5 h-3.5 object-contain" alt="" onerror="this.style.display='none'"/>` : ''}
             ${ev.player_name || 'Auction Session'}
@@ -1294,7 +1629,22 @@
           <div class="text-[9px] text-hm-faint">${ev.actor_team_id || ''}</div>
         </div>
       `;
-      feed.insertBefore(div, feed.firstChild);
+      return div;
+    }
+
+    function appendAuditEvent(ev) {
+      const feed = document.getElementById('audit-feed');
+      if (feed) feed.appendChild(createAuditNode(ev));
+    }
+
+    function prependAuditEvent(ev) {
+      const feed = document.getElementById('audit-feed');
+      if (feed) {
+        if (feed.firstElementChild && feed.firstElementChild.textContent.includes('No audit events')) {
+          feed.innerHTML = '';
+        }
+        feed.insertBefore(createAuditNode(ev), feed.firstChild);
+      }
     }
 
     // Quick Login
@@ -1303,9 +1653,14 @@
       try {
         const res = await Hammer.login(u, p);
         currentUser = res.user;
-        currentTeam = res.team;
+        currentTeam = res.team || allTeams.find(t => t.id === res.user?.teamId);
+        if (socket && res.token) {
+          socket.emit('auth', { token: res.token });
+        }
         updateAuthUI();
-        showToast(`Authenticated as ${u.toUpperCase()}`);
+        showToast(`AUTHENTICATED AS ${u.toUpperCase()}`);
+        renderGavelAvailable();
+        renderPlayerPool();
         switchTab('arena', document.querySelector('.nav-tab-btn:first-child'));
       } catch (e) {
         showToast(e.message || 'Login failed');

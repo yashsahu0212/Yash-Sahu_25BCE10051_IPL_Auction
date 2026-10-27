@@ -14,7 +14,6 @@ export default function AuctioneerScreen() {
   if (user?.role !== 'auctioneer') {
     return (
       <View style={styles.deniedContainer}>
-        <Text style={styles.deniedIcon}>🔒</Text>
         <Text style={styles.deniedTitle}>AUCTIONEER RESTRICTED AREA</Text>
         <Text style={styles.deniedSub}>You must be logged in as Auctioneer to access master gavel controls.</Text>
       </View>

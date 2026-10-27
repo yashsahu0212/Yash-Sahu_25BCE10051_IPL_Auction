@@ -67,7 +67,7 @@
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="lot-replay.html">LOT REPLAY</a>
         <a data-nav="activity" class="hidden px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="activity-log.html">ACTIVITY</a>
         <a class="px-3 py-1.5 text-hm-muted hover:text-hm-text transition-colors" href="final-squads.html">FINAL SQUADS</a>
-        <a class="px-2.5 py-1 text-hm-amber hover:text-hm-text transition-colors font-bold border border-hm-amber/40 rounded-[4px]" href="/mobile">📱 MOBILE APP</a>
+        <a class="px-2.5 py-1 text-hm-amber hover:text-hm-text transition-colors font-bold border border-hm-amber/40 rounded-[4px] inline-flex items-center gap-1.5" href="/mobile"><span class="material-symbols-outlined text-[14px] leading-none">smartphone</span>MOBILE APP</a>
       </nav>
 
       <div class="flex items-center space-x-1.5 sm:space-x-2.5">
@@ -908,7 +908,7 @@
       renderAuctionState(data.state);
       loadTeamData();
       if (data.team.id === myTeamId) {
-        Hammer.showToast(`🎉 CONGRATULATIONS! YOU ACQUIRED ${data.player.name} FOR ${Hammer.formatCurrency(data.price)}!`, 'success');
+        Hammer.showToast(`AUCTION CONFIRMED: YOU ACQUIRED ${data.player.name} FOR ${Hammer.formatCurrency(data.price)}!`, 'success');
       } else {
         Hammer.showToast(`${data.player.name} SOLD TO ${data.team.shortName}`, 'info');
       }

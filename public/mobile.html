@@ -3,1053 +3,589 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <meta name="theme-color" content="#161310"/>
+  <meta name="theme-color" content="#0B0C0D"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <link rel="manifest" href="/manifest.json"/>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-  <title>HAMMER • IPL Auction Mobile</title>
+  <title>HAMMER • IPL Auction Mobile Terminal</title>
 
-  <!-- Google Fonts: Newsreader (Editorial Serif) & Courier Prime (Monospace Ledger) -->
+  <!-- Google Fonts: Bebas Neue, Inter, Space Mono, Material Symbols Outlined -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400..800;1,6..72,400..700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <!-- Hammer Editorial CSS -->
+  <link rel="stylesheet" href="/css/hammer-editorial.css"/>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "hm-ink": "#0B0C0D",
+            "hm-charcoal": "#121416",
+            "hm-panel": "#181A1C",
+            "hm-elevated": "#1E2022",
+            "hm-surface": "#242628",
+            "hm-text": "#F2F0EA",
+            "hm-muted": "#A7A9AA",
+            "hm-faint": "#6F7274",
+            "hm-dim": "#4A4C4E",
+            "hm-border": "#232527",
+            "hm-border-s": "#303234",
+            "hm-border-strong": "#444648",
+            "hm-vermilion": "#C74632",
+            "hm-vermilion-dk": "#9E3628",
+            "hm-amber": "#C4932A",
+            "hm-emerald": "#2D8B5A"
+          },
+          fontFamily: {
+            "ui": ["'Inter'", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+            "display": ["'Bebas Neue'", "'Inter'", "sans-serif"],
+            "mono": ["'Space Mono'", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
 
   <style>
-    :root {
-      --bg: #161310;
-      --surface: #201B16;
-      --surface-high: #2B241E;
-      --surface-card: #251F19;
-      --border: #3F352A;
-      --border-light: #594B3B;
-      --gold: #D4AF37;
-      --gold-muted: #A88647;
-      --gold-dark: #74571D;
-      --crimson: #A13D3B;
-      --crimson-muted: #8F302F;
-      --green: #2E7D32;
-      --paused: #D48806;
-      --text: #FBF5EE;
-      --text-sec: #D1C5B4;
-      --text-muted: #948777;
-      --text-inv: #161310;
-    }
-
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Courier Prime', monospace;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background-color: #0B0C0D;
+      color: #F2F0EA;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      padding-bottom: 74px;
       overflow-x: hidden;
-      padding-bottom: 65px;
+      min-height: 100vh;
     }
-
-    /* TOP HEADER */
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      height: 52px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
-    }
-
-    .header-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .header-title {
-      font-size: 17px;
-      font-weight: 900;
-      color: var(--gold);
-      letter-spacing: 2px;
-    }
-
-    .live-pill {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: #14110E;
-      border: 1px solid var(--border);
-      padding: 2px 7px;
-      border-radius: 2px;
-    }
-
-    .live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #EF4444;
-    }
-
-    .live-dot.connected {
-      background: #10B981;
-    }
-
-    .live-text {
-      font-size: 9px;
-      font-weight: 700;
-      color: var(--text-sec);
-      letter-spacing: 0.5px;
-    }
-
-    .header-user {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .user-tag {
-      background: var(--surface-high);
-      border: 1px solid var(--gold-muted);
-      color: var(--gold);
-      padding: 3px 8px;
-      font-size: 10px;
-      font-weight: 800;
-      border-radius: 2px;
-    }
-
-    /* BOTTOM NAVIGATION */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 58px;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      display: flex;
-      z-index: 50;
-    }
-
-    .nav-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px 0;
-    }
-
-    .nav-btn.active {
-      color: var(--gold);
-      border-top: 2px solid var(--gold);
-      background: rgba(212, 175, 55, 0.05);
-    }
-
-    .nav-icon {
-      font-size: 17px;
-      margin-bottom: 2px;
-    }
-
-    .nav-label {
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-
-    /* SCREENS CONTAINER */
     .screen {
       display: none;
       padding: 12px;
-      max-width: 600px;
+      max-width: 640px;
       margin: 0 auto;
       width: 100%;
     }
-
     .screen.active {
       display: block;
     }
-
-    /* ARENA SCREEN */
-    .stage-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
+    .nav-tab-btn.active {
+      color: #C74632;
+      border-top: 2px solid #C74632;
+      background: rgba(199, 70, 50, 0.05);
     }
-
-    .status-badge {
-      display: inline-block;
-      padding: 2px 7px;
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      border-radius: 2px;
-      background: var(--surface-high);
-      color: #FFF;
-      border: 1px solid var(--border-light);
+    .timer-urgent {
+      border-color: #C74632 !important;
+      color: #C74632 !important;
+      animation: timerPulse 0.8s infinite alternate ease-in-out;
     }
-
-    .status-badge.live {
-      background: var(--crimson);
-      border-color: var(--crimson);
+    @keyframes timerPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(199,70,50,0); }
+      100% { transform: scale(1.03); box-shadow: 0 0 16px rgba(199,70,50,0.4); }
     }
-
-    .status-badge.paused {
-      background: var(--paused);
-      border-color: var(--paused);
-    }
-
-    .stage-title {
-      font-family: 'Newsreader', serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--gold);
-      margin-top: 3px;
-    }
-
-    /* TIMER CLOCK */
-    .timer-circle {
-      width: 66px;
-      height: 66px;
-      border-radius: 50%;
-      border: 3px solid var(--gold);
-      background: #14110E;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .timer-circle.urgent {
-      border-color: var(--crimson);
-      animation: pulse 1s infinite alternate;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.04); }
-    }
-
-    .timer-seconds {
-      font-size: 22px;
-      font-weight: 900;
-      color: var(--gold);
-      line-height: 24px;
-    }
-
-    .timer-circle.urgent .timer-seconds {
-      color: var(--crimson);
-    }
-
-    .timer-sub {
-      font-size: 8px;
-      font-weight: 800;
-      color: var(--text-muted);
-    }
-
-    /* PLAYER DOSSIER */
-    .player-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-
-    .player-top-strip {
-      background: #161310;
-      border-bottom: 1px solid var(--border);
-      padding: 5px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 10px;
-    }
-
-    .lot-no {
-      background: var(--gold-dark);
-      color: #FFF;
-      padding: 2px 6px;
-      font-weight: 900;
-      border-radius: 2px;
-    }
-
-    .lot-set {
-      color: var(--text-muted);
-      font-size: 9px;
-      font-weight: 700;
-    }
-
-    .base-res {
-      color: var(--gold);
-      font-weight: 800;
-    }
-
-    .player-main {
-      padding: 12px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .player-photo {
-      width: 76px;
-      height: 86px;
-      border-radius: 2px;
-      background: #1E1914;
-      border: 1px solid var(--border);
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-
-    .player-details {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .player-name {
-      font-family: 'Newsreader', serif;
-      font-size: 21px;
-      font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .role-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .role-chip {
-      border: 1px solid var(--gold-muted);
-      color: var(--gold);
-      padding: 1px 6px;
-      font-size: 9px;
-      font-weight: 800;
-      border-radius: 2px;
-    }
-
-    .country-chip {
-      color: var(--text-muted);
-      font-size: 9px;
-      font-weight: 700;
-    }
-
-    .stats-ledger {
-      display: flex;
-      border-top: 1px solid var(--border);
-      background: #1A1612;
-    }
-
-    .stat-cell {
-      flex: 1;
-      text-align: center;
-      padding: 6px 2px;
-      border-right: 1px solid var(--border);
-    }
-
-    .stat-cell:last-child {
-      border-right: none;
-    }
-
-    .stat-v {
-      font-size: 13px;
-      font-weight: 900;
-      color: var(--text);
-    }
-
-    .stat-l {
-      font-size: 8px;
-      color: var(--text-muted);
-      font-weight: 700;
-      margin-top: 2px;
-    }
-
-    /* CURRENT HIGH BID BANNER */
-    .high-bid-banner {
-      background: #161310;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .high-bid-val {
-      font-size: 22px;
-      font-weight: 900;
-      color: var(--gold);
-      line-height: 26px;
-    }
-
-    .team-badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--surface-high);
-      border: 1px solid var(--gold-muted);
-      padding: 4px 10px;
-      border-radius: 2px;
-      margin-top: 3px;
-    }
-
-    .team-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--gold);
-    }
-
-    .team-name {
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    /* BIDDING PADDLE CONSOLE */
-    .paddle-container {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-
-    .purse-ledger {
-      display: flex;
-      background: #161310;
-      border: 1px solid var(--border);
-      padding: 8px;
-      border-radius: 2px;
-      margin-bottom: 10px;
-    }
-
-    .purse-box {
-      flex: 1;
-      text-align: center;
-    }
-
-    .purse-box:first-child {
-      border-right: 1px solid var(--border);
-    }
-
-    .purse-lbl {
-      font-size: 9px;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .purse-num {
-      font-size: 14px;
-      font-weight: 900;
-      color: var(--gold);
-      margin-top: 2px;
-    }
-
-    .increment-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .inc-btn {
-      flex: 1;
-      background: var(--surface-high);
-      border: 1px solid var(--border-light);
-      color: var(--text-sec);
-      padding: 8px 0;
-      font-size: 11px;
-      font-weight: 800;
-      border-radius: 2px;
-      cursor: pointer;
-    }
-
-    .inc-btn:active {
-      background: var(--gold-muted);
-      color: var(--text-inv);
-    }
-
-    .main-bid-paddle {
-      width: 100%;
-      background: var(--gold);
-      border: 1px solid #E8C17C;
-      color: var(--text-inv);
-      padding: 14px 0;
-      border-radius: 2px;
-      font-weight: 900;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: all 0.1s;
-    }
-
-    .main-bid-paddle:active {
-      transform: scale(0.98);
-      background: #E8C17C;
-    }
-
-    .paddle-act {
-      font-size: 11px;
-      letter-spacing: 1.5px;
-    }
-
-    .paddle-val {
-      font-size: 22px;
-      margin-top: 2px;
-    }
-
     .paddle-disabled {
-      background: #352F28 !important;
-      border-color: #4A3E30 !important;
-      color: var(--text-muted) !important;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-
-    .banner-warning {
-      background: rgba(161, 61, 59, 0.15);
-      border: 1px solid var(--crimson);
-      color: var(--crimson);
-      padding: 7px;
-      font-size: 10px;
-      font-weight: 800;
-      text-align: center;
-      border-radius: 2px;
-      margin-bottom: 8px;
-    }
-
-    .banner-leading {
-      background: rgba(212, 175, 55, 0.15);
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      padding: 7px;
-      font-size: 10px;
-      font-weight: 800;
-      text-align: center;
-      border-radius: 2px;
-      margin-bottom: 8px;
-    }
-
-    /* AUCTIONEER GAVEL CONTROLS */
-    .gavel-panel {
-      background: var(--surface);
-      border: 1px solid var(--gold-muted);
-      border-radius: 2px;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-
-    .gavel-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .gavel-title {
-      font-size: 11px;
-      font-weight: 900;
-      color: var(--gold);
-      letter-spacing: 1px;
-    }
-
-    .gavel-btn-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .gavel-step-btn {
-      flex: 1;
-      background: var(--surface-high);
-      border: 1px solid var(--border-light);
-      color: var(--text);
-      padding: 7px 0;
-      font-size: 9px;
-      font-weight: 800;
-      border-radius: 2px;
-      cursor: pointer;
-    }
-
-    .gavel-step-btn.active {
-      background: var(--gold-muted);
-      color: var(--text-inv);
-      border-color: var(--gold);
-    }
-
-    .resolution-btn-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .sold-btn {
-      flex: 2;
-      background: #1B3B22;
-      border: 1px solid #2E7D32;
-      color: #81C784;
-      padding: 10px 0;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      border-radius: 2px;
-      cursor: pointer;
-    }
-
-    .unsold-btn {
-      flex: 1;
-      background: #3B1F20;
-      border: 1px solid var(--crimson-muted);
-      color: #E57373;
-      padding: 10px 0;
-      font-size: 10px;
-      font-weight: 800;
-      border-radius: 2px;
-      cursor: pointer;
-    }
-
-    .time-ctrl-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .time-btn {
-      flex: 1;
-      background: #161310;
-      border: 1px solid var(--border);
-      color: var(--text-sec);
-      padding: 5px 0;
-      font-size: 10px;
-      font-weight: 700;
-      border-radius: 2px;
-      cursor: pointer;
-    }
-
-    /* RECENT BID TICKER */
-    .history-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 10px;
-    }
-
-    .history-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 0;
-      border-bottom: 1px solid #1F1A15;
-      font-size: 11px;
-    }
-
-    .history-row:last-child {
-      border-bottom: none;
-    }
-
-    .history-team {
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .history-amount {
-      font-weight: 900;
-      color: var(--gold);
-    }
-
-    /* SEARCH & FILTER LISTS */
-    .search-bar {
-      width: 100%;
-      background: #161310;
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 9px 12px;
-      font-size: 12px;
-      border-radius: 2px;
-      margin-bottom: 8px;
-      font-family: inherit;
-    }
-
-    .search-bar:focus {
-      outline: none;
-      border-color: var(--gold);
-    }
-
-    .chip-scroll {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 8px;
-    }
-
-    .chip {
-      padding: 4px 9px;
-      background: #161310;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: 9px;
-      font-weight: 800;
-      border-radius: 2px;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-
-    .chip.active {
-      background: var(--gold-muted);
-      color: var(--text-inv);
-      border-color: var(--gold);
-    }
-
-    .item-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 10px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* FLASH TOAST */
-    #toast-msg {
-      position: fixed;
-      top: 60px;
-      left: 14px;
-      right: 14px;
-      background: var(--gold-dark);
-      color: #FFF;
-      border: 1px solid var(--gold);
-      padding: 9px 14px;
-      border-radius: 2px;
-      font-size: 11px;
-      font-weight: 800;
-      text-align: center;
-      z-index: 100;
-      display: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      opacity: 0.45 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+      filter: grayscale(0.8);
     }
   </style>
 </head>
-<body>
+<body class="bg-hm-ink text-hm-text antialiased selection:bg-hm-vermilion selection:text-hm-text">
+  <div class="paper-grain-overlay"></div>
 
-  <!-- HEADER -->
-  <header class="app-header">
-    <div class="header-logo">
-      <span class="header-title">HAMMER</span>
-      <div class="live-pill">
-        <div class="live-dot" id="socket-dot"></div>
-        <span class="live-text" id="socket-text">CONNECTING</span>
+  <!-- MASTHEAD HEADER -->
+  <header class="sticky top-0 z-40 bg-hm-ink/95 backdrop-blur-md border-b border-hm-border">
+    <div class="h-14 px-3 sm:px-4 flex items-center justify-between gap-2 max-w-2xl mx-auto">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px] shadow-sm">
+          <span class="material-symbols-outlined text-[18px] leading-none">gavel</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display text-lg sm:text-xl tracking-[0.12em] text-hm-text leading-none">HAMMER</span>
+          <span class="font-mono text-[8px] text-hm-faint uppercase tracking-[0.2em] mt-0.5">VITB MUN Club</span>
+        </div>
       </div>
-    </div>
 
-    <div class="header-user" id="user-display">
-      <span class="user-tag" id="current-user-badge">FAN</span>
+      <div class="flex items-center space-x-2">
+        <!-- Live Connection Pill -->
+        <div class="flex items-center bg-hm-charcoal border border-hm-border px-2 py-1 space-x-1.5 rounded-[4px]">
+          <span class="w-2 h-2 rounded-full bg-hm-vermilion" id="socket-dot"></span>
+          <span class="font-mono text-[9px] text-hm-muted tracking-widest uppercase font-bold" id="socket-text">CONNECTING</span>
+        </div>
+
+        <!-- User Identity Tag -->
+        <span class="font-mono text-[10px] font-bold text-hm-amber bg-hm-elevated border border-hm-border-s px-2 py-1 rounded-[4px] uppercase" id="current-user-badge">FAN</span>
+
+        <!-- Fullscreen / Desktop Web Link -->
+        <a href="/" title="Open Broadcast Stage" class="w-8 h-8 flex items-center justify-center rounded-[4px] bg-hm-charcoal border border-hm-border hover:bg-hm-elevated text-hm-muted hover:text-hm-text transition-colors">
+          <span class="material-symbols-outlined text-[16px]">desktop_windows</span>
+        </a>
+      </div>
     </div>
   </header>
 
-  <div id="toast-msg"></div>
+  <!-- FLASH TOAST NOTIFICATION -->
+  <div id="toast-msg" class="fixed top-16 left-3 right-3 max-w-md mx-auto z-50 hidden bg-hm-panel border border-hm-border-strong text-hm-text font-mono text-xs px-3.5 py-2.5 rounded-[4px] shadow-2xl text-center"></div>
 
-  <!-- MAIN SCREENS -->
-
-  <!-- 1. LIVE ARENA -->
+  <!-- ===================================================================== -->
+  <!-- SCREEN 1: LIVE ARENA (MAIN BIDDING STAGE) -->
+  <!-- ===================================================================== -->
   <main class="screen active" id="screen-arena">
-    <!-- Stage & Clock Card -->
-    <div class="stage-card">
+    <!-- Stage Header & Timer Card -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-2.5 flex items-center justify-between">
       <div>
-        <span class="status-badge live" id="stage-badge">● LIVE LOT</span>
-        <div class="stage-title">IPL 2026 MEGA AUCTION</div>
-        <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;" id="gavel-stage-text">OPEN BIDDING</div>
+        <div class="flex items-center gap-1.5 mb-1">
+          <span class="font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-surface border border-hm-border-s text-hm-muted uppercase" id="stage-badge">AUCTION IDLE</span>
+          <span class="font-mono text-[9px] text-hm-faint tracking-wider uppercase" id="gavel-stage-text">OPEN BIDDING</span>
+        </div>
+        <h1 class="font-display text-xl tracking-wide text-hm-text leading-none">IPL 2026 MEGA AUCTION</h1>
       </div>
 
-      <div class="timer-circle" id="timer-box">
-        <div class="timer-seconds" id="timer-sec">15</div>
-        <div class="timer-sub" id="timer-lbl">CLOCK</div>
+      <!-- High-Precision Digital Countdown Box -->
+      <div class="w-16 h-16 rounded-[6px] bg-hm-charcoal border-2 border-hm-border-s flex flex-col items-center justify-center transition-all" id="timer-box">
+        <span class="font-mono text-2xl font-bold text-hm-amber leading-none" id="timer-sec">15</span>
+        <span class="font-mono text-[8px] text-hm-faint uppercase tracking-wider mt-1">SECONDS</span>
       </div>
     </div>
 
-    <!-- Active Player Dossier -->
-    <div class="player-card" id="player-dossier">
-      <div class="player-top-strip">
-        <span class="lot-no" id="p-lot">LOT #1</span>
-        <span class="lot-set" id="p-set">SET 1 — MARQUEE</span>
-        <span class="base-res" id="p-base">BASE: ₹2.00 Cr</span>
+    <!-- Active Player Dossier Card -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] overflow-hidden mb-2.5" id="player-dossier">
+      <!-- Top strip -->
+      <div class="bg-hm-charcoal border-b border-hm-border px-3 py-1.5 flex items-center justify-between font-mono text-[10px]">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-hm-amber bg-hm-elevated border border-hm-border-s px-1.5 py-0.5 rounded-[3px]" id="p-lot">LOT #1</span>
+          <span class="text-hm-muted" id="p-set">SET 1 — MARQUEE</span>
+        </div>
+        <span class="font-bold text-hm-text" id="p-base">BASE: ₹2.00 Cr</span>
       </div>
 
-      <div class="player-main">
-        <img src="/players/csk/dhoni.png" class="player-photo" id="p-img" alt="Player"/>
-        <div class="player-details">
-          <div class="player-name" id="p-name">VIRAT KOHLI</div>
-          <div class="role-row">
-            <span class="role-chip" id="p-role">BATTER</span>
-            <span class="country-chip" id="p-country">INDIA</span>
+      <!-- Main info: Image + Name + Tags -->
+      <div class="p-3 flex items-center gap-3">
+        <div class="relative w-20 h-24 rounded-[4px] bg-hm-charcoal border border-hm-border overflow-hidden shrink-0">
+          <img src="/players/csk/dhoni.png" class="w-full h-full object-cover object-top" id="p-img" alt="Player"/>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <h2 class="font-display text-2xl sm:text-3xl tracking-wide text-hm-text leading-none truncate mb-1" id="p-name">VIRAT KOHLI</h2>
+          <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+            <span class="font-mono text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-blue-500/10 border border-blue-500/40 text-blue-400 uppercase" id="p-role">BATTER</span>
+            <span class="font-mono text-[9px] text-hm-muted bg-hm-charcoal border border-hm-border px-1.5 py-0.5 rounded-[3px] flex items-center gap-1 uppercase" id="p-country">
+              <span class="material-symbols-outlined text-[11px]">public</span>
+              <span id="p-country-name">INDIA</span>
+            </span>
           </div>
-          <div style="font-size: 10px; color: var(--text-sec); font-style: italic; margin-top: 5px; line-height: 13px;" id="p-tactical">
-            "Anchor and high-strike-rate run machine"
-          </div>
+          <p class="font-ui text-xs text-hm-muted italic line-clamp-2 leading-relaxed" id="p-tactical">Anchor and high-strike-rate run machine</p>
         </div>
       </div>
 
-      <div class="stats-ledger">
-        <div class="stat-cell"><div class="stat-v" id="s-mat">252</div><div class="stat-l">MAT</div></div>
-        <div class="stat-cell"><div class="stat-v" id="s-runs">8,004</div><div class="stat-l">RUNS</div></div>
-        <div class="stat-cell"><div class="stat-v" id="s-sr">131.9</div><div class="stat-l">S/R</div></div>
-        <div class="stat-cell"><div class="stat-v" id="s-wkts">4</div><div class="stat-l">WKTS</div></div>
-        <div class="stat-cell"><div class="stat-v" id="s-econ">8.2</div><div class="stat-l">ECON</div></div>
+      <!-- 5-Cell Stats Ledger -->
+      <div class="grid grid-cols-5 border-t border-hm-border bg-hm-charcoal text-center font-mono">
+        <div class="p-2 border-r border-hm-border">
+          <div class="text-xs sm:text-sm font-bold text-hm-text" id="s-mat">252</div>
+          <div class="text-[8px] text-hm-faint uppercase">MAT</div>
+        </div>
+        <div class="p-2 border-r border-hm-border">
+          <div class="text-xs sm:text-sm font-bold text-hm-text" id="s-runs">8,004</div>
+          <div class="text-[8px] text-hm-faint uppercase">RUNS</div>
+        </div>
+        <div class="p-2 border-r border-hm-border">
+          <div class="text-xs sm:text-sm font-bold text-hm-text" id="s-sr">131.9</div>
+          <div class="text-[8px] text-hm-faint uppercase">S/R</div>
+        </div>
+        <div class="p-2 border-r border-hm-border">
+          <div class="text-xs sm:text-sm font-bold text-hm-text" id="s-wkts">4</div>
+          <div class="text-[8px] text-hm-faint uppercase">WKTS</div>
+        </div>
+        <div class="p-2">
+          <div class="text-xs sm:text-sm font-bold text-hm-text" id="s-econ">8.2</div>
+          <div class="text-[8px] text-hm-faint uppercase">ECON</div>
+        </div>
       </div>
     </div>
 
-    <!-- High Bid Display -->
-    <div class="high-bid-banner">
+    <!-- Current High Bid Banner -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-2.5 flex items-center justify-between">
       <div>
-        <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px;">LEADING BID</div>
-        <div class="high-bid-val" id="high-bid-val">₹2.00 Cr</div>
+        <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase block mb-0.5">CURRENT LEADING BID</span>
+        <div class="font-mono text-2xl sm:text-3xl font-bold text-hm-amber" id="high-bid-val">₹2.00 Cr</div>
       </div>
 
-      <div style="text-align: right;">
-        <div style="font-size: 9px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px;">FRANCHISE</div>
-        <div class="team-badge-pill" id="leader-pill">
-          <div class="team-dot" id="leader-dot"></div>
-          <span class="team-name" id="leader-name">RCB</span>
+      <div class="text-right">
+        <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase block mb-0.5">HIGH BIDDER</span>
+        <div class="inline-flex items-center gap-1.5 bg-hm-charcoal border border-hm-border-s px-2.5 py-1 rounded-[4px]" id="leader-pill">
+          <span class="w-2 h-2 rounded-full bg-hm-muted" id="leader-dot"></span>
+          <span class="font-mono text-xs font-bold text-hm-text uppercase" id="leader-name">NO BIDS</span>
         </div>
       </div>
     </div>
 
-    <!-- Franchise Bidding Paddle (For Team Owners) -->
-    <div class="paddle-container" id="bidding-paddle-container">
-      <div class="purse-ledger">
-        <div class="purse-box">
-          <div class="purse-lbl">REMAINING PURSE</div>
-          <div class="purse-num" id="user-purse">₹125.00 Cr</div>
+    <!-- Franchise Bidding Paddle (Team Owners) -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-2.5" id="bidding-paddle-container">
+      <!-- Franchise Purse Ledger -->
+      <div class="grid grid-cols-2 gap-2 bg-hm-charcoal border border-hm-border rounded-[4px] p-2 mb-2.5 text-center font-mono">
+        <div class="border-r border-hm-border">
+          <div class="text-[9px] text-hm-faint uppercase">REMAINING PURSE</div>
+          <div class="text-sm font-bold text-hm-amber mt-0.5" id="user-purse">₹125.00 Cr</div>
         </div>
-        <div class="purse-box">
-          <div class="purse-lbl">ROSTER SLOTS</div>
-          <div class="purse-num" id="user-slots">1 / 15</div>
+        <div>
+          <div class="text-[9px] text-hm-faint uppercase">ROSTER SLOTS</div>
+          <div class="text-sm font-bold text-hm-text mt-0.5" id="user-slots">1 / 15</div>
         </div>
       </div>
 
-      <div id="rule7-banner" class="banner-leading" style="display: none;">
-        🏆 YOUR FRANCHISE HOLDS THE HIGH BID (Rule 7)
+      <!-- Rule 7 High Bidder Banner -->
+      <div id="rule7-banner" class="hidden bg-hm-amber/10 border border-hm-amber/40 text-hm-amber p-2.5 rounded-[4px] font-mono text-xs font-bold text-center mb-2.5">
+        <span class="material-symbols-outlined text-[15px] align-middle mr-1">verified</span>
+        YOUR FRANCHISE HOLDS THE HIGH BID (Rule 7)
       </div>
 
-      <div id="freeze-banner" class="banner-warning" style="display: none;">
+      <!-- Clock Expired Banner -->
+      <div id="freeze-banner" class="hidden bg-hm-vermilion/15 border border-hm-vermilion text-hm-vermilion p-2.5 rounded-[4px] font-mono text-xs font-bold text-center mb-2.5">
+        <span class="material-symbols-outlined text-[15px] align-middle mr-1">timer_off</span>
         BIDDING FROZEN (CLOCK EXPIRED)
       </div>
 
-      <div class="increment-row">
-        <button class="inc-btn" id="btn-inc-min">+10L MIN</button>
-        <button class="inc-btn" id="btn-inc-20">+20L QUICK</button>
-        <button class="inc-btn" id="btn-inc-50">+50L POWER</button>
+      <!-- Rule 6 Tier Increment Badge -->
+      <div class="flex items-center justify-between bg-hm-elevated border border-hm-border-s px-3 py-1.5 rounded-[4px] mb-2.5 font-mono text-[10px]">
+        <span class="text-hm-faint uppercase font-bold">MANDATORY RULE 6 TIER INCREMENT</span>
+        <span class="text-hm-amber font-bold" id="bid-increment-tag">+₹20.00 LAKHS</span>
       </div>
 
-      <button class="main-bid-paddle" id="btn-place-bid">
-        <span class="paddle-act">RAISE BID PADDLE</span>
-        <span class="paddle-val" id="paddle-price">₹2.20 Cr</span>
+      <!-- Giant Tactile Bid Paddle Button -->
+      <button class="w-full bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text border border-hm-vermilion-dk rounded-[6px] py-3.5 px-4 font-mono font-bold shadow-lg transition-transform active:scale-[0.98] flex flex-col items-center justify-center cursor-pointer" id="btn-place-bid">
+        <span class="text-[11px] uppercase tracking-[0.2em] text-hm-text/90 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">gavel</span>
+          RAISE BID PADDLE
+        </span>
+        <span class="text-2xl font-mono font-bold text-hm-text mt-0.5" id="paddle-price">₹2.20 Cr</span>
       </button>
     </div>
 
-    <!-- Auctioneer Quick Bar (If Auctioneer) -->
-    <div class="gavel-panel" id="auctioneer-quick-panel" style="display: none;">
-      <div class="gavel-head">
-        <span class="gavel-title">AUCTIONEER GAVEL</span>
-        <button id="btn-quick-pause" style="background:#382D1E; border:1px solid var(--paused); color:#FFF; font-size:10px; font-weight:800; padding:2px 7px; border-radius:2px; cursor:pointer;">⏸ PAUSE</button>
+    <!-- Quick Auctioneer Desk Bar (Role-Gated for Auctioneer) -->
+    <div class="bg-hm-panel border border-hm-border-strong rounded-[6px] p-3 mb-2.5 hidden" id="auctioneer-quick-panel">
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-mono text-xs font-bold text-hm-amber tracking-wider flex items-center gap-1">
+          <span class="material-symbols-outlined text-[16px]">gavel</span>
+          AUCTIONEER DESK
+        </span>
+        <button id="btn-quick-pause" class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-text px-2.5 py-1 rounded-[4px] font-mono text-[10px] font-bold flex items-center gap-1">
+          <span class="material-symbols-outlined text-[13px]">pause</span>
+          <span id="pause-btn-text">PAUSE</span>
+        </button>
       </div>
 
-      <div class="gavel-btn-row">
-        <button class="gavel-step-btn" id="btn-g1">1st CALL</button>
-        <button class="gavel-step-btn" id="btn-g2">2nd CALL</button>
-        <button class="gavel-step-btn" id="btn-g3">FAIR WARNING</button>
+      <div class="grid grid-cols-3 gap-1.5 mb-2 font-mono text-xs">
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2 rounded-[4px] font-bold text-hm-text transition-colors" id="btn-g1">1ST CALL</button>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2 rounded-[4px] font-bold text-hm-text transition-colors" id="btn-g2">2ND CALL</button>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2 rounded-[4px] font-bold text-hm-vermilion transition-colors" id="btn-g3">FAIR WARNING</button>
       </div>
 
-      <div class="resolution-btn-row">
-        <button class="sold-btn" id="btn-sold">🔨 HAMMER SOLD</button>
-        <button class="unsold-btn" id="btn-unsold">PASS (UNSOLD)</button>
+      <div class="grid grid-cols-2 gap-2 mb-2 font-mono">
+        <button class="bg-hm-emerald/20 hover:bg-hm-emerald/30 border border-hm-emerald text-hm-emerald py-2.5 rounded-[4px] text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 cursor-pointer" id="btn-sold">
+          <span class="material-symbols-outlined text-[16px]">gavel</span>
+          HAMMER SOLD
+        </button>
+        <button class="bg-hm-vermilion/20 hover:bg-hm-vermilion/30 border border-hm-vermilion text-hm-vermilion py-2.5 rounded-[4px] text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 cursor-pointer" id="btn-unsold">
+          <span class="material-symbols-outlined text-[16px]">block</span>
+          PASS (UNSOLD)
+        </button>
       </div>
 
-      <div class="time-ctrl-row">
-        <span style="font-size: 9px; font-weight: 800; color: var(--text-muted);">CLOCK:</span>
-        <button class="time-btn" id="btn-time-5">+5s</button>
-        <button class="time-btn" id="btn-time-10">+10s</button>
-        <button class="time-btn" id="btn-time-reset">RESET</button>
+      <div class="flex items-center gap-1.5 font-mono text-[10px]">
+        <span class="text-hm-faint uppercase font-bold">CLOCK:</span>
+        <button class="flex-1 bg-hm-charcoal border border-hm-border hover:bg-hm-elevated text-hm-text py-1 rounded-[3px] font-bold" id="btn-time-5">+5s</button>
+        <button class="flex-1 bg-hm-charcoal border border-hm-border hover:bg-hm-elevated text-hm-text py-1 rounded-[3px] font-bold" id="btn-time-10">+10s</button>
+        <button class="flex-1 bg-hm-charcoal border border-hm-border hover:bg-hm-elevated text-hm-text py-1 rounded-[3px] font-bold" id="btn-time-reset">RESET</button>
       </div>
     </div>
 
-    <!-- Recent Lot Bids Stream -->
-    <div class="history-card">
-      <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 6px; display: flex; justify-content: space-between;">
-        <span>RECENT LOT BIDS</span>
-        <span id="bid-stream-count">0 BIDS</span>
+    <!-- Recent Bids Feed -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-2">
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-hm-border font-mono text-[10px]">
+        <span class="text-hm-faint uppercase font-bold tracking-wider">RECENT LOT BIDS</span>
+        <span class="text-hm-muted font-bold" id="bid-stream-count">0 BIDS</span>
       </div>
-      <div id="lot-bids-feed">
-        <div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 8px;">Awaiting bids...</div>
+      <div id="lot-bids-feed" class="space-y-1.5">
+        <div class="font-mono text-xs text-hm-faint text-center py-2">Awaiting bids on active lot...</div>
       </div>
     </div>
   </main>
 
-  <!-- 2. GAVEL (Full Auctioneer Desk) -->
+  <!-- ===================================================================== -->
+  <!-- SCREEN 2: GAVEL (FULL AUCTIONEER DESK) -->
+  <!-- ===================================================================== -->
   <main class="screen" id="screen-gavel">
-    <div style="font-size: 15px; font-weight: 900; color: var(--gold); letter-spacing: 1px; margin-bottom: 10px;">
-      AUCTIONEER MASTER CONTROL
+    <div class="flex items-center justify-between mb-3 pb-2 border-b border-hm-border">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-hm-vermilion text-hm-text flex items-center justify-center rounded-[4px]">
+          <span class="material-symbols-outlined text-[16px]">gavel</span>
+        </div>
+        <h2 class="font-display text-2xl tracking-wide text-hm-text leading-none">AUCTIONEER TERMINAL</h2>
+      </div>
+      <span class="font-mono text-[10px] text-hm-emerald bg-hm-emerald/10 border border-hm-emerald/30 px-2 py-0.5 rounded-[3px] font-bold">OPERATOR ACTIVE</span>
     </div>
 
-    <div class="gavel-panel">
-      <div class="gavel-head">
-        <span class="gavel-title">ACTIVE LOT HAMMER CONTROLS</span>
+    <!-- Active Lot Control Panel -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-3">
+      <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">AUTHORITATIVE LOT HAMMER</span>
+      <div class="grid grid-cols-3 gap-2 mb-2 font-mono text-xs">
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-text" onclick="sendGavel(1)">1ST CALL</button>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-text" onclick="sendGavel(2)">2ND CALL</button>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border py-2.5 rounded-[4px] font-bold text-hm-vermilion" onclick="sendGavel(3)">FAIR WARNING</button>
       </div>
-      <div class="gavel-btn-row">
-        <button class="gavel-step-btn" onclick="sendGavel(1)">1st CALL</button>
-        <button class="gavel-step-btn" onclick="sendGavel(2)">2nd CALL</button>
-        <button class="gavel-step-btn" onclick="sendGavel(3)">FAIR WARNING</button>
-      </div>
-      <div class="resolution-btn-row">
-        <button class="sold-btn" onclick="sendSold()">🔨 HAMMER SOLD</button>
-        <button class="unsold-btn" onclick="sendUnsold()">PASS (UNSOLD)</button>
+      <div class="grid grid-cols-2 gap-2 font-mono">
+        <button class="bg-hm-emerald/20 hover:bg-hm-emerald/30 border border-hm-emerald text-hm-emerald py-3 rounded-[4px] text-xs font-bold tracking-wider flex items-center justify-center gap-1.5" onclick="sendSold()">
+          <span class="material-symbols-outlined text-[16px]">gavel</span>
+          HAMMER SOLD
+        </button>
+        <button class="bg-hm-vermilion/20 hover:bg-hm-vermilion/30 border border-hm-vermilion text-hm-vermilion py-3 rounded-[4px] text-xs font-bold tracking-wider flex items-center justify-center gap-1.5" onclick="sendUnsold()">
+          <span class="material-symbols-outlined text-[16px]">block</span>
+          PASS (UNSOLD)
+        </button>
       </div>
     </div>
 
-    <!-- Special Actions -->
-    <div class="paddle-container">
-      <div style="font-size: 10px; font-weight: 800; color: var(--text-sec); margin-bottom: 8px;">SPECIAL ENGINES</div>
-      <button class="inc-btn" style="width: 100%; margin-bottom: 8px; padding: 10px 0; background: var(--gold-muted); color: var(--text-inv); font-weight: 900;" onclick="triggerCaptains()">
-        IPL 2026 CAPTAIN RETENTION ENGINE
+    <!-- Special Administrative Engines -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-3">
+      <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">ADMINISTRATIVE ENGINES</span>
+      <button class="w-full bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-amber py-2.5 rounded-[4px] font-mono text-xs font-bold mb-2 flex items-center justify-center gap-2" onclick="triggerCaptains()">
+        <span class="material-symbols-outlined text-[16px]">lock</span>
+        EXECUTE CAPTAIN RETENTION ENGINE (10/10)
       </button>
-      <button class="inc-btn" style="width: 100%; padding: 10px 0; border-color: var(--crimson-muted); color: var(--crimson); font-weight: 900;" onclick="resetLot()">
-        EMERGENCY RESET LOT
+      <button class="w-full bg-hm-charcoal hover:bg-hm-elevated border border-hm-vermilion/40 text-hm-vermilion py-2 rounded-[4px] font-mono text-xs font-bold flex items-center justify-center gap-2" onclick="resetLot()">
+        <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+        EMERGENCY RESET CURRENT LOT
       </button>
     </div>
 
-    <!-- Start Player on Hammer -->
-    <div class="paddle-container">
-      <div style="font-size: 10px; font-weight: 800; color: var(--text-sec); margin-bottom: 8px;">LAUNCH NEXT CRICKETER</div>
-      <input type="text" class="search-bar" id="gavel-player-search" placeholder="Search available players..." oninput="renderGavelAvailable()"/>
-      <div id="gavel-avail-list"></div>
+    <!-- Launch Player on Hammer -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3">
+      <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">CALL AVAILABLE LOT ONTO STAGE</span>
+      <div class="relative mb-2">
+        <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-hm-faint text-[18px]">search</span>
+        <input type="text" class="w-full bg-hm-charcoal border border-hm-border rounded-[4px] pl-9 pr-3 py-2 font-mono text-xs text-hm-text placeholder-hm-faint focus:outline-none focus:border-hm-border-strong" id="gavel-player-search" placeholder="Search available players..." oninput="renderGavelAvailable()"/>
+      </div>
+      <div id="gavel-avail-list" class="space-y-1.5 max-h-72 overflow-y-auto"></div>
     </div>
   </main>
 
-  <!-- 3. PLAYERS CATALOGUE -->
+  <!-- ===================================================================== -->
+  <!-- SCREEN 3: PLAYER POOL CATALOGUE -->
+  <!-- ===================================================================== -->
   <main class="screen" id="screen-players">
-    <input type="text" class="search-bar" id="pool-search" placeholder="Search 73 IPL players by name..." oninput="renderPlayerPool()"/>
-
-    <div class="chip-scroll">
-      <button class="chip active" onclick="setRoleTab('ALL', this)">ALL</button>
-      <button class="chip" onclick="setRoleTab('batter', this)">BATTERS</button>
-      <button class="chip" onclick="setRoleTab('bowler', this)">BOWLERS</button>
-      <button class="chip" onclick="setRoleTab('allrounder', this)">ALL-ROUNDERS</button>
-      <button class="chip" onclick="setRoleTab('wicketkeeper', this)">WICKETKEEPERS</button>
-      <button class="chip" onclick="setRoleTab('overseas', this)">OVERSEAS</button>
+    <div class="flex items-center justify-between mb-3 pb-2 border-b border-hm-border">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-hm-amber text-hm-ink flex items-center justify-center rounded-[4px]">
+          <span class="material-symbols-outlined text-[18px]">groups</span>
+        </div>
+        <h2 class="font-display text-2xl tracking-wide text-hm-text leading-none">PLAYER POOL</h2>
+      </div>
+      <span class="font-mono text-[10px] text-hm-faint font-bold" id="pool-count-tag">73 PLAYERS</span>
     </div>
 
-    <div id="player-pool-list"></div>
+    <!-- Search Input -->
+    <div class="relative mb-2.5">
+      <span class="material-symbols-outlined absolute left-3 top-2.5 text-hm-faint text-[18px]">search</span>
+      <input type="text" class="w-full bg-hm-panel border border-hm-border rounded-[4px] pl-9 pr-3 py-2 font-mono text-xs text-hm-text placeholder-hm-faint focus:outline-none focus:border-hm-border-strong" id="pool-search" placeholder="Search cricket players by name..." oninput="renderPlayerPool()"/>
+    </div>
+
+    <!-- Role Filter Pills -->
+    <div class="flex gap-1.5 overflow-x-auto pb-2 mb-2.5" style="scrollbar-width: none;">
+      <button class="role-chip active shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-vermilion text-hm-text" onclick="setRoleTab('ALL', this)">ALL</button>
+      <button class="role-chip shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted" onclick="setRoleTab('batter', this)">BATTERS</button>
+      <button class="role-chip shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted" onclick="setRoleTab('bowler', this)">BOWLERS</button>
+      <button class="role-chip shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted" onclick="setRoleTab('allrounder', this)">ALL-ROUNDERS</button>
+      <button class="role-chip shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted" onclick="setRoleTab('wicketkeeper', this)">WICKETKEEPERS</button>
+      <button class="role-chip shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted" onclick="setRoleTab('overseas', this)">OVERSEAS</button>
+    </div>
+
+    <!-- Player Pool Stream -->
+    <div id="player-pool-list" class="space-y-2"></div>
   </main>
 
-  <!-- 4. SQUADS -->
+  <!-- ===================================================================== -->
+  <!-- SCREEN 4: SQUADS & FRANCHISE ROSTERS -->
+  <!-- ===================================================================== -->
   <main class="screen" id="screen-squads">
-    <div style="font-size: 14px; font-weight: 900; color: var(--gold); margin-bottom: 10px;">
-      10 IPL FRANCHISES & PURSES
+    <div class="flex items-center justify-between mb-3 pb-2 border-b border-hm-border">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-hm-emerald text-hm-text flex items-center justify-center rounded-[4px]">
+          <span class="material-symbols-outlined text-[18px]">military_tech</span>
+        </div>
+        <h2 class="font-display text-2xl tracking-wide text-hm-text leading-none">FRANCHISE SQUADS</h2>
+      </div>
+      <span class="font-mono text-[10px] text-hm-faint font-bold">10 FRANCHISES</span>
     </div>
-    <div id="squads-list"></div>
+
+    <div id="squads-list" class="space-y-2.5"></div>
   </main>
 
-  <!-- 5. AUDIT LOG -->
+  <!-- ===================================================================== -->
+  <!-- SCREEN 5: AUDIT LOG (REALTIME EVENT STREAM) -->
+  <!-- ===================================================================== -->
   <main class="screen" id="screen-audit">
-    <div style="font-size: 14px; font-weight: 900; color: var(--gold); margin-bottom: 10px;">
-      SEQUENTIAL REALTIME AUDIT LOG
+    <div class="flex items-center justify-between mb-3 pb-2 border-b border-hm-border">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-hm-elevated text-hm-amber flex items-center justify-center rounded-[4px] border border-hm-border-s">
+          <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+        </div>
+        <h2 class="font-display text-2xl tracking-wide text-hm-text leading-none">AUDIT LEDGER</h2>
+      </div>
+      <span class="font-mono text-[10px] text-hm-emerald font-bold">REALTIME SYNC</span>
     </div>
-    <div id="audit-feed"></div>
+
+    <div id="audit-feed" class="space-y-1.5">
+      <div class="font-mono text-xs text-hm-faint text-center py-4">No audit events recorded yet...</div>
+    </div>
   </main>
 
-  <!-- 6. PORTAL / LOGIN -->
+  <!-- ===================================================================== -->
+  <!-- SCREEN 6: PORTAL & SETTINGS -->
+  <!-- ===================================================================== -->
   <main class="screen" id="screen-portal">
-    <div style="font-size: 15px; font-weight: 900; color: var(--gold); margin-bottom: 12px; text-align: center;">
-      FRANCHISE AUTHENTICATION
-    </div>
-
-    <!-- 1-Tap Quick Switcher -->
-    <div class="paddle-container">
-      <div style="font-size: 10px; font-weight: 800; color: var(--text-sec); margin-bottom: 10px;">1-TAP INSTANT LOGIN</div>
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-        <button class="inc-btn" onclick="quickLogin('auctioneer', 'hammer2026')">🔨 AUCTIONEER</button>
-        <button class="inc-btn" style="color:#FFFF00" onclick="quickLogin('csk', 'csk2026')">🦁 CSK</button>
-        <button class="inc-btn" style="color:#004BA0" onclick="quickLogin('mi', 'mi2026')">🌀 MI</button>
-        <button class="inc-btn" style="color:#EC1C24" onclick="quickLogin('rcb', 'rcb2026')">👑 RCB</button>
-        <button class="inc-btn" style="color:#F26522" onclick="quickLogin('srh', 'srh2026')">🦅 SRH</button>
-        <button class="inc-btn" style="color:#EA1A85" onclick="quickLogin('rr', 'rr2026')">🛡️ RR</button>
-        <button class="inc-btn" style="color:#3A225D" onclick="quickLogin('kkr', 'kkr2026')">⚔️ KKR</button>
-        <button class="inc-btn" style="color:#0078BC" onclick="quickLogin('dc', 'dc2026')">🐯 DC</button>
-        <button class="inc-btn" style="color:#1B2133" onclick="quickLogin('gt', 'gt2026')">⚡ GT</button>
-        <button class="inc-btn" style="color:#A72056" onclick="quickLogin('lsg', 'lsg2026')">🌟 LSG</button>
-        <button class="inc-btn" style="color:#ED1B24" onclick="quickLogin('pbks', 'pbks2026')">🦁 PBKS</button>
-        <button class="inc-btn" onclick="quickLogin('viewer', 'view2026')">👁️ VIEWER</button>
+    <div class="flex items-center justify-between mb-3 pb-2 border-b border-hm-border">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-hm-surface text-hm-text flex items-center justify-center rounded-[4px] border border-hm-border">
+          <span class="material-symbols-outlined text-[18px]">tune</span>
+        </div>
+        <h2 class="font-display text-2xl tracking-wide text-hm-text leading-none">OPERATOR PORTAL</h2>
       </div>
     </div>
 
-    <div class="paddle-container" style="text-align: center;">
-      <button class="unsold-btn" style="width: 100%;" onclick="doLogout()">LOGOUT CURRENT SESSION</button>
+    <!-- 1-Tap Quick Franchise Selector (Clean Monograms, No Emojis) -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-3">
+      <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">1-TAP INSTANT ROLE SWITCHER</span>
+      <div class="grid grid-cols-3 gap-2 font-mono">
+        <!-- Auctioneer -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-amber/40 text-hm-amber p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('auctioneer', 'hammer2026')">
+          <span class="text-xs font-bold">AUCTIONEER</span>
+          <span class="text-[9px] text-hm-faint mt-1">MASTER DESK</span>
+        </button>
+        <!-- CSK -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#FFFF00]/40 text-[#FFFF00] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('csk', 'csk2026')">
+          <span class="text-xs font-bold">CSK</span>
+          <span class="text-[9px] text-hm-faint mt-1">CHENNAI</span>
+        </button>
+        <!-- MI -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#004BA0]/40 text-[#60A5FA] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('mi', 'mi2026')">
+          <span class="text-xs font-bold">MI</span>
+          <span class="text-[9px] text-hm-faint mt-1">MUMBAI</span>
+        </button>
+        <!-- RCB -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#EC1C24]/40 text-[#F87171] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('rcb', 'rcb2026')">
+          <span class="text-xs font-bold">RCB</span>
+          <span class="text-[9px] text-hm-faint mt-1">BENGALURU</span>
+        </button>
+        <!-- SRH -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#F26522]/40 text-[#FB923C] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('srh', 'srh2026')">
+          <span class="text-xs font-bold">SRH</span>
+          <span class="text-[9px] text-hm-faint mt-1">HYDERABAD</span>
+        </button>
+        <!-- RR -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#EA1A85]/40 text-[#F472B6] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('rr', 'rr2026')">
+          <span class="text-xs font-bold">RR</span>
+          <span class="text-[9px] text-hm-faint mt-1">RAJASTHAN</span>
+        </button>
+        <!-- KKR -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#7C3AED]/40 text-[#A78BFA] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('kkr', 'kkr2026')">
+          <span class="text-xs font-bold">KKR</span>
+          <span class="text-[9px] text-hm-faint mt-1">KOLKATA</span>
+        </button>
+        <!-- DC -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#0078BC]/40 text-[#38BDF8] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('dc', 'dc2026')">
+          <span class="text-xs font-bold">DC</span>
+          <span class="text-[9px] text-hm-faint mt-1">DELHI</span>
+        </button>
+        <!-- GT -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#38BDF8]/40 text-[#E2E8F0] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('gt', 'gt2026')">
+          <span class="text-xs font-bold">GT</span>
+          <span class="text-[9px] text-hm-faint mt-1">GUJARAT</span>
+        </button>
+        <!-- LSG -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#A72056]/40 text-[#F43F5E] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('lsg', 'lsg2026')">
+          <span class="text-xs font-bold">LSG</span>
+          <span class="text-[9px] text-hm-faint mt-1">LUCKNOW</span>
+        </button>
+        <!-- PBKS -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#ED1B24]/40 text-[#EF4444] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('pbks', 'pbks2026')">
+          <span class="text-xs font-bold">PBKS</span>
+          <span class="text-[9px] text-hm-faint mt-1">PUNJAB</span>
+        </button>
+        <!-- Viewer -->
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border text-hm-muted p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('viewer', 'view2026')">
+          <span class="text-xs font-bold">VIEWER</span>
+          <span class="text-[9px] text-hm-faint mt-1">SPECTATOR</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Cloud Server Configuration -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-3 font-mono">
+      <span class="text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">LIVE WORLDWIDE CLOUD SERVER</span>
+      <div class="flex gap-2 mb-2">
+        <input type="text" id="custom-server-input" class="flex-1 bg-hm-charcoal border border-hm-border rounded-[4px] px-3 py-2 text-xs text-hm-text placeholder-hm-faint focus:outline-none focus:border-hm-border-strong" placeholder="e.g. https://hammer-auction.onrender.com"/>
+        <button class="bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text px-3 py-2 rounded-[4px] text-xs font-bold" onclick="saveCustomServer()">CONNECT</button>
+      </div>
+      <p class="text-[10px] text-hm-faint leading-relaxed">
+        Connect to your Render or cloud server to run the mobile app over 4G/5G from any phone anywhere in the world.
+      </p>
+    </div>
+
+    <!-- Session Sign Out -->
+    <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3">
+      <button class="w-full bg-hm-charcoal hover:bg-hm-elevated border border-hm-border-s text-hm-muted hover:text-hm-vermilion py-2.5 rounded-[4px] font-mono text-xs font-bold transition-colors flex items-center justify-center gap-1.5" onclick="doLogout()">
+        <span class="material-symbols-outlined text-[16px]">logout</span>
+        LOGOUT CURRENT SESSION
+      </button>
     </div>
   </main>
 
-  <!-- BOTTOM NAVIGATION -->
-  <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="switchTab('arena', this)">
-      <span class="nav-icon">⚡</span>
-      <span class="nav-label">ARENA</span>
+  <!-- ===================================================================== -->
+  <!-- FIXED BOTTOM NAVIGATION BAR -->
+  <!-- ===================================================================== -->
+  <nav class="fixed bottom-0 left-0 right-0 h-16 bg-hm-ink/95 backdrop-blur-md border-t border-hm-border flex items-center justify-around z-40 max-w-2xl mx-auto">
+    <button class="nav-tab-btn active flex-1 h-full flex flex-col items-center justify-center text-hm-muted transition-colors cursor-pointer" onclick="switchTab('arena', this)">
+      <span class="material-symbols-outlined text-[20px] mb-0.5">stadium</span>
+      <span class="font-mono text-[9px] font-bold tracking-wider">ARENA</span>
     </button>
-    <button class="nav-btn" id="nav-gavel-btn" style="display: none;" onclick="switchTab('gavel', this)">
-      <span class="nav-icon">🔨</span>
-      <span class="nav-label">GAVEL</span>
+    <button class="nav-tab-btn flex-1 h-full flex flex-col items-center justify-center text-hm-muted transition-colors cursor-pointer hidden" id="nav-gavel-btn" onclick="switchTab('gavel', this)">
+      <span class="material-symbols-outlined text-[20px] mb-0.5">gavel</span>
+      <span class="font-mono text-[9px] font-bold tracking-wider">GAVEL</span>
     </button>
-    <button class="nav-btn" onclick="switchTab('players', this)">
-      <span class="nav-icon">🏏</span>
-      <span class="nav-label">PLAYERS</span>
+    <button class="nav-tab-btn flex-1 h-full flex flex-col items-center justify-center text-hm-muted transition-colors cursor-pointer" onclick="switchTab('players', this)">
+      <span class="material-symbols-outlined text-[20px] mb-0.5">groups</span>
+      <span class="font-mono text-[9px] font-bold tracking-wider">PLAYERS</span>
     </button>
-    <button class="nav-btn" onclick="switchTab('squads', this)">
-      <span class="nav-icon">🛡️</span>
-      <span class="nav-label">SQUADS</span>
+    <button class="nav-tab-btn flex-1 h-full flex flex-col items-center justify-center text-hm-muted transition-colors cursor-pointer" onclick="switchTab('squads', this)">
+      <span class="material-symbols-outlined text-[20px] mb-0.5">military_tech</span>
+      <span class="font-mono text-[9px] font-bold tracking-wider">SQUADS</span>
     </button>
-    <button class="nav-btn" onclick="switchTab('audit', this)">
-      <span class="nav-icon">📜</span>
-      <span class="nav-label">AUDIT</span>
+    <button class="nav-tab-btn flex-1 h-full flex flex-col items-center justify-center text-hm-muted transition-colors cursor-pointer" onclick="switchTab('audit', this)">
+      <span class="material-symbols-outlined text-[20px] mb-0.5">receipt_long</span>
+      <span class="font-mono text-[9px] font-bold tracking-wider">AUDIT</span>
     </button>
-    <button class="nav-btn" onclick="switchTab('portal', this)">
-      <span class="nav-icon">⚙️</span>
-      <span class="nav-label">PORTAL</span>
+    <button class="nav-tab-btn flex-1 h-full flex flex-col items-center justify-center text-hm-muted transition-colors cursor-pointer" onclick="switchTab('portal', this)">
+      <span class="material-symbols-outlined text-[20px] mb-0.5">tune</span>
+      <span class="font-mono text-[9px] font-bold tracking-wider">PORTAL</span>
     </button>
   </nav>
 
-  <!-- SOCKET.IO & HAMMER ENGINE -->
+  <!-- ===================================================================== -->
+  <!-- SCRIPTS & HAMMER ENGINE INTEGRATION -->
+  <!-- ===================================================================== -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/player-images.js"></script>
   <script src="/js/hammer-ux.js"></script>
   <script src="/js/hammer.js"></script>
 
   <script>
-    // Audio synthesizer & haptics
     function hapticTap(pattern = 30) {
       if ('vibrate' in navigator) {
         try { navigator.vibrate(pattern); } catch (_) {}
@@ -1059,15 +595,14 @@
     function showToast(msg) {
       const el = document.getElementById('toast-msg');
       el.textContent = msg;
-      el.style.display = 'block';
-      setTimeout(() => { el.style.display = 'none'; }, 3000);
+      el.classList.remove('hidden');
+      setTimeout(() => { el.classList.add('hidden'); }, 3000);
     }
 
-    // Tab Navigation
     function switchTab(tabName, btn) {
       hapticTap(20);
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
       const target = document.getElementById('screen-' + tabName);
       if (target) target.classList.add('active');
       if (btn) btn.classList.add('active');
@@ -1077,7 +612,6 @@
       if (tabName === 'gavel') renderGavelAvailable();
     }
 
-    // State
     let currentAuction = {};
     let allPlayers = [];
     let allTeams = [];
@@ -1085,7 +619,6 @@
     let currentUser = null;
     let currentTeam = null;
 
-    // Currency Formatter
     function fmtPrice(lakhs) {
       if (!lakhs || isNaN(lakhs)) return '₹0';
       const n = Number(lakhs);
@@ -1096,32 +629,31 @@
     function getTeamColor(teamId) {
       const colors = {
         CSK: '#FFFF00', MI: '#004BA0', RCB: '#EC1C24', DC: '#0078BC',
-        GT: '#1B2133', KKR: '#3A225D', LSG: '#A72056', PBKS: '#ED1B24',
+        GT: '#1B2133', KKR: '#7C3AED', LSG: '#A72056', PBKS: '#ED1B24',
         RR: '#EA1A85', SRH: '#F26522'
       };
-      return colors[String(teamId || '').toUpperCase()] || '#D4AF37';
+      return colors[String(teamId || '').toUpperCase()] || '#C4932A';
     }
 
     // Connect & Initialize
     (async function init() {
-      // Connect to Socket.IO
-      const socket = io({
-        transports: ['websocket', 'polling']
-      });
+      const socket = io({ transports: ['websocket', 'polling'] });
 
       socket.on('connect', () => {
-        document.getElementById('socket-dot').classList.add('connected');
-        document.getElementById('socket-text').textContent = 'LIVE';
+        const dot = document.getElementById('socket-dot');
+        dot.className = 'w-2 h-2 rounded-full bg-hm-emerald';
+        document.getElementById('socket-text').textContent = 'LIVE STAGE';
         const token = Hammer.getToken();
         if (token) socket.emit('auth', { token });
       });
 
       socket.on('disconnect', () => {
-        document.getElementById('socket-dot').classList.remove('connected');
+        const dot = document.getElementById('socket-dot');
+        dot.className = 'w-2 h-2 rounded-full bg-hm-vermilion';
         document.getElementById('socket-text').textContent = 'OFFLINE';
       });
 
-      // Sync User
+      // Sync User Profile
       try {
         const auth = await Hammer.getMe();
         if (auth?.user) {
@@ -1131,7 +663,7 @@
         }
       } catch (_) {}
 
-      // Fetch initial datasets
+      // Fetch Initial Datasets
       try {
         const [st, pl, tm] = await Promise.all([
           Hammer.getAuctionState(),
@@ -1146,42 +678,82 @@
         console.warn('Initial load error:', err);
       }
 
-      // Realtime Events
+      // Realtime Event Listeners
       socket.on('auction:state', (st) => {
         currentAuction = st;
         renderArena(st);
       });
 
-      socket.on('auction:timer', ({ timer, isExpired, isUrgent }) => {
+      socket.on('auction:timer', ({ timer }) => {
         const secEl = document.getElementById('timer-sec');
         const boxEl = document.getElementById('timer-box');
         secEl.textContent = timer;
         if (timer <= 5 && timer > 0) {
-          boxEl.classList.add('urgent');
+          boxEl.classList.add('timer-urgent');
         } else {
-          boxEl.classList.remove('urgent');
+          boxEl.classList.remove('timer-urgent');
         }
 
         const isFrozen = timer === 0;
-        document.getElementById('freeze-banner').style.display = isFrozen ? 'block' : 'none';
+        document.getElementById('freeze-banner').classList.toggle('hidden', !isFrozen);
         updateBidButtonState();
+      });
+
+      socket.on('auction:started', (st) => {
+        if (st) {
+          currentAuction = st;
+          renderArena(st);
+        }
       });
 
       socket.on('auction:bid', (bidData) => {
         hapticTap([40, 30, 40]);
         if (window.HammerUX) HammerUX.playBidPing();
-        showToast(`⚡ BID ACCEPTED: ${bidData.team?.name || bidData.team} — ${fmtPrice(bidData.bid?.amount || bidData.bid)}`);
+        if (bidData?.state) {
+          currentAuction = bidData.state;
+          renderArena(bidData.state);
+        }
+        showToast(`BID ACCEPTED: ${bidData.team?.name || bidData.team} — ${fmtPrice(bidData.bid?.amount || bidData.bid)}`);
       });
 
       socket.on('auction:sold', (data) => {
         hapticTap([100, 50, 100]);
         if (window.HammerUX) HammerUX.playGavelStrike();
-        showToast(`🔨 SOLD to ${data.team?.name || data.team} for ${fmtPrice(data.price)}!`);
+        if (data?.state) {
+          currentAuction = data.state;
+          renderArena(data.state);
+        }
+        showToast(`SOLD: ${data.player?.name || 'Player'} to ${data.team?.name || data.team} for ${fmtPrice(data.price)}`);
       });
 
       socket.on('auction:unsold', (data) => {
         hapticTap(80);
-        showToast(`UNSOLD — ${data.player?.name || 'Lot'}`);
+        if (data?.state) {
+          currentAuction = data.state;
+          renderArena(data.state);
+        }
+        showToast(`UNSOLD: ${data.player?.name || 'Lot'} passed to accelerated pool`);
+      });
+
+      socket.on('auction:paused', (st) => {
+        if (st) {
+          currentAuction = st;
+          renderArena(st);
+        }
+      });
+
+      socket.on('auction:resumed', (st) => {
+        if (st) {
+          currentAuction = st;
+          renderArena(st);
+        }
+      });
+
+      socket.on('auction:reset', (st) => {
+        if (st) {
+          currentAuction = st;
+          renderArena(st);
+        }
       });
 
       socket.on('teams:update', (tms) => {
@@ -1206,22 +778,25 @@
 
       if (!currentUser) {
         badge.textContent = 'FAN';
-        gavelNav.style.display = 'none';
-        quickPanel.style.display = 'none';
-        paddleContainer.style.display = 'block';
+        gavelNav.classList.add('hidden');
+        quickPanel.classList.add('hidden');
+        paddleContainer.classList.remove('hidden');
         return;
       }
 
       if (currentUser.role === 'auctioneer') {
         badge.textContent = 'AUCTIONEER';
-        gavelNav.style.display = 'flex';
-        quickPanel.style.display = 'block';
-        paddleContainer.style.display = 'none';
+        badge.className = 'font-mono text-[10px] font-bold text-hm-vermilion bg-hm-vermilion/10 border border-hm-vermilion/40 px-2 py-1 rounded-[4px] uppercase';
+        gavelNav.classList.remove('hidden');
+        quickPanel.classList.remove('hidden');
+        paddleContainer.classList.add('hidden');
       } else if (currentUser.role === 'team_owner') {
-        badge.textContent = (currentTeam?.code || currentUser.teamId).toUpperCase();
-        gavelNav.style.display = 'none';
-        quickPanel.style.display = 'none';
-        paddleContainer.style.display = 'block';
+        const tCode = (currentTeam?.code || currentUser.teamId).toUpperCase();
+        badge.textContent = tCode;
+        badge.className = 'font-mono text-[10px] font-bold text-hm-amber bg-hm-elevated border border-hm-border-s px-2 py-1 rounded-[4px] uppercase';
+        gavelNav.classList.add('hidden');
+        quickPanel.classList.add('hidden');
+        paddleContainer.classList.remove('hidden');
       }
 
       if (currentTeam) {
@@ -1238,18 +813,26 @@
       const isPaused = state.status === 'paused';
 
       const sBadge = document.getElementById('stage-badge');
-      sBadge.className = 'status-badge ' + (isLive ? 'live' : isPaused ? 'paused' : '');
-      sBadge.textContent = isLive ? '● LIVE LOT' : isPaused ? '⏸ PAUSED' : 'AUCTION IDLE';
+      if (isLive) {
+        sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-emerald/10 border border-hm-emerald/40 text-hm-emerald uppercase';
+        sBadge.textContent = 'LIVE LOT';
+      } else if (isPaused) {
+        sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-amber/10 border border-hm-amber/40 text-hm-amber uppercase';
+        sBadge.textContent = 'PAUSED';
+      } else {
+        sBadge.className = 'font-mono text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-[3px] bg-hm-surface border border-hm-border-s text-hm-muted uppercase';
+        sBadge.textContent = 'AUCTION IDLE';
+      }
 
       // Player details
-      const p = state.player || (state.currentPlayerId ? allPlayers.find(x => x.id === state.currentPlayerId) : null);
+      const p = state.currentPlayer || state.player || (state.currentPlayerId ? allPlayers.find(x => x.id === state.currentPlayerId) : null);
       if (p) {
         document.getElementById('p-lot').textContent = `LOT #${p.lotNumber || p.id}`;
         document.getElementById('p-set').textContent = p.set || 'SET 1 — MARQUEE';
         document.getElementById('p-base').textContent = `BASE: ${fmtPrice(p.basePrice)}`;
         document.getElementById('p-name').textContent = p.name;
         document.getElementById('p-role').textContent = (p.role || '').toUpperCase();
-        document.getElementById('p-country').textContent = (p.nationality || 'INDIA').toUpperCase() + (p.overseas ? ' ✈️' : '');
+        document.getElementById('p-country-name').textContent = (p.nationality || (p.overseas ? 'OVERSEAS' : 'INDIA')).toUpperCase();
         document.getElementById('p-tactical').textContent = p.tacticalProfile ? `"${p.tacticalProfile}"` : '';
 
         // Stats
@@ -1277,8 +860,8 @@
         dot.style.backgroundColor = getTeamColor(leader);
         name.textContent = leader;
       } else {
-        dot.style.backgroundColor = '#6B7280';
-        name.textContent = 'NO BID';
+        dot.style.backgroundColor = '#6F7274';
+        name.textContent = 'NO BIDS';
       }
 
       // Next Bid Calculation
@@ -1288,11 +871,11 @@
 
       const nextVal = (!curBid || !leader) ? (state.basePrice || 200) : (curBid + inc);
       document.getElementById('paddle-price').textContent = fmtPrice(nextVal);
-      document.getElementById('btn-inc-min').textContent = `+${inc}L MIN`;
+      document.getElementById('bid-increment-tag').textContent = `+${fmtPrice(inc)}`;
 
       // Check Rule 7
       const isLeaderMe = currentUser?.role === 'team_owner' && currentTeam && (leader === currentTeam.id || leader === currentTeam.code);
-      document.getElementById('rule7-banner').style.display = isLeaderMe ? 'block' : 'none';
+      document.getElementById('rule7-banner').classList.toggle('hidden', !isLeaderMe);
 
       // History
       renderHistory(state.bidHistory || []);
@@ -1317,13 +900,16 @@
       const container = document.getElementById('lot-bids-feed');
       document.getElementById('bid-stream-count').textContent = `${hist.length} BIDS`;
       if (!hist || hist.length === 0) {
-        container.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 8px;">Awaiting bids on active lot...</div>';
+        container.innerHTML = '<div class="font-mono text-xs text-hm-faint text-center py-2">Awaiting bids on active lot...</div>';
         return;
       }
       container.innerHTML = hist.slice(0, 5).map(h => `
-        <div class="history-row">
-          <span class="history-team" style="color: ${getTeamColor(h.teamId)}">● ${h.teamName || h.teamId}</span>
-          <span class="history-amount">${fmtPrice(h.amount)}</span>
+        <div class="flex items-center justify-between py-1.5 border-b border-hm-border last:border-none font-mono text-xs">
+          <span class="font-bold flex items-center gap-1.5" style="color: ${getTeamColor(h.teamId)}">
+            <span class="w-1.5 h-1.5 rounded-full" style="background: ${getTeamColor(h.teamId)}"></span>
+            ${h.teamName || h.teamId}
+          </span>
+          <span class="font-bold text-hm-amber">${fmtPrice(h.amount)}</span>
         </div>
       `).join('');
     }
@@ -1334,20 +920,8 @@
       try {
         await Hammer.placeBid();
       } catch (e) {
-        alert(e.message || 'Bid rejected by server');
+        showToast(e.message || 'Bid rejected by server');
       }
-    };
-
-    document.getElementById('btn-inc-min').onclick = () => document.getElementById('btn-place-bid').click();
-    document.getElementById('btn-inc-20').onclick = async () => {
-      hapticTap(40);
-      const curBid = Number(currentAuction.currentBid || 0);
-      try { await Hammer.placeBid(curBid + 20); } catch (e) { alert(e.message); }
-    };
-    document.getElementById('btn-inc-50').onclick = async () => {
-      hapticTap(40);
-      const curBid = Number(currentAuction.currentBid || 0);
-      try { await Hammer.placeBid(curBid + 50); } catch (e) { alert(e.message); }
     };
 
     // Quick Auctioneer controls
@@ -1358,8 +932,13 @@
     document.getElementById('btn-unsold').onclick = () => sendUnsold();
     document.getElementById('btn-quick-pause').onclick = async () => {
       hapticTap(30);
-      if (currentAuction.status === 'paused') await Hammer.resumeAuction();
-      else await Hammer.pauseAuction();
+      if (currentAuction.status === 'paused') {
+        await Hammer.resumeAuction();
+        document.getElementById('pause-btn-text').textContent = 'PAUSE';
+      } else {
+        await Hammer.pauseAuction();
+        document.getElementById('pause-btn-text').textContent = 'RESUME';
+      }
     };
     document.getElementById('btn-time-5').onclick = () => Hammer.addTimer(5);
     document.getElementById('btn-time-10').onclick = () => Hammer.addTimer(10);
@@ -1367,36 +946,38 @@
 
     async function sendGavel(stage) {
       hapticTap(30);
-      try { await Hammer.gavelAction(stage); } catch (e) { alert(e.message); }
+      try { await Hammer.gavelAction(stage); } catch (e) { showToast(e.message); }
     }
     async function sendSold() {
       hapticTap([50, 50, 50]);
-      try { await Hammer.soldLot(); } catch (e) { alert(e.message); }
+      try { await Hammer.soldLot(); } catch (e) { showToast(e.message); }
     }
     async function sendUnsold() {
       hapticTap(50);
-      try { await Hammer.unsoldLot(); } catch (e) { alert(e.message); }
+      try { await Hammer.unsoldLot(); } catch (e) { showToast(e.message); }
     }
     async function triggerCaptains() {
       if (!confirm('Lock 2026 Captains into rosters at base price?')) return;
       try {
         await Hammer.apiPost('/api/auction/captain-retention');
         showToast('Captains retained successfully!');
-      } catch (e) { alert(e.message); }
+      } catch (e) { showToast(e.message); }
     }
     async function resetLot() {
       if (!confirm('Reset current lot?')) return;
       try {
         await Hammer.apiPost('/api/auction/reset');
         showToast('Lot reset.');
-      } catch (e) { alert(e.message); }
+      } catch (e) { showToast(e.message); }
     }
 
     // Player Pool Screen
     function setRoleTab(role, btn) {
       activeRoleTab = role;
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll('.role-chip').forEach(c => {
+        c.className = 'role-chip shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted';
+      });
+      btn.className = 'role-chip shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-vermilion text-hm-text';
       renderPlayerPool();
     }
 
@@ -1410,19 +991,26 @@
         return true;
       });
 
+      document.getElementById('pool-count-tag').textContent = `${filtered.length} PLAYERS`;
+
       list.innerHTML = filtered.map(p => {
         const isSold = p.status === 'sold';
         return `
-          <div class="item-card">
+          <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 flex items-center justify-between">
             <div>
-              <div style="font-weight: 800; font-size: 13px;">${p.name} ${p.overseas ? '✈️' : ''}</div>
-              <div style="font-size: 9px; color: var(--text-muted); margin-top: 2px;">
+              <div class="font-ui font-bold text-sm text-hm-text flex items-center gap-1.5">
+                ${p.name}
+                ${p.overseas ? '<span class="material-symbols-outlined text-[13px] text-hm-amber" title="Overseas">public</span>' : ''}
+              </div>
+              <div class="font-mono text-[10px] text-hm-faint mt-0.5">
                 LOT #${p.lotNumber || p.id} • ${(p.role || '').toUpperCase()} • BASE: ${fmtPrice(p.basePrice)}
               </div>
             </div>
-            <div style="text-align: right;">
-              <span class="status-badge ${isSold ? 'live' : ''}">${isSold ? 'SOLD (' + p.soldTo + ')' : p.status === 'unsold' ? 'UNSOLD' : 'AVAILABLE'}</span>
-              ${isSold ? `<div style="font-size: 10px; font-weight: 900; color: var(--gold); margin-top: 2px;">${fmtPrice(p.soldPrice)}</div>` : ''}
+            <div class="text-right font-mono">
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-[3px] ${isSold ? 'bg-hm-emerald/10 border border-hm-emerald/30 text-hm-emerald' : p.status === 'unsold' ? 'bg-hm-vermilion/10 border border-hm-vermilion/30 text-hm-vermilion' : 'bg-hm-elevated border border-hm-border-s text-hm-muted'} uppercase">
+                ${isSold ? 'SOLD (' + (p.soldTo || '') + ')' : p.status === 'unsold' ? 'UNSOLD' : 'AVAILABLE'}
+              </span>
+              ${isSold ? `<div class="text-xs font-bold text-hm-amber mt-1">${fmtPrice(p.soldPrice)}</div>` : ''}
             </div>
           </div>
         `;
@@ -1435,12 +1023,12 @@
       const list = document.getElementById('gavel-avail-list');
       const avail = allPlayers.filter(p => (!p.status || p.status === 'available') && (!q || p.name.toLowerCase().includes(q)));
       list.innerHTML = avail.slice(0, 10).map(p => `
-        <div class="item-card">
+        <div class="bg-hm-charcoal border border-hm-border rounded-[4px] p-2.5 flex items-center justify-between">
           <div>
-            <div style="font-weight: 800; font-size: 12px;">${p.name}</div>
-            <div style="font-size: 9px; color: var(--text-muted);">LOT #${p.lotNumber || p.id} • ${fmtPrice(p.basePrice)}</div>
+            <div class="font-ui font-bold text-xs text-hm-text">${p.name}</div>
+            <div class="font-mono text-[9px] text-hm-faint">LOT #${p.lotNumber || p.id} • ${fmtPrice(p.basePrice)}</div>
           </div>
-          <button class="inc-btn" style="padding: 4px 10px; background: var(--gold); color: var(--text-inv);" onclick="startPlayerLot(${p.id})">CALL</button>
+          <button class="bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text px-2.5 py-1 rounded-[3px] font-mono text-[10px] font-bold" onclick="startPlayerLot(${p.id})">CALL</button>
         </div>
       `).join('');
     }
@@ -1449,8 +1037,8 @@
       hapticTap(40);
       try {
         await Hammer.startAuction(id);
-        switchTab('arena', document.querySelector('.bottom-nav button:first-child'));
-      } catch (e) { alert(e.message); }
+        switchTab('arena', document.querySelector('.nav-tab-btn:first-child'));
+      } catch (e) { showToast(e.message); }
     }
 
     // Squads Screen
@@ -1460,19 +1048,22 @@
         const squad = t.squad || t.players || [];
         const rem = t.remaining ?? (t.purse - (t.spent || 0));
         return `
-          <div class="paddle-container" style="margin-bottom: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 6px;">
-              <span style="font-weight: 900; font-size: 13px; color: ${getTeamColor(t.id)}">● ${t.name}</span>
-              <span style="font-weight: 900; color: var(--gold);">${fmtPrice(rem)}</span>
+          <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3">
+            <div class="flex items-center justify-between pb-2 mb-2 border-b border-hm-border font-mono">
+              <span class="font-bold text-sm flex items-center gap-1.5" style="color: ${getTeamColor(t.id)}">
+                <span class="w-2 h-2 rounded-full" style="background: ${getTeamColor(t.id)}"></span>
+                ${t.name}
+              </span>
+              <span class="font-bold text-hm-amber text-xs">${fmtPrice(rem)}</span>
             </div>
-            <div style="font-size: 10px; color: var(--text-muted);">
+            <div class="font-mono text-[10px] text-hm-faint mb-2">
               ROSTER: ${squad.length} / ${t.maxSlots || 15} SLOTS • SPENT: ${fmtPrice(t.spent || 0)}
             </div>
             ${squad.length > 0 ? `
-              <div style="margin-top: 6px; font-size: 10px; line-height: 16px; color: var(--text-sec);">
-                ${squad.map(p => `• ${p.name || p.displayName} (${fmtPrice(p.soldPrice || p.price)})`).join('<br/>')}
+              <div class="font-mono text-[10px] text-hm-muted space-y-1 bg-hm-charcoal p-2 rounded-[4px]">
+                ${squad.map(p => `<div class="flex justify-between"><span>• ${p.name || p.displayName}</span><span class="text-hm-amber font-bold">${fmtPrice(p.soldPrice || p.price)}</span></div>`).join('')}
               </div>
-            ` : '<div style="font-size: 10px; font-style: italic; color: var(--text-muted); margin-top: 4px;">No players acquired yet</div>'}
+            ` : '<div class="font-mono text-[10px] text-hm-faint italic">No players acquired yet</div>'}
           </div>
         `;
       }).join('');
@@ -1482,21 +1073,21 @@
     function prependAuditEvent(ev) {
       const feed = document.getElementById('audit-feed');
       const div = document.createElement('div');
-      div.className = 'item-card';
+      div.className = 'bg-hm-panel border border-hm-border rounded-[4px] p-2.5 flex items-center justify-between font-mono text-xs';
       div.innerHTML = `
         <div>
-          <span class="status-badge">${ev.event_type}</span>
-          <div style="font-weight: 800; font-size: 12px; margin-top: 4px;">${ev.player_name || 'Auction Session'}</div>
+          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-[2px] bg-hm-charcoal border border-hm-border text-hm-muted uppercase">${ev.event_type}</span>
+          <div class="font-bold text-hm-text mt-1">${ev.player_name || 'Auction Session'}</div>
         </div>
-        <div style="text-align: right;">
-          <div style="font-size: 11px; font-weight: 900; color: var(--gold);">${ev.amount_lakh > 0 ? fmtPrice(ev.amount_lakh) : ''}</div>
-          <div style="font-size: 9px; color: var(--text-muted);">${ev.actor_team_id || ''}</div>
+        <div class="text-right">
+          <div class="font-bold text-hm-amber">${ev.amount_lakh > 0 ? fmtPrice(ev.amount_lakh) : ''}</div>
+          <div class="text-[9px] text-hm-faint">${ev.actor_team_id || ''}</div>
         </div>
       `;
       feed.insertBefore(div, feed.firstChild);
     }
 
-    // Auth actions
+    // Quick Login
     async function quickLogin(u, p) {
       hapticTap(30);
       try {
@@ -1504,10 +1095,10 @@
         currentUser = res.user;
         currentTeam = res.team;
         updateAuthUI();
-        showToast(`Logged in as ${u.toUpperCase()}`);
-        switchTab('arena', document.querySelector('.bottom-nav button:first-child'));
+        showToast(`Authenticated as ${u.toUpperCase()}`);
+        switchTab('arena', document.querySelector('.nav-tab-btn:first-child'));
       } catch (e) {
-        alert(e.message || 'Login failed');
+        showToast(e.message || 'Login failed');
       }
     }
 
@@ -1517,7 +1108,16 @@
       currentTeam = null;
       updateAuthUI();
       showToast('Logged out');
-      switchTab('arena', document.querySelector('.bottom-nav button:first-child'));
+      switchTab('arena', document.querySelector('.nav-tab-btn:first-child'));
+    }
+
+    function saveCustomServer() {
+      const input = document.getElementById('custom-server-input');
+      const url = input.value.trim();
+      if (!url) return;
+      localStorage.setItem('hammer_custom_server', url);
+      showToast(`Saved server: ${url}`);
+      window.location.reload();
     }
   </script>
 </body>

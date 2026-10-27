@@ -28,7 +28,7 @@ export default function LiveArenaScreen({ onOpenLogin, onOpenPlayerPool }) {
               isLive ? styles.tagLive : isPaused ? styles.tagPaused : styles.tagIdle
             ]}>
               <Text style={styles.statusTagText}>
-                {isLive ? '● LIVE LOT' : isPaused ? '⏸ PAUSED' : 'AUCTION IDLE'}
+                {isLive ? 'LIVE LOT' : isPaused ? 'PAUSED' : 'AUCTION IDLE'}
               </Text>
             </View>
             {auction.round && (
@@ -53,8 +53,8 @@ export default function LiveArenaScreen({ onOpenLogin, onOpenPlayerPool }) {
         ]}>
           <Text style={styles.resolutionText}>
             {resolutionNotice.type === 'SOLD'
-              ? `🔨 SOLD! ${resolutionNotice.player?.name || 'Player'} to ${resolutionNotice.team?.shortName || resolutionNotice.team?.name || 'Franchise'} for ${formatPrice(resolutionNotice.price)}`
-              : `⚖️ UNSOLD — ${resolutionNotice.player?.name || 'Player'} passed to accelerated pool`
+              ? `SOLD: ${resolutionNotice.player?.name || 'Player'} to ${resolutionNotice.team?.shortName || resolutionNotice.team?.name || 'Franchise'} for ${formatPrice(resolutionNotice.price)}`
+              : `UNSOLD: ${resolutionNotice.player?.name || 'Player'} passed to accelerated pool`
             }
           </Text>
         </View>
@@ -64,7 +64,7 @@ export default function LiveArenaScreen({ onOpenLogin, onOpenPlayerPool }) {
       {recentBidNotice && (
         <View style={styles.bidFlash}>
           <Text style={styles.flashText}>
-            ⚡ NEW BID: {recentBidNotice.team?.name || recentBidNotice.team} — {formatPrice(recentBidNotice.bid?.amount || recentBidNotice.bid)}
+            NEW BID: {recentBidNotice.team?.name || recentBidNotice.team} — {formatPrice(recentBidNotice.bid?.amount || recentBidNotice.bid)}
           </Text>
         </View>
       )}

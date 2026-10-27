@@ -24,15 +24,15 @@ export function formatPriceShort(lakhs) {
 export function getRoleBadge(role) {
   switch (String(role).toLowerCase()) {
     case 'batter':
-      return { label: 'BATTER', icon: '🏏', color: '#3B82F6' };
+      return { label: 'BATTER', color: '#3B82F6' };
     case 'bowler':
-      return { label: 'BOWLER', icon: '⚡', color: '#10B981' };
+      return { label: 'BOWLER', color: '#10B981' };
     case 'allrounder':
-      return { label: 'ALL-ROUNDER', icon: '🌐', color: '#F59E0B' };
+      return { label: 'ALL-ROUNDER', color: '#F59E0B' };
     case 'wicketkeeper':
-      return { label: 'WICKETKEEPER', icon: '🧤', color: '#8B5CF6' };
+      return { label: 'WICKETKEEPER', color: '#8B5CF6' };
     default:
-      return { label: 'CRICKETER', icon: '🏏', color: '#6B7280' };
+      return { label: 'CRICKETER', color: '#6B7280' };
   }
 }
 

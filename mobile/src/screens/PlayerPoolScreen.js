@@ -79,7 +79,7 @@ export default function PlayerPoolScreen() {
               <View style={[styles.roleBadge, { borderColor: role.color }]}>
                 <Text style={[styles.roleText, { color: role.color }]}>{role.label}</Text>
               </View>
-              {item.overseas && <Text style={styles.overseasTag}>✈️ OVERSEAS</Text>}
+              {item.overseas && <Text style={styles.overseasTag}>OVERSEAS</Text>}
             </View>
 
             <View style={styles.priceRow}>

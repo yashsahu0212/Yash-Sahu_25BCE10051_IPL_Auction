@@ -12,8 +12,7 @@ export default function Header({ onOpenSettings }) {
         <Text style={styles.title}>HAMMER</Text>
         <TouchableOpacity style={styles.statusPill} onPress={onOpenSettings} activeOpacity={0.7}>
           <View style={[styles.statusDot, { backgroundColor: isConnected ? '#10B981' : '#EF4444' }]} />
-          <Text style={styles.statusText}>{isConnected ? 'LIVE' : 'OFFLINE'}</Text>
-          <Text style={styles.settingsMiniIcon}>⚙️</Text>
+          <Text style={styles.statusText}>{isConnected ? 'LIVE STAGE' : 'OFFLINE'}</Text>
         </TouchableOpacity>
       </View>
 

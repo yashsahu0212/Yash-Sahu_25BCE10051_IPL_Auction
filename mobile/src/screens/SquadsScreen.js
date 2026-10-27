@@ -75,7 +75,7 @@ export default function SquadsScreen() {
                           <View style={[styles.miniRole, { borderColor: role.color }]}>
                             <Text style={[styles.miniRoleText, { color: role.color }]}>{role.label}</Text>
                           </View>
-                          {p.overseas && <Text style={styles.osTag}>✈️</Text>}
+                          {p.overseas && <Text style={styles.osTag}>OS</Text>}
                         </View>
                         <Text style={styles.squadPrice}>{formatPrice(p.soldPrice || p.price)}</Text>
                       </View>

@@ -907,7 +907,7 @@
       renderAuctionState(data.state);
       loadTeamData();
       if (data.team.id === myTeamId) {
-        Hammer.showToast(`🎉 CONGRATULATIONS! YOU ACQUIRED ${data.player.name} FOR ${Hammer.formatCurrency(data.price)}!`, 'success');
+        Hammer.showToast(`AUCTION CONFIRMED: YOU ACQUIRED ${data.player.name} FOR ${Hammer.formatCurrency(data.price)}!`, 'success');
       } else {
         Hammer.showToast(`${data.player.name} SOLD TO ${data.team.shortName}`, 'info');
       }

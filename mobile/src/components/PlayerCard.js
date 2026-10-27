@@ -7,7 +7,6 @@ export default function PlayerCard({ player, status, serverUrl }) {
   if (!player) {
     return (
       <View style={styles.emptyCard}>
-        <Text style={styles.emptyIcon}>⚖️</Text>
         <Text style={styles.emptyTitle}>NO ACTIVE LOT</Text>
         <Text style={styles.emptySub}>Awaiting Auctioneer to call next player</Text>
       </View>
@@ -51,12 +50,12 @@ export default function PlayerCard({ player, status, serverUrl }) {
             />
           ) : (
             <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarText}>{role.icon}</Text>
+              <Text style={styles.avatarText}>{player.name ? player.name[0] : 'P'}</Text>
             </View>
           )}
           {player.overseas && (
             <View style={styles.overseasTag}>
-              <Text style={styles.overseasText}>✈️ OVERSEAS</Text>
+              <Text style={styles.overseasText}>OVERSEAS</Text>
             </View>
           )}
         </View>

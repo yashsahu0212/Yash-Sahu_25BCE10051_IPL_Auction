@@ -83,7 +83,7 @@ export default function BiddingPaddle({ onOpenLogin }) {
       {/* Status Warning or Banner */}
       {isLeading ? (
         <View style={styles.leadingBanner}>
-          <Text style={styles.leadingBannerText}>🏆 {team.name} HOLDS LEADING BID</Text>
+          <Text style={styles.leadingBannerText}>{team.name} HOLDS LEADING BID</Text>
           <Text style={styles.leadingSub}>Rule 7: Franchise cannot raise against itself</Text>
         </View>
       ) : isTimerExpired ? (

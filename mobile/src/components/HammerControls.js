@@ -30,7 +30,7 @@ export default function HammerControls() {
           style={[styles.pauseBtn, isPaused && styles.resumeBtn]}
           onPress={() => runAction('pause', togglePause)}
         >
-          <Text style={styles.pauseText}>{isPaused ? '▶ RESUME' : '⏸ PAUSE'}</Text>
+          <Text style={styles.pauseText}>{isPaused ? 'RESUME' : 'PAUSE'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -65,7 +65,7 @@ export default function HammerControls() {
           disabled={!hasBids || !!loadingAction}
           onPress={() => runAction('sold', markSold)}
         >
-          <Text style={styles.soldText}>🔨 HAMMER SOLD</Text>
+          <Text style={styles.soldText}>HAMMER SOLD</Text>
         </TouchableOpacity>
 
         <TouchableOpacity

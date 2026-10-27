@@ -1,35 +1,36 @@
 /**
  * HAMMER Mobile Theme Tokens
- * Strict adherence to the Vintage Editorial Auction Broadsheet specification
+ * Synchronized with the website's Hammer Editorial dark theme specification
  */
 export const Colors = {
-  bg: '#161310',
-  surface: '#201B16',
-  surfaceHigh: '#2B241E',
-  surfaceCard: '#251F19',
-  border: '#3F352A',
-  borderLight: '#594B3B',
+  bg: '#0B0C0D',
+  surface: '#121416',
+  surfaceHigh: '#181A1C',
+  surfaceCard: '#1E2022',
+  border: '#232527',
+  borderLight: '#303234',
+  borderStrong: '#444648',
   
   // Accents
-  gold: '#D4AF37',
-  goldMuted: '#A88647',
-  goldDark: '#74571D',
-  crimson: '#A13D3B',
-  crimsonMuted: '#8F302F',
-  green: '#2E7D32',
-  blue: '#1976D2',
+  gold: '#C4932A',
+  goldMuted: '#9E7622',
+  goldDark: '#785A1A',
+  crimson: '#C74632',
+  crimsonMuted: '#9E3628',
+  green: '#2D8B5A',
+  blue: '#3B82F6',
   
   // Typography colors
-  textPrimary: '#FBF5EE',
-  textSecondary: '#D1C5B4',
-  textMuted: '#948777',
-  textInverse: '#161310',
+  textPrimary: '#F2F0EA',
+  textSecondary: '#A7A9AA',
+  textMuted: '#6F7274',
+  textInverse: '#0B0C0D',
 
   // Status colors
-  live: '#A13D3B',
-  sold: '#A88647',
-  unsold: '#705743',
-  paused: '#D48806',
+  live: '#C74632',
+  sold: '#2D8B5A',
+  unsold: '#6F7274',
+  paused: '#C4932A',
 };
 
 export const Spacing = {

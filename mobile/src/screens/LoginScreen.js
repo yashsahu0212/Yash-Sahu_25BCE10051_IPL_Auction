@@ -7,18 +7,18 @@ import { getTeamColor } from '../utils/formatters';
 import { ApiService } from '../services/api';
 
 const PRESET_ACCOUNTS = [
-  { label: 'AUCTIONEER', username: 'auctioneer', password: 'hammer2026', icon: '🔨', color: '#D4AF37' },
-  { label: 'CSK (Chennai)', username: 'csk', password: 'csk2026', icon: '🦁', color: '#FFFF00' },
-  { label: 'MI (Mumbai)', username: 'mi', password: 'mi2026', icon: '🌀', color: '#004BA0' },
-  { label: 'RCB (Bengaluru)', username: 'rcb', password: 'rcb2026', icon: '👑', color: '#EC1C24' },
-  { label: 'SRH (Hyderabad)', username: 'srh', password: 'srh2026', icon: '🦅', color: '#F26522' },
-  { label: 'KKR (Kolkata)', username: 'kkr', password: 'kkr2026', icon: '⚔️', color: '#3A225D' },
-  { label: 'DC (Delhi)', username: 'dc', password: 'dc2026', icon: '🐯', color: '#0078BC' },
-  { label: 'GT (Gujarat)', username: 'gt', password: 'gt2026', icon: '⚡', color: '#1B2133' },
-  { label: 'RR (Rajasthan)', username: 'rr', password: 'rr2026', icon: '🛡️', color: '#EA1A85' },
-  { label: 'LSG (Lucknow)', username: 'lsg', password: 'lsg2026', icon: '🌟', color: '#A72056' },
-  { label: 'PBKS (Punjab)', username: 'pbks', password: 'pbks2026', icon: '🦁', color: '#ED1B24' },
-  { label: 'VIEWER (Fan)', username: 'viewer', password: 'view2026', icon: '👁️', color: '#6B7280' },
+  { label: 'AUCTIONEER', username: 'auctioneer', password: 'hammer2026', code: 'GAVEL', color: '#C4932A' },
+  { label: 'CSK (Chennai)', username: 'csk', password: 'csk2026', code: 'CSK', color: '#FFFF00' },
+  { label: 'MI (Mumbai)', username: 'mi', password: 'mi2026', code: 'MI', color: '#004BA0' },
+  { label: 'RCB (Bengaluru)', username: 'rcb', password: 'rcb2026', code: 'RCB', color: '#EC1C24' },
+  { label: 'SRH (Hyderabad)', username: 'srh', password: 'srh2026', code: 'SRH', color: '#F26522' },
+  { label: 'KKR (Kolkata)', username: 'kkr', password: 'kkr2026', code: 'KKR', color: '#7C3AED' },
+  { label: 'DC (Delhi)', username: 'dc', password: 'dc2026', code: 'DC', color: '#0078BC' },
+  { label: 'GT (Gujarat)', username: 'gt', password: 'gt2026', code: 'GT', color: '#38BDF8' },
+  { label: 'RR (Rajasthan)', username: 'rr', password: 'rr2026', code: 'RR', color: '#EA1A85' },
+  { label: 'LSG (Lucknow)', username: 'lsg', password: 'lsg2026', code: 'LSG', color: '#F43F5E' },
+  { label: 'PBKS (Punjab)', username: 'pbks', password: 'pbks2026', code: 'PBKS', color: '#EF4444' },
+  { label: 'VIEWER (Fan)', username: 'viewer', password: 'view2026', code: 'FAN', color: '#6F7274' },
 ];
 
 export default function LoginScreen({ onClose }) {
@@ -131,12 +131,12 @@ export default function LoginScreen({ onClose }) {
             onPress={handleAutoDetect}
             disabled={isLoading}
           >
-            <Text style={styles.autoDetectText}>🔍 AUTO-DETECT</Text>
+            <Text style={styles.autoDetectText}>AUTO-DETECT</Text>
           </TouchableOpacity>
         </View>
 
         <Text style={styles.urlHelp}>
-          🌐 LIVE WORLDWIDE: Enter your public cloud URL (e.g. https://hammer.onrender.com) to connect over 4G/5G/cellular from any phone anywhere.
+          LIVE CLOUD SERVER: Enter your public cloud URL (e.g. https://hammer.onrender.com) to connect over 4G/5G/cellular from any phone anywhere.
         </Text>
       </View>
 
@@ -151,7 +151,7 @@ export default function LoginScreen({ onClose }) {
               onPress={() => handleQuickLogin(acc)}
               disabled={isLoading}
             >
-              <Text style={styles.presetIcon}>{acc.icon}</Text>
+              <Text style={[styles.presetCode, { color: acc.color }]}>{acc.code}</Text>
               <Text style={styles.presetLabel} numberOfLines={1}>{acc.label}</Text>
             </TouchableOpacity>
           ))}
@@ -329,8 +329,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 2,
   },
-  presetIcon: {
-    fontSize: 18,
+  presetCode: {
+    fontSize: 14,
+    fontWeight: '900',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
     marginBottom: 4,
   },
   presetLabel: {

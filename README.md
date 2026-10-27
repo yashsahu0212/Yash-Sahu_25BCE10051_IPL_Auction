@@ -246,15 +246,39 @@ npm start
 npm run dev
 ```
 
-### Step 4: Open in Browser
+### Step 4: Open in Browser or Mobile
 Open your browser and navigate to:
 - **Live Broadcast Board:** [http://localhost:3000/](http://localhost:3000/) *(Press `[F]` or click full-screen icon)*
+- **📱 Mobile App (Touch / PWA):** [http://localhost:3000/mobile](http://localhost:3000/mobile) *(On phone: `http://<your-ip>:3000/mobile`)*
 - **Auctioneer Control Desk:** [http://localhost:3000/auction-desk.html](http://localhost:3000/auction-desk.html)
 - **Franchise Bidder Console:** [http://localhost:3000/team-console.html](http://localhost:3000/team-console.html)
 - **Player Pool & 3D Dossiers:** [http://localhost:3000/player-pool.html](http://localhost:3000/player-pool.html)
 - **Lot Replay & History:** [http://localhost:3000/lot-replay.html](http://localhost:3000/lot-replay.html)
 - **Audit Activity Log:** [http://localhost:3000/activity-log.html](http://localhost:3000/activity-log.html)
 - **Post-Auction Squads:** [http://localhost:3000/final-squads.html](http://localhost:3000/final-squads.html)
+
+---
+
+## 📱 Running & Downloading the Mobile App
+
+### Method 1: Instant Mobile Web App / PWA (Recommended — Zero Downloads)
+1. Start the server with `npm start`. Note your PC's IP from the console (e.g. `http://192.168.1.7:3000`).
+2. On your phone (iPhone or Android), open Chrome or Safari and visit:
+   ```
+   http://192.168.1.7:3000/mobile
+   ```
+3. Tap **"Add to Home Screen"** in Safari / Chrome. It installs instantly as a native app on your phone with zero app store downloads!
+
+### Method 2: Native React Native Mobile App (Expo)
+1. In a new terminal window:
+   ```bash
+   cd mobile
+   npm install
+   npx expo start
+   ```
+2. Scan the QR code using **Expo Go** (available free on iOS App Store & Android Play Store).
+3. Tap the **"WI-FI (192.168.1.7)"** button in the mobile app or tap **"🔍 AUTO-DETECT"** to connect to your live auction server!
+4. For complete mobile details, see [mobile/README.md](mobile/README.md).
 
 ---
 

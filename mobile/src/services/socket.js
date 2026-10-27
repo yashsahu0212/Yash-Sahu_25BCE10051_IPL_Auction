@@ -31,15 +31,27 @@ export const SocketService = {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: Infinity,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
+      reconnectionDelay: 400,
+      reconnectionDelayMax: 1500,
       auth: { token },
-      timeout: 10000
+      timeout: 8000
     });
 
     socket.on('connect', () => {
       isConnecting = false;
       this.emitInternal('connection:change', { connected: true, id: socket.id });
+
+      const currentToken = ApiService.getToken();
+      if (currentToken) {
+        socket.emit('auth', { token: currentToken }, (ack) => {
+          this.emitInternal('auth:ack', ack);
+        });
+      }
+    });
+
+    socket.on('reconnect', () => {
+      isConnecting = false;
+      this.emitInternal('connection:change', { connected: true, id: socket.id, isReconnect: true });
 
       const currentToken = ApiService.getToken();
       if (currentToken) {
@@ -69,6 +81,8 @@ export const SocketService = {
       'auction:started',
       'auction:paused',
       'auction:resumed',
+      'auction:reset',
+      'auction:hammer_ready',
       'auction:timer_settings',
       'teams:update',
       'auction:event',

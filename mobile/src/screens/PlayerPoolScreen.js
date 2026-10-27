@@ -42,7 +42,7 @@ export default function PlayerPoolScreen() {
 
     let imageUrl = item.image || item.imageUrl;
     if (imageUrl && !imageUrl.startsWith('http')) {
-      const base = serverUrl || 'http://172.25.241.119:3000';
+      const base = serverUrl || 'http://192.168.1.7:3000';
       imageUrl = `${base}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
     }
 

@@ -1167,21 +1167,61 @@
         updateBidButtonState();
       });
 
+      socket.on('auction:started', (st) => {
+        if (st) {
+          currentAuction = st;
+          renderArena(st);
+        }
+      });
+
       socket.on('auction:bid', (bidData) => {
         hapticTap([40, 30, 40]);
         if (window.HammerUX) HammerUX.playBidPing();
+        if (bidData?.state) {
+          currentAuction = bidData.state;
+          renderArena(bidData.state);
+        }
         showToast(`⚡ BID ACCEPTED: ${bidData.team?.name || bidData.team} — ${fmtPrice(bidData.bid?.amount || bidData.bid)}`);
       });
 
       socket.on('auction:sold', (data) => {
         hapticTap([100, 50, 100]);
         if (window.HammerUX) HammerUX.playGavelStrike();
+        if (data?.state) {
+          currentAuction = data.state;
+          renderArena(data.state);
+        }
         showToast(`🔨 SOLD to ${data.team?.name || data.team} for ${fmtPrice(data.price)}!`);
       });
 
       socket.on('auction:unsold', (data) => {
         hapticTap(80);
+        if (data?.state) {
+          currentAuction = data.state;
+          renderArena(data.state);
+        }
         showToast(`UNSOLD — ${data.player?.name || 'Lot'}`);
+      });
+
+      socket.on('auction:paused', (st) => {
+        if (st) {
+          currentAuction = st;
+          renderArena(st);
+        }
+      });
+
+      socket.on('auction:resumed', (st) => {
+        if (st) {
+          currentAuction = st;
+          renderArena(st);
+        }
+      });
+
+      socket.on('auction:reset', (st) => {
+        if (st) {
+          currentAuction = st;
+          renderArena(st);
+        }
       });
 
       socket.on('teams:update', (tms) => {
@@ -1242,7 +1282,7 @@
       sBadge.textContent = isLive ? '● LIVE LOT' : isPaused ? '⏸ PAUSED' : 'AUCTION IDLE';
 
       // Player details
-      const p = state.player || (state.currentPlayerId ? allPlayers.find(x => x.id === state.currentPlayerId) : null);
+      const p = state.currentPlayer || state.player || (state.currentPlayerId ? allPlayers.find(x => x.id === state.currentPlayerId) : null);
       if (p) {
         document.getElementById('p-lot').textContent = `LOT #${p.lotNumber || p.id}`;
         document.getElementById('p-set').textContent = p.set || 'SET 1 — MARQUEE';
@@ -1339,16 +1379,8 @@
     };
 
     document.getElementById('btn-inc-min').onclick = () => document.getElementById('btn-place-bid').click();
-    document.getElementById('btn-inc-20').onclick = async () => {
-      hapticTap(40);
-      const curBid = Number(currentAuction.currentBid || 0);
-      try { await Hammer.placeBid(curBid + 20); } catch (e) { alert(e.message); }
-    };
-    document.getElementById('btn-inc-50').onclick = async () => {
-      hapticTap(40);
-      const curBid = Number(currentAuction.currentBid || 0);
-      try { await Hammer.placeBid(curBid + 50); } catch (e) { alert(e.message); }
-    };
+    document.getElementById('btn-inc-20').onclick = () => document.getElementById('btn-place-bid').click();
+    document.getElementById('btn-inc-50').onclick = () => document.getElementById('btn-place-bid').click();
 
     // Quick Auctioneer controls
     document.getElementById('btn-g1').onclick = () => sendGavel(1);

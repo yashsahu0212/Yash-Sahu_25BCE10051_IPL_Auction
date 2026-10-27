@@ -1,14 +1,32 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
-const DEFAULT_SERVER_URL = 'http://172.25.241.119:3000';
-let currentServerUrl = DEFAULT_SERVER_URL;
+const LAN_IP = '192.168.1.7';
+const PORT = '3000';
+
+function getInitialDefaultUrl() {
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location) {
+    if (window.location.port === PORT) return window.location.origin;
+    return `http://${window.location.hostname || 'localhost'}:${PORT}`;
+  }
+  if (Platform.OS === 'android') {
+    return `http://${LAN_IP}:${PORT}`;
+  }
+  return `http://${LAN_IP}:${PORT}`;
+}
+
+let currentServerUrl = getInitialDefaultUrl();
 let currentToken = null;
 
 export const ApiService = {
   async init() {
     try {
       const savedUrl = await AsyncStorage.getItem('hammer_server_url');
-      if (savedUrl) currentServerUrl = savedUrl;
+      if (savedUrl && savedUrl.trim()) {
+        currentServerUrl = savedUrl.trim();
+      } else {
+        currentServerUrl = getInitialDefaultUrl();
+      }
       const savedToken = await AsyncStorage.getItem('hammer_token');
       if (savedToken) currentToken = savedToken;
     } catch (e) {
@@ -22,7 +40,7 @@ export const ApiService = {
   },
 
   async setServerUrl(url) {
-    let clean = url ? url.trim() : DEFAULT_SERVER_URL;
+    let clean = url ? url.trim() : getInitialDefaultUrl();
     if (clean.endsWith('/')) clean = clean.slice(0, -1);
     currentServerUrl = clean;
     await AsyncStorage.setItem('hammer_server_url', clean);
@@ -42,8 +60,42 @@ export const ApiService = {
     }
   },
 
+  // Fast auto-discovery for local dev / mobile networks
+  async autoDiscoverServer() {
+    const candidates = [
+      currentServerUrl,
+      `http://${LAN_IP}:${PORT}`,
+      `http://localhost:${PORT}`,
+      `http://127.0.0.1:${PORT}`,
+      `http://10.0.2.2:${PORT}`
+    ].filter((v, i, a) => v && a.indexOf(v) === i);
+
+    for (const testUrl of candidates) {
+      try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 1200);
+        const res = await fetch(`${testUrl}/health`, {
+          signal: controller.signal,
+          headers: { Accept: 'application/json' }
+        });
+        clearTimeout(tid);
+        if (res.ok) {
+          await this.setServerUrl(testUrl);
+          return testUrl;
+        }
+      } catch (_) {
+        // try next candidate
+      }
+    }
+    return currentServerUrl;
+  },
+
   async request(path, options = {}) {
     const url = `${currentServerUrl}${path}`;
+    const timeoutMs = options.timeoutMs || 8000;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     const headers = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
@@ -53,25 +105,36 @@ export const ApiService = {
 
     const config = {
       ...options,
-      headers
+      headers,
+      signal: controller.signal
     };
 
-    const res = await fetch(url, config);
-    let data;
     try {
-      data = await res.json();
-    } catch (e) {
-      data = null;
-    }
+      const res = await fetch(url, config);
+      clearTimeout(timeoutId);
 
-    if (!res.ok) {
-      const err = new Error(data?.error || `HTTP ${res.status}: ${res.statusText}`);
-      err.status = res.status;
-      err.data = data;
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = null;
+      }
+
+      if (!res.ok) {
+        const err = new Error(data?.error || `HTTP ${res.status}: ${res.statusText}`);
+        err.status = res.status;
+        err.data = data;
+        throw err;
+      }
+
+      return data;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        throw new Error(`Connection to auction server timed out (${timeoutMs}ms). Check if server is running at ${currentServerUrl}`);
+      }
       throw err;
     }
-
-    return data;
   },
 
   // Auth
@@ -118,7 +181,9 @@ export const ApiService = {
   },
 
   async getActivity() {
-    return this.request('/api/auction/activity');
+    const res = await this.request('/api/auction/activity');
+    if (Array.isArray(res)) return res;
+    return res?.events || [];
   },
 
   async getCaptains() {

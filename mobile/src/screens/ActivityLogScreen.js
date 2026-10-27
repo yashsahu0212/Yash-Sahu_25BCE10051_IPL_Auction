@@ -13,7 +13,8 @@ export default function ActivityLogScreen() {
     // Only attempt to fetch initial activity if auctioneer or viewer (protected on server)
     if (user?.role === 'auctioneer') {
       ApiService.getActivity().then(data => {
-        if (Array.isArray(data)) setInitialEvents(data);
+        const list = Array.isArray(data) ? data : (data?.events || []);
+        setInitialEvents(list);
       }).catch(() => {});
     }
   }, [user]);

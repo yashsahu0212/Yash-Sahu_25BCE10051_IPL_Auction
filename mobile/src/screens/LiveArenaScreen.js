@@ -9,7 +9,7 @@ import BiddingPaddle from '../components/BiddingPaddle';
 import HammerControls from '../components/HammerControls';
 
 export default function LiveArenaScreen({ onOpenLogin, onOpenPlayerPool }) {
-  const { auction, timer, maxTimer, currentPlayer, user, recentBidNotice, serverUrl, startLot, players } = useAuction();
+  const { auction, timer, maxTimer, currentPlayer, user, recentBidNotice, resolutionNotice, serverUrl, startLot, players } = useAuction();
 
   const isLive = auction.status === 'live';
   const isPaused = auction.status === 'paused';
@@ -44,6 +44,21 @@ export default function LiveArenaScreen({ onOpenLogin, onOpenPlayerPool }) {
           isPaused={isPaused}
         />
       </View>
+
+      {/* Resolution Sold/Unsold Banner */}
+      {resolutionNotice && (
+        <View style={[
+          styles.resolutionBanner,
+          resolutionNotice.type === 'SOLD' ? styles.soldBanner : styles.unsoldBanner
+        ]}>
+          <Text style={styles.resolutionText}>
+            {resolutionNotice.type === 'SOLD'
+              ? `🔨 SOLD! ${resolutionNotice.player?.name || 'Player'} to ${resolutionNotice.team?.shortName || resolutionNotice.team?.name || 'Franchise'} for ${formatPrice(resolutionNotice.price)}`
+              : `⚖️ UNSOLD — ${resolutionNotice.player?.name || 'Player'} passed to accelerated pool`
+            }
+          </Text>
+        </View>
+      )}
 
       {/* Recent Bid Flash Notification */}
       {recentBidNotice && (
@@ -180,6 +195,29 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.5,
     fontFamily: Platform.OS === 'ios' ? 'Times New Roman' : 'serif',
+  },
+  resolutionBanner: {
+    paddingVertical: 8,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: 2,
+    marginVertical: 4,
+    alignItems: 'center',
+    borderWidth: 1,
+  },
+  soldBanner: {
+    backgroundColor: 'rgba(46, 125, 50, 0.25)',
+    borderColor: '#2E7D32',
+  },
+  unsoldBanner: {
+    backgroundColor: 'rgba(161, 61, 59, 0.25)',
+    borderColor: Colors.crimson,
+  },
+  resolutionText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
   bidFlash: {
     backgroundColor: '#302619',

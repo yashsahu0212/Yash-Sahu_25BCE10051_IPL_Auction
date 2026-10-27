@@ -10,20 +10,21 @@ export default function Header({ onOpenSettings }) {
     <View style={styles.container}>
       <View style={styles.left}>
         <Text style={styles.title}>HAMMER</Text>
-        <View style={styles.statusPill}>
+        <TouchableOpacity style={styles.statusPill} onPress={onOpenSettings} activeOpacity={0.7}>
           <View style={[styles.statusDot, { backgroundColor: isConnected ? '#10B981' : '#EF4444' }]} />
           <Text style={styles.statusText}>{isConnected ? 'LIVE' : 'OFFLINE'}</Text>
-        </View>
+          <Text style={styles.settingsMiniIcon}>⚙️</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.right}>
         {user ? (
           <View style={styles.userBadge}>
-            <View style={styles.roleTag}>
+            <TouchableOpacity style={styles.roleTag} onPress={onOpenSettings} activeOpacity={0.7}>
               <Text style={styles.roleText}>
                 {user.role === 'auctioneer' ? 'AUCTIONEER' : (team?.code || user.username).toUpperCase()}
               </Text>
-            </View>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
               <Text style={styles.logoutText}>EXIT</Text>
             </TouchableOpacity>
@@ -82,6 +83,10 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  settingsMiniIcon: {
+    fontSize: 9,
+    marginLeft: 2,
   },
   right: {
     flexDirection: 'row',

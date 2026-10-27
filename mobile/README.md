@@ -1,6 +1,6 @@
 # HAMMER Mobile App — Realtime Cricket Player Auction
 
-Cross-platform mobile application (iOS & Android) for the **HAMMER IPL Player Auction System**. Communicates in real time with the same Node.js & Socket.IO backend as the web broadcast and franchise consoles.
+Cross-platform mobile application (iOS & Android) for the **HAMMER IPL Player Auction System**. Communicates in real time with the same Node.js & Socket.IO backend as the web broadcast and franchise consoles with zero latency.
 
 ---
 
@@ -11,8 +11,9 @@ Cross-platform mobile application (iOS & Android) for the **HAMMER IPL Player Au
   - 3D-styled player dossier card with official photo and career statistics (Runs, Wickets, Strike Rate, Economy)
   - Current leading bid and franchise badge
   - Live gavel stages (1st Call, 2nd Call, Fair Warning, Hammer Sold)
+  - Instant SOLD / UNSOLD resolution banner celebration
 - **Franchise Owner Bidding Paddle**:
-  - One-tap quick bid paddle (+10L, +20L, +50L)
+  - Zero-delay Socket.IO bidding paddle with Rule 6 tiered increments (+10L, +20L, +50L)
   - Live purse balance and remaining roster slots (min 7, max 15)
   - **Rule 7 Safeguard**: Disables self-outbidding when your franchise already holds the high bid
   - **Anti-Sniping Engine**: Automatic bid cutoff when timer hits 0s
@@ -27,39 +28,66 @@ Cross-platform mobile application (iOS & Android) for the **HAMMER IPL Player Au
 - **Squad & Purse Ledger**:
   - Real-time audit of all 10 IPL franchises with purse spend progress and acquired squads
 - **Sequential Activity Audit Stream**:
-  - Live feed of all auction events without needing page reload or refresh
+  - Authoritative sequential log of all auction events in realtime
 
 ---
 
-## 🚀 How to Run on Mobile Device
+## 🚀 How to Run & Download
 
-### Prerequisites
+You can use the mobile app in **two ways**:
+
+### Option 1: Instant Zero-Install Mobile PWA (Fastest & Recommended)
+You do **not** need to install Expo or any build tools to run on your phone:
+1. Start the server on your computer:
+   ```bash
+   npm start
+   ```
+2. Note your computer's Wi-Fi LAN IP printed in the console banner, e.g. `http://192.168.1.7:3000`.
+3. Open Safari (iOS) or Chrome (Android) on your phone and go to:
+   ```
+   http://192.168.1.7:3000/mobile
+   ```
+4. **Install as App**:
+   - **iPhone (Safari)**: Tap the Share button (square with arrow up) ➔ Tap **"Add to Home Screen"**.
+   - **Android (Chrome)**: Tap the 3 dots menu ➔ Tap **"Install App"** or **"Add to Home screen"**.
+   - It will open as a fullscreen, native-feeling app directly from your phone's home screen!
+
+---
+
+### Option 2: Native React Native / Expo Mobile App
+
+#### Prerequisites
 - Node.js (v18+)
-- Smartphone (iPhone or Android) connected to the same Wi-Fi network as your computer
-- Install **Expo Go** from the Apple App Store or Google Play Store on your phone
+- Phone connected to the same Wi-Fi as your computer
+- Install the free **Expo Go** app on your phone:
+  - [Expo Go for Android (Google Play)](https://play.google.com/store/apps/details?id=host.exp.exponent)
+  - [Expo Go for iOS (App Store)](https://apps.apple.com/app/expo-go/id982107779)
 
-### Step 1: Start Backend Server
-From the root directory (`auctionsite`):
+#### Step 1: Start Backend Server
+From the project root:
 ```bash
 npm start
 ```
-Note the local network IP printed in the console banner, e.g. `http://172.25.241.119:3000`.
+Your computer's Wi-Fi address will be displayed (e.g. `http://192.168.1.7:3000`).
 
-### Step 2: Start Mobile App
-Open a new terminal in the `mobile` directory:
+#### Step 2: Install Mobile Dependencies & Start
+Open a second terminal window:
 ```bash
 cd mobile
+npm install
 npx expo start
 ```
 
-### Step 3: Open on Your Phone
+#### Step 3: Open on Your Phone
 1. Open the **Expo Go** app on your phone.
-2. Scan the QR code displayed in your terminal.
-3. In the mobile app's CONNECT / LOGIN screen, verify the server URL is set to your computer's Wi-Fi IP (e.g. `http://172.25.241.119:3000`).
-4. Tap any of the 1-tap quick login buttons (e.g., `CSK`, `MI`, `RCB`, or `AUCTIONEER`).
+2. **Android**: Scan the QR code in your terminal directly inside Expo Go.
+   **iPhone**: Open the default Camera app, point at the QR code, and tap the prompt to open in Expo Go.
+3. In the mobile app:
+   - Tap **CONNECT** or the **LIVE/OFFLINE** pill at the top.
+   - Tap the **"WI-FI (192.168.1.7)"** button (or tap **🔍 AUTO-DETECT** to automatically detect your server).
+   - Tap any franchise button (e.g., `CSK`, `MI`, `RCB`) or `AUCTIONEER` to log in instantly with 1 tap!
 
-### Run in Web Browser
-You can also run the mobile app directly in your browser:
+#### Run in Web Browser
 ```bash
 cd mobile
 npx expo start --web

@@ -4,6 +4,8 @@ import { Colors, Spacing } from '../theme';
 import { useAuction } from '../context/AuctionContext';
 import { getTeamColor } from '../utils/formatters';
 
+import { ApiService } from '../services/api';
+
 const PRESET_ACCOUNTS = [
   { label: 'AUCTIONEER', username: 'auctioneer', password: 'hammer2026', icon: '🔨', color: '#D4AF37' },
   { label: 'CSK (Chennai)', username: 'csk', password: 'csk2026', icon: '🦁', color: '#FFFF00' },
@@ -26,12 +28,27 @@ export default function LoginScreen({ onClose }) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSaveUrl = async () => {
+  const handleSaveUrl = async (urlToSave = urlInput) => {
     try {
-      await updateServerUrl(urlInput);
-      Alert.alert('Server Configured', `Connected to ${urlInput}`);
+      await updateServerUrl(urlToSave);
+      setUrlInput(urlToSave);
+      Alert.alert('Server Configured', `Connected to ${urlToSave}`);
     } catch (e) {
       Alert.alert('Error', e.message || 'Could not connect to server');
+    }
+  };
+
+  const handleAutoDetect = async () => {
+    setIsLoading(true);
+    try {
+      const found = await ApiService.autoDiscoverServer();
+      setUrlInput(found);
+      await updateServerUrl(found);
+      Alert.alert('Auto-Detected', `Connected to ${found}`);
+    } catch (e) {
+      Alert.alert('Detection Failed', e.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,16 +97,46 @@ export default function LoginScreen({ onClose }) {
             style={styles.urlInput}
             value={urlInput}
             onChangeText={setUrlInput}
-            placeholder="http://172.25.241.119:3000"
+            placeholder="http://192.168.1.7:3000"
             placeholderTextColor={Colors.textMuted}
             autoCapitalize="none"
           />
-          <TouchableOpacity style={styles.urlSaveBtn} onPress={handleSaveUrl}>
-            <Text style={styles.urlSaveText}>SAVE</Text>
+          <TouchableOpacity style={styles.urlSaveBtn} onPress={() => handleSaveUrl(urlInput)}>
+            <Text style={styles.urlSaveText}>CONNECT</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Quick URL Preset Chips */}
+        <View style={styles.chipRow}>
+          <TouchableOpacity
+            style={styles.presetUrlChip}
+            onPress={() => handleSaveUrl('http://192.168.1.7:3000')}
+          >
+            <Text style={styles.chipText}>WI-FI (192.168.1.7)</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.presetUrlChip}
+            onPress={() => handleSaveUrl('http://localhost:3000')}
+          >
+            <Text style={styles.chipText}>LOCALHOST:3000</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.presetUrlChip}
+            onPress={() => handleSaveUrl('http://10.0.2.2:3000')}
+          >
+            <Text style={styles.chipText}>EMULATOR (10.0.2.2)</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.presetUrlChip, styles.autoDetectChip]}
+            onPress={handleAutoDetect}
+            disabled={isLoading}
+          >
+            <Text style={styles.autoDetectText}>🔍 AUTO-DETECT</Text>
+          </TouchableOpacity>
+        </View>
+
         <Text style={styles.urlHelp}>
-          Use your PC's Wi-Fi IP (e.g. http://172.25.241.119:3000) when running on physical phone.
+          Physical phones: use PC Wi-Fi IP (http://192.168.1.7:3000). Both devices must be on same network.
         </Text>
       </View>
 
@@ -231,6 +278,36 @@ const styles = StyleSheet.create({
   urlSaveText: {
     color: Colors.gold,
     fontSize: 10,
+    fontWeight: '800',
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  presetUrlChip: {
+    backgroundColor: '#161310',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 2,
+  },
+  chipText: {
+    color: Colors.textMuted,
+    fontSize: 9,
+    fontWeight: '700',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  autoDetectChip: {
+    borderColor: Colors.goldMuted,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+  },
+  autoDetectText: {
+    color: Colors.gold,
+    fontSize: 9,
     fontWeight: '800',
   },
   urlHelp: {

@@ -104,31 +104,12 @@ export default function BiddingPaddle({ onOpenLogin }) {
         </View>
       ) : null}
 
-      {/* Quick Increment Shortcuts */}
-      <View style={styles.shortcutRow}>
-        <TouchableOpacity
-          style={[styles.shortcutBtn, !canBid && styles.btnDisabled]}
-          onPress={() => handleBidPress(nextBid)}
-          disabled={!canBid}
-        >
-          <Text style={styles.shortcutText}>+{increment}L (MIN)</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.shortcutBtn, !canBid && styles.btnDisabled]}
-          onPress={() => handleBidPress(nextBid + 20)}
-          disabled={!canBid}
-        >
-          <Text style={styles.shortcutText}>+20L QUICK</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.shortcutBtn, !canBid && styles.btnDisabled]}
-          onPress={() => handleBidPress(nextBid + 50)}
-          disabled={!canBid}
-        >
-          <Text style={styles.shortcutText}>+50L POWER</Text>
-        </TouchableOpacity>
+      {/* Tiered Increment Badge */}
+      <View style={styles.tierIndicatorBar}>
+        <View style={styles.tierTag}>
+          <Text style={styles.tierTagText}>RULE 6 TIER INCREMENT</Text>
+        </View>
+        <Text style={styles.tierValText}>+{increment} LAKHS</Text>
       </View>
 
       {/* Main Big Tactical Bid Button */}
@@ -238,24 +219,34 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '800',
   },
-  shortcutRow: {
+  tierIndicatorBar: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#161310',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 6,
+    borderRadius: 2,
     marginBottom: Spacing.sm,
   },
-  shortcutBtn: {
-    flex: 1,
+  tierTag: {
     backgroundColor: Colors.surfaceHigh,
-    borderWidth: 1,
-    borderColor: Colors.borderLight,
-    paddingVertical: 8,
-    alignItems: 'center',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     borderRadius: 2,
   },
-  shortcutText: {
-    color: Colors.textSecondary,
-    fontSize: 10,
+  tierTagText: {
+    color: Colors.textMuted,
+    fontSize: 9,
     fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  tierValText: {
+    color: Colors.gold,
+    fontSize: 11,
+    fontWeight: '900',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
   mainPaddle: {

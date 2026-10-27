@@ -2305,6 +2305,8 @@ app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
 app.use('/players', express.static(path.join(__dirname, 'players')));
 app.use('/players', express.static(path.join(__dirname, 'public', 'players')));
+app.use('/teams', express.static(path.join(__dirname, 'teams')));
+app.use('/teams', express.static(path.join(__dirname, 'public', 'teams')));
 app.use('/screens', express.static(path.join(__dirname, 'screens')));
 app.use(express.static(__dirname, {
   extensions: ['html'],

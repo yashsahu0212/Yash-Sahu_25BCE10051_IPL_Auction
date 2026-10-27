@@ -95,6 +95,9 @@
       pointer-events: none !important;
       filter: grayscale(0.8);
     }
+    .player-thumb-img {
+      transition: opacity 0.3s ease-in;
+    }
   </style>
 </head>
 <body class="bg-hm-ink text-hm-text antialiased selection:bg-hm-vermilion selection:text-hm-text">
@@ -120,8 +123,11 @@
           <span class="font-mono text-[9px] text-hm-muted tracking-widest uppercase font-bold" id="socket-text">CONNECTING</span>
         </div>
 
-        <!-- User Identity Tag -->
-        <span class="font-mono text-[10px] font-bold text-hm-amber bg-hm-elevated border border-hm-border-s px-2 py-1 rounded-[4px] uppercase" id="current-user-badge">FAN</span>
+        <!-- User Identity Tag with Team Logo -->
+        <div class="flex items-center gap-1.5 font-mono text-[10px] font-bold text-hm-amber bg-hm-elevated border border-hm-border-s px-2 py-1 rounded-[4px] uppercase" id="current-user-badge">
+          <img id="header-user-logo" class="w-3.5 h-3.5 object-contain hidden" alt="Logo" onerror="this.style.display='none'"/>
+          <span id="header-user-name">FAN</span>
+        </div>
 
         <!-- Fullscreen / Desktop Web Link -->
         <a href="/" title="Open Broadcast Stage" class="w-8 h-8 flex items-center justify-center rounded-[4px] bg-hm-charcoal border border-hm-border hover:bg-hm-elevated text-hm-muted hover:text-hm-text transition-colors">
@@ -168,8 +174,18 @@
 
       <!-- Main info: Image + Name + Tags -->
       <div class="p-3 flex items-center gap-3">
-        <div class="relative w-20 h-24 rounded-[4px] bg-hm-charcoal border border-hm-border overflow-hidden shrink-0">
-          <img src="/players/csk/dhoni.png" class="w-full h-full object-cover object-top" id="p-img" alt="Player"/>
+        <!-- Player Photo Container with Fallback & Shimmer -->
+        <div class="relative w-20 h-24 rounded-[4px] bg-hm-charcoal border border-hm-border overflow-hidden shrink-0 flex items-center justify-center">
+          <div id="p-img-skeleton" class="absolute inset-0 skeleton-shimmer z-0 flex items-center justify-center">
+            <span class="material-symbols-outlined text-2xl text-hm-dim">sports_cricket</span>
+          </div>
+          <img src="/players/rcb/virat-kohli.png" class="w-full h-full object-cover object-top relative z-10 player-thumb-img" id="p-img" alt="Active Player Portrait"
+               onload="document.getElementById('p-img-skeleton')?.classList.add('hidden'); this.style.display='block';"
+               onerror="this.style.display='none'; document.getElementById('p-img-skeleton')?.classList.add('hidden'); document.getElementById('p-img-fallback')?.classList.remove('hidden');" />
+          <div id="p-img-fallback" class="hidden absolute inset-0 bg-hm-surface flex flex-col items-center justify-center text-center p-1 z-10">
+            <span class="material-symbols-outlined text-xl text-hm-faint">sports_cricket</span>
+            <span class="font-display text-sm text-hm-muted mt-0.5" id="p-fallback-initials">VK</span>
+          </div>
         </div>
 
         <div class="flex-1 min-w-0">
@@ -210,7 +226,7 @@
       </div>
     </div>
 
-    <!-- Current High Bid Banner -->
+    <!-- Current High Bid Banner with Leading Franchise Logo -->
     <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-2.5 flex items-center justify-between">
       <div>
         <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase block mb-0.5">CURRENT LEADING BID</span>
@@ -219,9 +235,15 @@
 
       <div class="text-right">
         <span class="font-mono text-[9px] text-hm-faint tracking-widest uppercase block mb-0.5">HIGH BIDDER</span>
-        <div class="inline-flex items-center gap-1.5 bg-hm-charcoal border border-hm-border-s px-2.5 py-1 rounded-[4px]" id="leader-pill">
-          <span class="w-2 h-2 rounded-full bg-hm-muted" id="leader-dot"></span>
-          <span class="font-mono text-xs font-bold text-hm-text uppercase" id="leader-name">NO BIDS</span>
+        <div class="inline-flex items-center gap-2 bg-hm-charcoal border border-hm-border-s px-2.5 py-1.5 rounded-[4px] transition-all" id="leader-pill">
+          <div id="leader-logo-wrap" class="w-6 h-6 flex items-center justify-center rounded-[3px] bg-hm-surface p-0.5 overflow-hidden shrink-0 border border-hm-border">
+            <img id="leader-logo-img" src="" class="w-full h-full object-contain hidden" alt="Leader Logo" onerror="this.style.display='none'; document.getElementById('leader-dot').style.display='block';"/>
+            <span id="leader-dot" class="w-2 h-2 rounded-full bg-hm-muted"></span>
+          </div>
+          <div class="text-left">
+            <span class="font-mono text-xs font-bold text-hm-text uppercase block leading-none" id="leader-name">NO BIDS</span>
+            <span class="font-mono text-[8px] text-hm-faint uppercase tracking-wider block mt-0.5" id="leader-sub">STAGE OPEN</span>
+          </div>
         </div>
       </div>
     </div>
@@ -306,7 +328,7 @@
       </div>
     </div>
 
-    <!-- Recent Bids Feed -->
+    <!-- Recent Bids Feed with Team Logos -->
     <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-2">
       <div class="flex items-center justify-between pb-2 mb-2 border-b border-hm-border font-mono text-[10px]">
         <span class="text-hm-faint uppercase font-bold tracking-wider">RECENT LOT BIDS</span>
@@ -365,7 +387,7 @@
       </button>
     </div>
 
-    <!-- Launch Player on Hammer -->
+    <!-- Launch Player on Hammer with Player Photo Thumbnails -->
     <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3">
       <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">CALL AVAILABLE LOT ONTO STAGE</span>
       <div class="relative mb-2">
@@ -377,7 +399,7 @@
   </main>
 
   <!-- ===================================================================== -->
-  <!-- SCREEN 3: PLAYER POOL CATALOGUE -->
+  <!-- SCREEN 3: PLAYER POOL CATALOGUE (WITH PLAYER PHOTOS) -->
   <!-- ===================================================================== -->
   <main class="screen" id="screen-players">
     <div class="flex items-center justify-between mb-3 pb-2 border-b border-hm-border">
@@ -406,12 +428,12 @@
       <button class="role-chip shrink-0 font-mono text-[10px] font-bold px-3 py-1 rounded-[3px] bg-hm-panel border border-hm-border text-hm-muted" onclick="setRoleTab('overseas', this)">OVERSEAS</button>
     </div>
 
-    <!-- Player Pool Stream -->
+    <!-- Player Pool Stream with High-Res Athlete Images -->
     <div id="player-pool-list" class="space-y-2"></div>
   </main>
 
   <!-- ===================================================================== -->
-  <!-- SCREEN 4: SQUADS & FRANCHISE ROSTERS -->
+  <!-- SCREEN 4: SQUADS & FRANCHISE ROSTERS (WITH TEAM LOGOS & SQUAD PHOTOS) -->
   <!-- ===================================================================== -->
   <main class="screen" id="screen-squads">
     <div class="flex items-center justify-between mb-3 pb-2 border-b border-hm-border">
@@ -447,7 +469,7 @@
   </main>
 
   <!-- ===================================================================== -->
-  <!-- SCREEN 6: PORTAL & SETTINGS -->
+  <!-- SCREEN 6: PORTAL & SETTINGS (WITH OFFICIAL TEAM LOGOS) -->
   <!-- ===================================================================== -->
   <main class="screen" id="screen-portal">
     <div class="flex items-center justify-between mb-3 pb-2 border-b border-hm-border">
@@ -459,69 +481,105 @@
       </div>
     </div>
 
-    <!-- 1-Tap Quick Franchise Selector (Clean Monograms, No Emojis) -->
+    <!-- 1-Tap Quick Franchise Selector With Team Logos -->
     <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 mb-3">
       <span class="font-mono text-[10px] text-hm-faint uppercase tracking-wider block mb-2 font-bold">1-TAP INSTANT ROLE SWITCHER</span>
       <div class="grid grid-cols-3 gap-2 font-mono">
         <!-- Auctioneer -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-amber/40 text-hm-amber p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('auctioneer', 'hammer2026')">
-          <span class="text-xs font-bold">AUCTIONEER</span>
-          <span class="text-[9px] text-hm-faint mt-1">MASTER DESK</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-amber/40 text-hm-amber p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('auctioneer', 'hammer2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px]">
+            <span class="material-symbols-outlined text-[18px] text-hm-amber">gavel</span>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">AUCTIONEER</span>
+          <span class="text-[8px] text-hm-faint">MASTER DESK</span>
         </button>
         <!-- CSK -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#FFFF00]/40 text-[#FFFF00] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('csk', 'csk2026')">
-          <span class="text-xs font-bold">CSK</span>
-          <span class="text-[9px] text-hm-faint mt-1">CHENNAI</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#F9CD05]/50 text-[#F9CD05] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('csk', 'csk2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/csk/logo.svg" class="w-full h-full object-contain" alt="CSK" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">CSK</span>
+          <span class="text-[8px] text-hm-faint">CHENNAI</span>
         </button>
         <!-- MI -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#004BA0]/40 text-[#60A5FA] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('mi', 'mi2026')">
-          <span class="text-xs font-bold">MI</span>
-          <span class="text-[9px] text-hm-faint mt-1">MUMBAI</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#004C97]/50 text-[#60A5FA] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('mi', 'mi2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/mi/logo.svg" class="w-full h-full object-contain" alt="MI" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">MI</span>
+          <span class="text-[8px] text-hm-faint">MUMBAI</span>
         </button>
         <!-- RCB -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#EC1C24]/40 text-[#F87171] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('rcb', 'rcb2026')">
-          <span class="text-xs font-bold">RCB</span>
-          <span class="text-[9px] text-hm-faint mt-1">BENGALURU</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#EC1C24]/50 text-[#F87171] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('rcb', 'rcb2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/rcb/logo.svg" class="w-full h-full object-contain" alt="RCB" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">RCB</span>
+          <span class="text-[8px] text-hm-faint">BENGALURU</span>
         </button>
         <!-- SRH -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#F26522]/40 text-[#FB923C] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('srh', 'srh2026')">
-          <span class="text-xs font-bold">SRH</span>
-          <span class="text-[9px] text-hm-faint mt-1">HYDERABAD</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#F26522]/50 text-[#FB923C] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('srh', 'srh2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/srh/logo.svg" class="w-full h-full object-contain" alt="SRH" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">SRH</span>
+          <span class="text-[8px] text-hm-faint">HYDERABAD</span>
         </button>
         <!-- RR -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#EA1A85]/40 text-[#F472B6] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('rr', 'rr2026')">
-          <span class="text-xs font-bold">RR</span>
-          <span class="text-[9px] text-hm-faint mt-1">RAJASTHAN</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#EA1A85]/50 text-[#F472B6] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('rr', 'rr2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/rr/logo.svg" class="w-full h-full object-contain" alt="RR" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">RR</span>
+          <span class="text-[8px] text-hm-faint">RAJASTHAN</span>
         </button>
         <!-- KKR -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#7C3AED]/40 text-[#A78BFA] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('kkr', 'kkr2026')">
-          <span class="text-xs font-bold">KKR</span>
-          <span class="text-[9px] text-hm-faint mt-1">KOLKATA</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#8A4CB5]/50 text-[#C084FC] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('kkr', 'kkr2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/kkr/logo.svg" class="w-full h-full object-contain" alt="KKR" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">KKR</span>
+          <span class="text-[8px] text-hm-faint">KOLKATA</span>
         </button>
         <!-- DC -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#0078BC]/40 text-[#38BDF8] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('dc', 'dc2026')">
-          <span class="text-xs font-bold">DC</span>
-          <span class="text-[9px] text-hm-faint mt-1">DELHI</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#004C97]/50 text-[#38BDF8] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('dc', 'dc2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/dc/logo.svg" class="w-full h-full object-contain" alt="DC" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">DC</span>
+          <span class="text-[8px] text-hm-faint">DELHI</span>
         </button>
         <!-- GT -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#38BDF8]/40 text-[#E2E8F0] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('gt', 'gt2026')">
-          <span class="text-xs font-bold">GT</span>
-          <span class="text-[9px] text-hm-faint mt-1">GUJARAT</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#CCA347]/50 text-[#CCA347] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('gt', 'gt2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/gt/logo.svg" class="w-full h-full object-contain" alt="GT" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">GT</span>
+          <span class="text-[8px] text-hm-faint">GUJARAT</span>
         </button>
         <!-- LSG -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#A72056]/40 text-[#F43F5E] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('lsg', 'lsg2026')">
-          <span class="text-xs font-bold">LSG</span>
-          <span class="text-[9px] text-hm-faint mt-1">LUCKNOW</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#A72056]/50 text-[#F43F5E] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('lsg', 'lsg2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/lsg/logo.svg" class="w-full h-full object-contain" alt="LSG" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">LSG</span>
+          <span class="text-[8px] text-hm-faint">LUCKNOW</span>
         </button>
         <!-- PBKS -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#ED1B24]/40 text-[#EF4444] p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('pbks', 'pbks2026')">
-          <span class="text-xs font-bold">PBKS</span>
-          <span class="text-[9px] text-hm-faint mt-1">PUNJAB</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-[#ED1B24]/50 text-[#EF4444] p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('pbks', 'pbks2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px] p-1">
+            <img src="/teams/pbks/logo.svg" class="w-full h-full object-contain" alt="PBKS" onerror="this.style.display='none'"/>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">PBKS</span>
+          <span class="text-[8px] text-hm-faint">PUNJAB</span>
         </button>
         <!-- Viewer -->
-        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border text-hm-muted p-2.5 rounded-[4px] text-left transition-colors flex flex-col justify-between" onclick="quickLogin('viewer', 'view2026')">
-          <span class="text-xs font-bold">VIEWER</span>
-          <span class="text-[9px] text-hm-faint mt-1">SPECTATOR</span>
+        <button class="bg-hm-charcoal hover:bg-hm-elevated border border-hm-border text-hm-muted p-2.5 rounded-[4px] text-center transition-colors flex flex-col items-center justify-center gap-1" onclick="quickLogin('viewer', 'view2026')">
+          <div class="w-8 h-8 flex items-center justify-center bg-hm-surface rounded-[4px]">
+            <span class="material-symbols-outlined text-[18px] text-hm-muted">visibility</span>
+          </div>
+          <span class="text-xs font-bold leading-none mt-0.5">VIEWER</span>
+          <span class="text-[8px] text-hm-faint">SPECTATOR</span>
         </button>
       </div>
     </div>
@@ -582,6 +640,7 @@
   <!-- ===================================================================== -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/player-images.js"></script>
+  <script src="/js/team-themes.js"></script>
   <script src="/js/hammer-ux.js"></script>
   <script src="/js/hammer.js"></script>
 
@@ -627,12 +686,37 @@
     }
 
     function getTeamColor(teamId) {
+      if (window.getTeamTheme) {
+        const th = window.getTeamTheme(teamId);
+        if (th?.primary) return th.primary;
+      }
       const colors = {
-        CSK: '#FFFF00', MI: '#004BA0', RCB: '#EC1C24', DC: '#0078BC',
-        GT: '#1B2133', KKR: '#7C3AED', LSG: '#A72056', PBKS: '#ED1B24',
+        CSK: '#F9CD05', MI: '#004C97', RCB: '#EC1C24', DC: '#004C97',
+        GT: '#CCA347', KKR: '#8A4CB5', LSG: '#A72056', PBKS: '#ED1B24',
         RR: '#EA1A85', SRH: '#F26522'
       };
       return colors[String(teamId || '').toUpperCase()] || '#C4932A';
+    }
+
+    function getTeamLogoUrl(teamId) {
+      if (!teamId) return null;
+      if (window.getTeamTheme) {
+        const th = window.getTeamTheme(teamId);
+        if (th?.logo) return th.logo;
+      }
+      return `/teams/${String(teamId).toLowerCase()}/logo.svg`;
+    }
+
+    function resolvePlayerImage(p) {
+      if (!p) return '/players/rcb/virat-kohli.png';
+      if (p.image) return p.image;
+      if (p.imageUrl) return p.imageUrl;
+      if (p.image_url) return p.image_url;
+      if (window.getHammerPlayerImage) {
+        const mapped = window.getHammerPlayerImage(p.name);
+        if (mapped) return mapped;
+      }
+      return '/players/rcb/virat-kohli.png';
     }
 
     // Connect & Initialize
@@ -674,6 +758,8 @@
         allPlayers = pl || [];
         allTeams = tm || [];
         renderArena(currentAuction);
+        renderPlayerPool();
+        renderSquads();
       } catch (err) {
         console.warn('Initial load error:', err);
       }
@@ -724,6 +810,7 @@
           renderArena(data.state);
         }
         showToast(`SOLD: ${data.player?.name || 'Player'} to ${data.team?.name || data.team} for ${fmtPrice(data.price)}`);
+        renderPlayerPool();
       });
 
       socket.on('auction:unsold', (data) => {
@@ -733,6 +820,7 @@
           renderArena(data.state);
         }
         showToast(`UNSOLD: ${data.player?.name || 'Lot'} passed to accelerated pool`);
+        renderPlayerPool();
       });
 
       socket.on('auction:paused', (st) => {
@@ -771,13 +859,15 @@
     })();
 
     function updateAuthUI() {
-      const badge = document.getElementById('current-user-badge');
+      const userLogo = document.getElementById('header-user-logo');
+      const userName = document.getElementById('header-user-name');
       const gavelNav = document.getElementById('nav-gavel-btn');
       const quickPanel = document.getElementById('auctioneer-quick-panel');
       const paddleContainer = document.getElementById('bidding-paddle-container');
 
       if (!currentUser) {
-        badge.textContent = 'FAN';
+        userName.textContent = 'FAN';
+        userLogo.classList.add('hidden');
         gavelNav.classList.add('hidden');
         quickPanel.classList.add('hidden');
         paddleContainer.classList.remove('hidden');
@@ -785,15 +875,19 @@
       }
 
       if (currentUser.role === 'auctioneer') {
-        badge.textContent = 'AUCTIONEER';
-        badge.className = 'font-mono text-[10px] font-bold text-hm-vermilion bg-hm-vermilion/10 border border-hm-vermilion/40 px-2 py-1 rounded-[4px] uppercase';
+        userName.textContent = 'AUCTIONEER';
+        userLogo.classList.add('hidden');
         gavelNav.classList.remove('hidden');
         quickPanel.classList.remove('hidden');
         paddleContainer.classList.add('hidden');
       } else if (currentUser.role === 'team_owner') {
         const tCode = (currentTeam?.code || currentUser.teamId).toUpperCase();
-        badge.textContent = tCode;
-        badge.className = 'font-mono text-[10px] font-bold text-hm-amber bg-hm-elevated border border-hm-border-s px-2 py-1 rounded-[4px] uppercase';
+        userName.textContent = tCode;
+        const logo = getTeamLogoUrl(tCode);
+        if (logo) {
+          userLogo.src = logo;
+          userLogo.classList.remove('hidden');
+        }
         gavelNav.classList.add('hidden');
         quickPanel.classList.add('hidden');
         paddleContainer.classList.remove('hidden');
@@ -835,6 +929,10 @@
         document.getElementById('p-country-name').textContent = (p.nationality || (p.overseas ? 'OVERSEAS' : 'INDIA')).toUpperCase();
         document.getElementById('p-tactical').textContent = p.tacticalProfile ? `"${p.tacticalProfile}"` : '';
 
+        // Player Initials Fallback
+        const inits = (p.name || '').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+        document.getElementById('p-fallback-initials').textContent = inits;
+
         // Stats
         const s = typeof p.stats === 'string' ? JSON.parse(p.stats || '{}') : (p.stats || {});
         document.getElementById('s-mat').textContent = s.matches ?? s.mat ?? '—';
@@ -843,25 +941,61 @@
         document.getElementById('s-wkts').textContent = s.wickets ?? s.wkts ?? '—';
         document.getElementById('s-econ').textContent = s.economy ?? s.econ ?? '—';
 
-        // Image
-        let imgUrl = p.image || p.imageUrl;
-        if (!imgUrl && window.getHammerPlayerImage) imgUrl = window.getHammerPlayerImage(p.name);
-        if (imgUrl) document.getElementById('p-img').src = imgUrl;
+        // High-Quality Player Photo with Shimmer and Graceful Fallback
+        const imgEl = document.getElementById('p-img');
+        const skelEl = document.getElementById('p-img-skeleton');
+        const fallbackEl = document.getElementById('p-img-fallback');
+
+        const resolvedSrc = resolvePlayerImage(p);
+        if (imgEl.src !== resolvedSrc) {
+          skelEl.classList.remove('hidden');
+          fallbackEl.classList.add('hidden');
+          imgEl.style.display = 'block';
+          imgEl.src = resolvedSrc;
+        }
       }
 
-      // High Bid
+      // Leading High Bid & Leading Team Logo
       const curBid = Number(state.currentBid || 0);
       document.getElementById('high-bid-val').textContent = curBid > 0 ? fmtPrice(curBid) : 'NO BIDS YET';
 
       const leader = state.leadingTeamId;
-      const dot = document.getElementById('leader-dot');
-      const name = document.getElementById('leader-name');
+      const leaderPill = document.getElementById('leader-pill');
+      const leaderDot = document.getElementById('leader-dot');
+      const leaderLogoImg = document.getElementById('leader-logo-img');
+      const leaderName = document.getElementById('leader-name');
+      const leaderSub = document.getElementById('leader-sub');
+
       if (leader) {
-        dot.style.backgroundColor = getTeamColor(leader);
-        name.textContent = leader;
+        const theme = window.getTeamTheme ? window.getTeamTheme(leader) : null;
+        const color = theme?.primary || getTeamColor(leader);
+        const logo = theme?.logo || getTeamLogoUrl(leader);
+
+        leaderPill.style.borderColor = color;
+        leaderPill.style.backgroundColor = (theme?.badgeBg || 'rgba(196,147,42,0.1)');
+
+        if (logo) {
+          leaderLogoImg.src = logo;
+          leaderLogoImg.classList.remove('hidden');
+          leaderDot.style.display = 'none';
+        } else {
+          leaderLogoImg.classList.add('hidden');
+          leaderDot.style.display = 'block';
+          leaderDot.style.backgroundColor = color;
+        }
+
+        leaderName.textContent = leader;
+        leaderName.style.color = theme?.contrastText || color;
+        leaderSub.textContent = 'HIGH BIDDER';
       } else {
-        dot.style.backgroundColor = '#6F7274';
-        name.textContent = 'NO BIDS';
+        leaderPill.style.borderColor = '';
+        leaderPill.style.backgroundColor = '';
+        leaderLogoImg.classList.add('hidden');
+        leaderDot.style.display = 'block';
+        leaderDot.style.backgroundColor = '#6F7274';
+        leaderName.textContent = 'NO BIDS';
+        leaderName.style.color = '';
+        leaderSub.textContent = 'STAGE OPEN';
       }
 
       // Next Bid Calculation
@@ -903,15 +1037,20 @@
         container.innerHTML = '<div class="font-mono text-xs text-hm-faint text-center py-2">Awaiting bids on active lot...</div>';
         return;
       }
-      container.innerHTML = hist.slice(0, 5).map(h => `
-        <div class="flex items-center justify-between py-1.5 border-b border-hm-border last:border-none font-mono text-xs">
-          <span class="font-bold flex items-center gap-1.5" style="color: ${getTeamColor(h.teamId)}">
-            <span class="w-1.5 h-1.5 rounded-full" style="background: ${getTeamColor(h.teamId)}"></span>
-            ${h.teamName || h.teamId}
-          </span>
-          <span class="font-bold text-hm-amber">${fmtPrice(h.amount)}</span>
-        </div>
-      `).join('');
+      container.innerHTML = hist.slice(0, 5).map(h => {
+        const theme = window.getTeamTheme ? window.getTeamTheme(h.teamId) : null;
+        const logo = theme?.logo || getTeamLogoUrl(h.teamId);
+        const col = theme?.contrastText || getTeamColor(h.teamId);
+        return `
+          <div class="flex items-center justify-between py-1.5 border-b border-hm-border last:border-none font-mono text-xs">
+            <span class="font-bold flex items-center gap-2" style="color: ${col}">
+              ${logo ? `<img src="${logo}" class="w-4 h-4 object-contain shrink-0" alt="${h.teamId}" onerror="this.style.display='none'"/>` : `<span class="w-2 h-2 rounded-full" style="background: ${col}"></span>`}
+              ${h.teamName || h.teamId}
+            </span>
+            <span class="font-bold text-hm-amber">${fmtPrice(h.amount)}</span>
+          </div>
+        `;
+      }).join('');
     }
 
     // Bid Button Handlers
@@ -971,7 +1110,7 @@
       } catch (e) { showToast(e.message); }
     }
 
-    // Player Pool Screen
+    // Player Pool Screen With Athlete Photos & Buyer Team Logos
     function setRoleTab(role, btn) {
       activeRoleTab = role;
       document.querySelectorAll('.role-chip').forEach(c => {
@@ -995,42 +1134,78 @@
 
       list.innerHTML = filtered.map(p => {
         const isSold = p.status === 'sold';
+        const imgUrl = resolvePlayerImage(p);
+        const buyerTheme = (isSold && p.soldTo && window.getTeamTheme) ? window.getTeamTheme(p.soldTo) : null;
+        const buyerLogo = buyerTheme?.logo || (isSold && p.soldTo ? getTeamLogoUrl(p.soldTo) : null);
+        const inits = (p.name || '').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+
         return `
-          <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3 flex items-center justify-between">
-            <div>
-              <div class="font-ui font-bold text-sm text-hm-text flex items-center gap-1.5">
-                ${p.name}
-                ${p.overseas ? '<span class="material-symbols-outlined text-[13px] text-hm-amber" title="Overseas">public</span>' : ''}
+          <div class="bg-hm-panel border border-hm-border rounded-[6px] p-2.5 flex items-center justify-between gap-3 hover:border-hm-border-strong transition-colors">
+            <div class="flex items-center gap-3 min-w-0">
+              <!-- Player Photo Portrait -->
+              <div class="w-12 h-14 rounded-[4px] bg-hm-charcoal border border-hm-border overflow-hidden shrink-0 relative flex items-center justify-center">
+                <img src="${imgUrl}" class="w-full h-full object-cover object-top" loading="lazy" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"/>
+                <div class="hidden absolute inset-0 bg-hm-surface flex items-center justify-center font-display text-base text-hm-muted">${inits}</div>
               </div>
-              <div class="font-mono text-[10px] text-hm-faint mt-0.5">
-                LOT #${p.lotNumber || p.id} • ${(p.role || '').toUpperCase()} • BASE: ${fmtPrice(p.basePrice)}
+
+              <!-- Cricketer Info -->
+              <div class="min-w-0">
+                <div class="font-ui font-bold text-xs sm:text-sm text-hm-text truncate flex items-center gap-1.5">
+                  ${p.name}
+                  ${p.overseas ? '<span class="material-symbols-outlined text-[13px] text-hm-amber shrink-0" title="Overseas">public</span>' : ''}
+                </div>
+                <div class="font-mono text-[9px] text-hm-faint mt-0.5 truncate">
+                  LOT #${p.lotNumber || p.id} • ${(p.role || '').toUpperCase()}
+                </div>
+                <div class="font-mono text-[10px] text-hm-muted mt-0.5 font-bold">
+                  BASE: ${fmtPrice(p.basePrice)}
+                </div>
               </div>
             </div>
-            <div class="text-right font-mono">
-              <span class="text-[9px] font-bold px-2 py-0.5 rounded-[3px] ${isSold ? 'bg-hm-emerald/10 border border-hm-emerald/30 text-hm-emerald' : p.status === 'unsold' ? 'bg-hm-vermilion/10 border border-hm-vermilion/30 text-hm-vermilion' : 'bg-hm-elevated border border-hm-border-s text-hm-muted'} uppercase">
-                ${isSold ? 'SOLD (' + (p.soldTo || '') + ')' : p.status === 'unsold' ? 'UNSOLD' : 'AVAILABLE'}
-              </span>
-              ${isSold ? `<div class="text-xs font-bold text-hm-amber mt-1">${fmtPrice(p.soldPrice)}</div>` : ''}
+
+            <!-- Status & Price with Team Logo if Sold -->
+            <div class="text-right font-mono shrink-0">
+              ${isSold ? `
+                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[3px] border" style="background-color: ${buyerTheme?.badgeBg || 'rgba(45,139,90,0.15)'}; border-color: ${buyerTheme?.badgeBorder || '#2D8B5A'};">
+                  ${buyerLogo ? `<img src="${buyerLogo}" class="w-3.5 h-3.5 object-contain" alt="${p.soldTo}" onerror="this.style.display='none'"/>` : ''}
+                  <span class="text-[9px] font-bold uppercase" style="color: ${buyerTheme?.contrastText || '#2D8B5A'};">SOLD (${p.soldTo})</span>
+                </div>
+                <div class="text-xs font-bold text-hm-amber mt-1">${fmtPrice(p.soldPrice)}</div>
+              ` : p.status === 'unsold' ? `
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-vermilion/10 border border-hm-vermilion/30 text-hm-vermilion uppercase">
+                  UNSOLD
+                </span>
+              ` : `
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-[3px] bg-hm-elevated border border-hm-border-s text-hm-muted uppercase">
+                  AVAILABLE
+                </span>
+              `}
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // Gavel available players
+    // Gavel available players with Player Photo Thumbnails
     function renderGavelAvailable() {
       const q = (document.getElementById('gavel-player-search')?.value || '').toLowerCase();
       const list = document.getElementById('gavel-avail-list');
       const avail = allPlayers.filter(p => (!p.status || p.status === 'available') && (!q || p.name.toLowerCase().includes(q)));
-      list.innerHTML = avail.slice(0, 10).map(p => `
-        <div class="bg-hm-charcoal border border-hm-border rounded-[4px] p-2.5 flex items-center justify-between">
-          <div>
-            <div class="font-ui font-bold text-xs text-hm-text">${p.name}</div>
-            <div class="font-mono text-[9px] text-hm-faint">LOT #${p.lotNumber || p.id} • ${fmtPrice(p.basePrice)}</div>
+      list.innerHTML = avail.slice(0, 10).map(p => {
+        const imgUrl = resolvePlayerImage(p);
+        return `
+          <div class="bg-hm-charcoal border border-hm-border rounded-[4px] p-2 flex items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img src="${imgUrl}" class="w-9 h-11 object-cover object-top rounded-[3px] bg-hm-surface border border-hm-border shrink-0" alt="${p.name}" onerror="this.src='/players/rcb/virat-kohli.png'"/>
+              <div class="truncate">
+                <div class="font-ui font-bold text-xs text-hm-text truncate">${p.name}</div>
+                <div class="font-mono text-[9px] text-hm-faint">LOT #${p.lotNumber || p.id} • ${fmtPrice(p.basePrice)}</div>
+              </div>
+            </div>
+            <button class="bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text px-3 py-1.5 rounded-[3px] font-mono text-[10px] font-bold shrink-0" onclick="startPlayerLot(${p.id})">CALL</button>
           </div>
-          <button class="bg-hm-vermilion hover:bg-hm-vermilion-dk text-hm-text px-2.5 py-1 rounded-[3px] font-mono text-[10px] font-bold" onclick="startPlayerLot(${p.id})">CALL</button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     async function startPlayerLot(id) {
@@ -1041,43 +1216,78 @@
       } catch (e) { showToast(e.message); }
     }
 
-    // Squads Screen
+    // Squads Screen with Official Team Logos and Player Photos
     function renderSquads() {
       const list = document.getElementById('squads-list');
       list.innerHTML = allTeams.map(t => {
         const squad = t.squad || t.players || [];
         const rem = t.remaining ?? (t.purse - (t.spent || 0));
+        const theme = window.getTeamTheme ? window.getTeamTheme(t.id) : null;
+        const logo = theme?.logo || getTeamLogoUrl(t.id);
+        const col = theme?.primary || getTeamColor(t.id);
+
         return `
           <div class="bg-hm-panel border border-hm-border rounded-[6px] p-3">
-            <div class="flex items-center justify-between pb-2 mb-2 border-b border-hm-border font-mono">
-              <span class="font-bold text-sm flex items-center gap-1.5" style="color: ${getTeamColor(t.id)}">
-                <span class="w-2 h-2 rounded-full" style="background: ${getTeamColor(t.id)}"></span>
-                ${t.name}
-              </span>
-              <span class="font-bold text-hm-amber text-xs">${fmtPrice(rem)}</span>
-            </div>
-            <div class="font-mono text-[10px] text-hm-faint mb-2">
-              ROSTER: ${squad.length} / ${t.maxSlots || 15} SLOTS • SPENT: ${fmtPrice(t.spent || 0)}
-            </div>
-            ${squad.length > 0 ? `
-              <div class="font-mono text-[10px] text-hm-muted space-y-1 bg-hm-charcoal p-2 rounded-[4px]">
-                ${squad.map(p => `<div class="flex justify-between"><span>• ${p.name || p.displayName}</span><span class="text-hm-amber font-bold">${fmtPrice(p.soldPrice || p.price)}</span></div>`).join('')}
+            <!-- Team Masthead with SVG Logo -->
+            <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-hm-border font-mono">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-[4px] border flex items-center justify-center p-1 bg-hm-charcoal shrink-0" style="border-color: ${col}; background-color: ${theme?.badgeBg || 'rgba(196,147,42,0.1)'};">
+                  ${logo ? `<img src="${logo}" class="w-7 h-7 object-contain" alt="${t.name}" onerror="this.style.display='none'"/>` : `<span class="w-3 h-3 rounded-full" style="background: ${col}"></span>`}
+                </div>
+                <div>
+                  <span class="font-bold text-sm text-hm-text block leading-tight">${t.name}</span>
+                  <span class="text-[9px] text-hm-faint">${t.id} FRANCHISE</span>
+                </div>
               </div>
-            ` : '<div class="font-mono text-[10px] text-hm-faint italic">No players acquired yet</div>'}
+              <div class="text-right">
+                <span class="text-[8px] text-hm-faint uppercase block">PURSE REMAINING</span>
+                <span class="font-bold text-hm-amber text-xs">${fmtPrice(rem)}</span>
+              </div>
+            </div>
+
+            <!-- Roster Count & Spent -->
+            <div class="font-mono text-[10px] text-hm-faint mb-2 flex justify-between">
+              <span>ROSTER: ${squad.length} / ${t.maxSlots || 15} SLOTS</span>
+              <span>SPENT: ${fmtPrice(t.spent || 0)}</span>
+            </div>
+
+            <!-- Acquired Squad Roster with Player Photos -->
+            ${squad.length > 0 ? `
+              <div class="font-mono text-xs text-hm-text space-y-1.5 bg-hm-charcoal p-2 rounded-[4px]">
+                ${squad.map(p => {
+                  const pImg = resolvePlayerImage(p);
+                  return `
+                    <div class="flex items-center justify-between py-1 border-b border-hm-border-s last:border-none">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <img src="${pImg}" class="w-7 h-8 object-cover object-top rounded-[2px] bg-hm-surface border border-hm-border shrink-0" alt="${p.name}" onerror="this.style.display='none'"/>
+                        <span class="font-bold text-xs truncate">• ${p.name || p.displayName}</span>
+                      </div>
+                      <span class="text-hm-amber font-bold text-xs shrink-0 ml-2">${fmtPrice(p.soldPrice || p.price)}</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : '<div class="font-mono text-[10px] text-hm-faint italic py-1">No cricketers acquired yet</div>'}
           </div>
         `;
       }).join('');
     }
 
-    // Audit Stream
+    // Audit Stream with Team Logos
     function prependAuditEvent(ev) {
       const feed = document.getElementById('audit-feed');
       const div = document.createElement('div');
       div.className = 'bg-hm-panel border border-hm-border rounded-[4px] p-2.5 flex items-center justify-between font-mono text-xs';
+      const theme = ev.actor_team_id && window.getTeamTheme ? window.getTeamTheme(ev.actor_team_id) : null;
+      const logo = theme?.logo || getTeamLogoUrl(ev.actor_team_id);
+
       div.innerHTML = `
         <div>
           <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-[2px] bg-hm-charcoal border border-hm-border text-hm-muted uppercase">${ev.event_type}</span>
-          <div class="font-bold text-hm-text mt-1">${ev.player_name || 'Auction Session'}</div>
+          <div class="font-bold text-hm-text mt-1 flex items-center gap-1.5">
+            ${logo ? `<img src="${logo}" class="w-3.5 h-3.5 object-contain" alt="" onerror="this.style.display='none'"/>` : ''}
+            ${ev.player_name || 'Auction Session'}
+          </div>
         </div>
         <div class="text-right">
           <div class="font-bold text-hm-amber">${ev.amount_lakh > 0 ? fmtPrice(ev.amount_lakh) : ''}</div>

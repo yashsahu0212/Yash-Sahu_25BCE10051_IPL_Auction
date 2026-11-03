@@ -41,6 +41,7 @@ app.use((req, res, next) => {
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   next();
 });
 
@@ -107,7 +108,7 @@ function recordLoginFailure(ip) {
   const now = Date.now();
   const record = loginFailures.get(ip) || { count: 0, firstFailTime: now, lockedUntil: 0 };
   record.count++;
-  if (record.count >= 15) {
+  if (record.count >= 8) { // 5-minute lockout after 8 consecutive failed logins
     record.lockedUntil = now + 5 * 60 * 1000; // 5-minute lockout after 15 consecutive failed logins
   }
   loginFailures.set(ip, record);
@@ -123,7 +124,7 @@ function checkBidRateLimit(teamId) {
   const key = String(teamId).trim().toUpperCase();
   const timestamps = bidRateLimits.get(key) || [];
   const recent = timestamps.filter(t => now - t < 1000);
-  if (recent.length >= 30) { // Max 30 bids per second per team (burst protection)
+  if (recent.length >= 25) { // Max 25 bids per second per team (burst protection)
     return false;
   }
   recent.push(now);
@@ -199,6 +200,33 @@ function updateAllTeamPurses() {
 }
 
 updateAllTeamPurses();
+// FAST O(1) INDEXED CACHES FOR HIGH CONCURRENCY SCALABILITY
+const playerMapById = new Map();
+const playerMapByLot = new Map();
+const teamMap = new Map();
+
+function reindexPlayers() {
+  playerMapById.clear();
+  playerMapByLot.clear();
+  for (let i = 0; i < players.length; i++) {
+    const p = players[i];
+    if (p.id != null) playerMapById.set(String(p.id), p);
+    if (p.lotNumber != null) playerMapByLot.set(String(p.lotNumber), p);
+  }
+}
+
+function reindexTeams() {
+  teamMap.clear();
+  for (let i = 0; i < teams.length; i++) {
+    const t = teams[i];
+    if (t.id) teamMap.set(String(t.id).trim().toUpperCase(), t);
+    if (t.code) teamMap.set(String(t.code).trim().toUpperCase(), t);
+    if (t.shortName) teamMap.set(String(t.shortName).trim().toUpperCase(), t);
+  }
+}
+
+reindexPlayers();
+reindexTeams();
 
 const sessions = new Map(); // token -> { userId, role, teamId, username, exp }
 const revokedTokens = new Set();
@@ -426,7 +454,12 @@ let timerInterval = null;
 function getTeam(id) {
   if (!id) return null;
   const clean = String(id).trim().toUpperCase();
-  return teams.find(t => (t.id && t.id.toUpperCase() === clean) || (t.code && t.code.toUpperCase() === clean) || (t.shortName && t.shortName.toUpperCase() === clean));
+  let t = teamMap.get(clean);
+  if (!t) {
+    t = teams.find(x => (x.id && x.id.toUpperCase() === clean) || (x.code && x.code.toUpperCase() === clean) || (x.shortName && x.shortName.toUpperCase() === clean));
+    if (t) teamMap.set(clean, t);
+  }
+  return t;
 }
 let playerImageMap = {};
 try {
@@ -436,11 +469,14 @@ try {
 function getPlayer(id) {
   if (id == null) return null;
   const strId = String(id).trim();
-  // Primary lookup: exact match on player id (prevents collision where player id matches another player's lotNumber)
-  let p = players.find(x => String(x.id) === strId);
-  // Secondary fallback: lookup by lotNumber if no exact id match exists
+  // Primary lookup: exact match on player id (O(1) map index)
+  let p = playerMapById.get(strId);
+  // Secondary fallback: lookup by lotNumber if no exact id match exists (O(1) map index)
   if (!p) {
-    p = players.find(x => String(x.lotNumber) === strId);
+    p = playerMapByLot.get(strId);
+  }
+  if (!p) {
+    p = players.find(x => String(x.id) === strId) || players.find(x => String(x.lotNumber) === strId);
   }
   if (p && !p.image) {
     p.image = playerImageMap[p.name] || playerImageMap[p.displayName] || null;
@@ -754,7 +790,20 @@ function startAuctionForPlayer(playerId) {
   return { success: true, state };
 }
 
+let _bidMutex = false;
 function placeBid(teamId, expectedBid) {
+  if (_bidMutex) {
+    return { error: 'Bid processing in progress, please retry.', code: 'BID_LOCKED' };
+  }
+  _bidMutex = true;
+  try {
+    return _executePlaceBid(teamId, expectedBid);
+  } finally {
+    _bidMutex = false;
+  }
+}
+
+function _executePlaceBid(teamId, expectedBid) {
   if (auction.status !== 'live') {
     return { error: 'Auction is not currently live', code: 'NOT_LIVE' };
   }
@@ -1286,7 +1335,7 @@ app.get('/api/players', (req, res) => {
 
   // Pagination
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 12;
+  const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 12), 100);
   const total = result.length;
   const totalPages = Math.ceil(total / limit);
   const offset = (page - 1) * limit;
@@ -1368,7 +1417,7 @@ app.get('/api/auction/activity', requireAuth(['auctioneer']), (req, res) => {
   result.sort((a, b) => (b.event_sequence || 0) - (a.event_sequence || 0));
 
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 100;
+  const limit = Math.min(Math.max(1, parseInt(req.query.limit) || 100), 500);
   const total = result.length;
   const totalPages = Math.ceil(total / limit) || 1;
   const offset = (page - 1) * limit;
@@ -1690,6 +1739,7 @@ app.post('/api/teams/create', requireAuth(['auctioneer']), (req, res) => {
   };
 
   teams.push(newTeam);
+  reindexTeams();
 
   // Automatically register franchise user credential so franchise can log in immediately
   const username = cleanCode.toLowerCase();
@@ -1989,6 +2039,8 @@ app.post('/api/auction/reset', requireAuth(['auctioneer']), (req, res) => {
     actor_user_id: req.session?.userId || 'auctioneer',
     metadata: { note: 'Auction reset executed. All sold players returned to available pool, team budgets restored.' }
   });
+  reindexPlayers();
+  reindexTeams();
   saveData();
   supabaseService.recordReset();
   const state = getPublicAuctionState();
@@ -2299,15 +2351,18 @@ app.get(['/favicon.ico', '/favicon.svg'], (req, res) => {
 // STATIC ASSET SERVING
 // Root directories take priority — they contain the latest, canonical implementations.
 // public/ dirs serve as fallback only. Do NOT reverse this order.
-app.use('/css', express.static(path.join(__dirname, 'css')));
-app.use('/css', express.static(path.join(__dirname, 'public', 'css')));
-app.use('/js', express.static(path.join(__dirname, 'js')));
-app.use('/js', express.static(path.join(__dirname, 'public', 'js')));
-app.use('/players', express.static(path.join(__dirname, 'players')));
-app.use('/players', express.static(path.join(__dirname, 'public', 'players')));
-app.use('/teams', express.static(path.join(__dirname, 'teams')));
-app.use('/teams', express.static(path.join(__dirname, 'public', 'teams')));
-app.use('/screens', express.static(path.join(__dirname, 'screens')));
+const staticCacheOpts = { maxAge: '2h', etag: true, lastModified: true };
+const mediaCacheOpts = { maxAge: '7d', etag: true, lastModified: true };
+
+app.use('/css', express.static(path.join(__dirname, 'css'), staticCacheOpts));
+app.use('/css', express.static(path.join(__dirname, 'public', 'css'), staticCacheOpts));
+app.use('/js', express.static(path.join(__dirname, 'js'), staticCacheOpts));
+app.use('/js', express.static(path.join(__dirname, 'public', 'js'), staticCacheOpts));
+app.use('/players', express.static(path.join(__dirname, 'players'), mediaCacheOpts));
+app.use('/players', express.static(path.join(__dirname, 'public', 'players'), mediaCacheOpts));
+app.use('/teams', express.static(path.join(__dirname, 'teams'), mediaCacheOpts));
+app.use('/teams', express.static(path.join(__dirname, 'public', 'teams'), mediaCacheOpts));
+app.use('/screens', express.static(path.join(__dirname, 'screens'), staticCacheOpts));
 app.use(express.static(__dirname, {
   extensions: ['html'],
   index: false

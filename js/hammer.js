@@ -643,7 +643,16 @@
       if (res && res.state) _lastAuctionState = res.state;
       return res;
     },
-    placeBid(expectedBid) { return this._fetch('POST', '/api/auction/bid', { expectedBid }); },
+    placeBid(expectedBid) {
+      if (this._bidInFlight) {
+        return Promise.reject(new Error('Bid already in progress'));
+      }
+      this._bidInFlight = true;
+      return this._fetch('POST', '/api/auction/bid', { expectedBid })
+        .finally(() => {
+          setTimeout(() => { this._bidInFlight = false; }, 250);
+        });
+    },
     setTimerDuration(duration) { return this._fetch('POST', '/api/auction/timer/settings', { duration }); },
     setResolutionMode(mode) { return this._fetch('POST', '/api/auction/resolution-mode', { mode }); },
     setCaptainRetention(retain) { return this._fetch('POST', '/api/auction/captain-retention', { retain }); },
@@ -944,25 +953,33 @@
       debouncedSync();
     });
 
-    // Auto-resync watchdog: keeps devices in lockstep every 3s without manual refresh
+    // Auto-resync watchdog: verifies socket health; polls as fallback when disconnected
+    let _watchdogCounter = 0;
     setInterval(() => {
       if (document.visibilityState === 'visible') {
-        if (_socket && !_socket.connected) {
+        const isSocketHealthy = _socket && _socket.connected;
+        const isSbHealthy = isSupabaseMode() && _connectionStatus === 'connected';
+        if (!isSocketHealthy && _socket) {
           _socket.connect();
         }
-        API.getAuctionState().then(s => {
-          if (s && !s.error && s.status) {
-            const hasChanged = !_lastAuctionState ||
-              _lastAuctionState.status !== s.status ||
-              _lastAuctionState.currentBid !== s.currentBid ||
-              _lastAuctionState.currentPlayer?.id !== s.currentPlayer?.id ||
-              _lastAuctionState.leadingTeamId !== s.leadingTeamId;
+        _watchdogCounter++;
+        // If socket is streaming live events, poll once every 30s as sanity check; if disconnected, poll every 3s
+        const shouldPoll = (!isSocketHealthy && !isSbHealthy) || (_watchdogCounter % 10 === 0);
+        if (shouldPoll) {
+          API.getAuctionState().then(s => {
+            if (s && !s.error && s.status) {
+              const hasChanged = !_lastAuctionState ||
+                _lastAuctionState.status !== s.status ||
+                _lastAuctionState.currentBid !== s.currentBid ||
+                _lastAuctionState.currentPlayer?.id !== s.currentPlayer?.id ||
+                _lastAuctionState.leadingTeamId !== s.leadingTeamId;
 
-            if (hasChanged) {
-              handleAuctionStateSync(s);
+              if (hasChanged) {
+                handleAuctionStateSync(s);
+              }
             }
-          }
-        }).catch(() => {});
+          }).catch(() => {});
+        }
       }
     }, 3000);
   }
@@ -1446,11 +1463,11 @@
         <div class="space-y-3 mb-5">
           <div>
             <label class="block text-[10px] text-ink-secondary uppercase tracking-widest mb-1">SUPABASE URL</label>
-            <input id="modal-sb-url" type="text" value="${currUrl.includes('your-project-id') ? '' : currUrl}" placeholder="https://your-project.supabase.co" class="w-full bg-[#F3EBDD] border border-[#C9BBA8] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#8F302F]">
+            <input id="modal-sb-url" type="text" value="${currUrl.includes('your-project-id') ? '' : escapeHtml(currUrl)}" placeholder="https://your-project.supabase.co" class="w-full bg-[#F3EBDD] border border-[#C9BBA8] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#8F302F]">
           </div>
           <div>
             <label class="block text-[10px] text-ink-secondary uppercase tracking-widest mb-1">SUPABASE ANON KEY (PUBLISHABLE)</label>
-            <input id="modal-sb-key" type="password" value="${currKey.includes('dummy') ? '' : currKey}" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full bg-[#F3EBDD] border border-[#C9BBA8] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#8F302F]">
+            <input id="modal-sb-key" type="password" value="${currKey.includes('dummy') ? '' : escapeHtml(currKey)}" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full bg-[#F3EBDD] border border-[#C9BBA8] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#8F302F]">
           </div>
         </div>
         <div class="flex items-center justify-between pt-3 border-t border-[#C9BBA8]">
@@ -1495,8 +1512,8 @@
 
           container.innerHTML = `
             <div class="inline-flex items-center gap-1.5 whitespace-nowrap">
-              <span class="font-mono text-[10px] px-2 py-0.5 border rounded-[3px] font-bold max-w-[75px] sm:max-w-none truncate inline-block" style="${badgeStyle}" title="${roleLabel}">${roleLabel}</span>
-              <button onclick="Hammer.logout()" title="Sign Out of HAMMER (${user?.username || ''})" class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s hover:border-hm-border text-hm-muted hover:text-hm-ruby transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
+              <span class="font-mono text-[10px] px-2 py-0.5 border rounded-[3px] font-bold max-w-[75px] sm:max-w-none truncate inline-block" style="${badgeStyle}" title="${escapeHtml(roleLabel)}">${escapeHtml(roleLabel)}</span>
+              <button onclick="Hammer.logout()" title="Sign Out of HAMMER (${escapeHtml(user?.username || '')})" class="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 bg-hm-panel hover:bg-hm-elevated border border-hm-border-s hover:border-hm-border text-hm-muted hover:text-hm-ruby transition-colors rounded-[4px] font-mono text-[10px] uppercase tracking-wider font-bold">
                 <span class="material-symbols-outlined text-[13px]">logout</span>
                 <span class="hidden sm:inline">LOGOUT</span>
               </button>

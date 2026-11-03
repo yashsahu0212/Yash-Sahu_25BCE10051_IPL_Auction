@@ -23,11 +23,19 @@
     },
 
     setCredentials(url, anonKey) {
-      this.url = url.trim();
-      this.anonKey = anonKey.trim();
+      if (!url || typeof url !== 'string' || !anonKey || typeof anonKey !== 'string') return false;
+      const cleanUrl = url.trim();
+      const cleanKey = anonKey.trim();
+      if (!cleanUrl.startsWith('https://') && !cleanUrl.startsWith('http://localhost') && !cleanUrl.startsWith('http://127.0.0.1')) {
+        console.error('[HAMMER] Refusing to set insecure or invalid Supabase URL:', cleanUrl);
+        return false;
+      }
+      this.url = cleanUrl;
+      this.anonKey = cleanKey;
       localStorage.setItem('hammer_supabase_url', this.url);
       localStorage.setItem('hammer_supabase_anon_key', this.anonKey);
       initClient();
+      return true;
     }
   };
 

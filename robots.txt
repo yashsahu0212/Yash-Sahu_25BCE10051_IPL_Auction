@@ -1,0 +1,21 @@
+# HAMMER Realtime Auction Engine Robots Policy
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /player-pool.html
+Allow: /lot-replay.html
+Allow: /final-squads.html
+Allow: /mobile.html
+Allow: /css/
+Allow: /js/
+Allow: /players/
+Allow: /teams/
+
+# Disallow operator terminals and internal API endpoints
+Disallow: /auction-desk.html
+Disallow: /auction-desk
+Disallow: /activity-log.html
+Disallow: /activity-log
+Disallow: /team-console.html
+Disallow: /team-console
+Disallow: /api/

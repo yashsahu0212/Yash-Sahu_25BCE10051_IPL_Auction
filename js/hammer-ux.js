@@ -81,7 +81,7 @@
 
   // Bind unlock to common user gestures (click, tap, keypress)
   ['click', 'touchstart', 'keydown'].forEach(evt => {
-    window.addEventListener(evt, unlockAudio, { once: false, passive: true });
+    window.addEventListener(evt, unlockAudio, { once: true, passive: true });
   });
 
   // ─── HAMMER STRIKE SOUND (WHEN SOLD) ──────────────────────
@@ -319,6 +319,8 @@
     const menuIcon = document.getElementById('mobile-menu-icon');
 
     if (!drawer) return;
+    if (drawer._hammerNavInit) return;
+    drawer._hammerNavInit = true;
 
     function openMenu() {
       drawer.classList.remove('translate-x-full', 'pointer-events-none');

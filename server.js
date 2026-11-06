@@ -2348,6 +2348,14 @@ app.get(['/favicon.ico', '/favicon.svg'], (req, res) => {
   res.sendFile(path.join(__dirname, 'favicon.svg'));
 });
 
+// SERVICE WORKER ROUTE (PWA & Offline Resilience)
+app.get(['/sw.js', '/service-worker.js'], (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.sendFile(path.join(__dirname, 'sw.js'));
+});
+
 // STATIC ASSET SERVING
 // Root directories take priority — they contain the latest, canonical implementations.
 // public/ dirs serve as fallback only. Do NOT reverse this order.

@@ -803,19 +803,22 @@
 
   function connectSocketIO() {
     if (typeof io === 'undefined') return;
-    const token = getToken();
 
     if (_socket) {
+      const curToken = getToken();
       if (_socket.connected) {
-        if (token) _socket.emit('auth', { token });
+        if (curToken) _socket.emit('auth', { token: curToken });
         return;
       }
+      _socket.auth = { token: curToken };
       _socket.connect();
       return;
     }
 
     _socket = io({
-      auth: { token },
+      auth: (cb) => {
+        cb({ token: getToken() });
+      },
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: Infinity,
@@ -836,14 +839,16 @@
 
     _socket.on('connect', () => {
       _connectionStatus = 'connected';
-      if (token) _socket.emit('auth', { token });
+      const curToken = getToken();
+      if (curToken) _socket.emit('auth', { token: curToken });
       emit('connected', { mode: 'socket' });
       syncNow();
     });
 
     _socket.on('reconnect', () => {
       _connectionStatus = 'connected';
-      if (token) _socket.emit('auth', { token });
+      const curToken = getToken();
+      if (curToken) _socket.emit('auth', { token: curToken });
       emit('connected', { mode: 'socket' });
       syncNow();
     });
@@ -1598,4 +1603,11 @@
     syncNow
   };
 
+
+  // Register Service Worker for offline shell and lightning fast asset caching
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
 })(window);

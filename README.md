@@ -122,7 +122,7 @@ flowchart TD
 
 ---
 
-## 📁 Clean Repository Structure
+##  Clean Repository Structure
 
 ```
 ├── README.md                           # Master project documentation with submission cover page
@@ -196,7 +196,7 @@ cp .env.example .env
 
 ---
 
-## 🗄️ Supabase Production Database Setup (Schema Visualizer, Triggers & Realtime)
+##  Supabase Production Database Setup (Schema Visualizer, Triggers & Realtime)
 
 HAMMER includes a unified, production-grade PostgreSQL migration that creates the complete relational database, triggers, stored procedures, RLS policies, and realtime broadcast pipelines.
 
@@ -224,7 +224,7 @@ When running the server (`npm start`), the background service (`backend/supabase
 
 ---
 
-## 🏃 Quick Start & How to Run
+##  Quick Start & How to Run
 
 ### Step 1: Clone the Repository
 ```bash
@@ -302,11 +302,4 @@ To let anyone with the app connect to your live auction over cellular/4G/5G anyw
 | **Other Franchises** | `gt`, `rr`, `srh`, `dc`, `lsg`, `kkr`, `pbks` | `[teamcode]2026` | Dedicated franchise bidding consoles for all 10 IPL franchises. |
 
 ---
-
-## Submission Details
-
-- **Participant's Name:** Yash Sahu
-- **Registration Number:** 25BCE10051
-- **Date of Submission:** 2 OCT 2026
-- **Repository:** [https://github.com/yashsahu0212/Yash-Sahu_25BCE10051_IPL_Auction](https://github.com/yashsahu0212/Yash-Sahu_25BCE10051_IPL_Auction)
 - **License:** MIT License
